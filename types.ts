@@ -22,12 +22,21 @@ export enum Dose {
     FOUR = '4',
 }
 
+export enum DosageForm {
+    TABLET_CAPSULE = 'comprimido/capsula',
+    SOBRE = 'sobre',
+    BICARBONATE_POWDER = 'bicarbonato en polvo',
+    DROPS = 'gotas',
+    OTHER = 'otro',
+}
+
 export interface Medication {
   id: number;
   name: string;
   presentacion: string;
   dose: Dose;
   frequency: Frequency;
+  dosageForm: DosageForm;
   notes?: string;
   isNewMedication?: boolean;
   doseIncreased?: boolean;
@@ -44,10 +53,12 @@ export interface Patient {
 export enum InjectableType {
     NPH = 'Lenta (NPH)',
     CRYSTALLINE = 'Rápida (Cristalina)',
-    LANTUS = 'Lantus',
-    TRESIBA = 'Tresiba',
+    INSULIN_LANTUS = 'Insulina Lantus (Glargina 100 UI/ml)',
+    INSULIN_TOUJEO = 'Insulina Toujeo (Glargina 300 UI/ml)',
+    INSULIN_TRESIBA = 'Insulina Tresiba (Degludec 100 UI/ml)',
     SEMAGLUTIDE = 'Semaglutide (Ozempic)',
     LIRAGLUTIDE = 'Liraglutide (Victoza)',
+    OTHER = 'Otros',
 }
 
 export enum InjectableSchedule {
@@ -101,4 +112,6 @@ export interface ControlInfo {
   note: string;
   suspendEnabled: boolean;
   suspendText: string;
+  freeNoteEnabled: boolean;
+  freeNoteText: string;
 }

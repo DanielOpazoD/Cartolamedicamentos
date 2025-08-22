@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Medication, Frequency, Dose } from '../types';
+import { Medication, Frequency, Dose, DosageForm } from '../types';
 import PlusIcon from './icons/PlusIcon';
 
 interface MedicationFormProps {
@@ -15,6 +15,7 @@ const initialMedState: Omit<Medication, 'id'> = {
     presentacion: '',
     dose: Dose.ONE,
     frequency: Frequency.EVERY_12H,
+    dosageForm: DosageForm.TABLET_CAPSULE,
     notes: '',
     isNewMedication: false,
     doseIncreased: false,
@@ -86,9 +87,9 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
                     />
                 </div>
             </div>
-             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <div>
-                    <label htmlFor="dose" className="block text-sm font-medium text-slate-600 mb-1">Dosis (comprimidos)</label>
+                    <label htmlFor="dose" className="block text-sm font-medium text-slate-600 mb-1">Dosis</label>
                     <select
                         id="dose"
                         name="dose"
@@ -112,6 +113,20 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
                     >
                         {Object.values(Frequency).map(freq => (
                             <option key={freq} value={freq}>{freq}</option>
+                        ))}
+                    </select>
+                </div>
+                <div>
+                    <label htmlFor="dosageForm" className="block text-sm font-medium text-slate-600 mb-1">Descripción</label>
+                    <select
+                        id="dosageForm"
+                        name="dosageForm"
+                        value={medication.dosageForm}
+                        onChange={handleChange}
+                        className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+                    >
+                        {Object.values(DosageForm).map(form => (
+                            <option key={form} value={form}>{form}</option>
                         ))}
                     </select>
                 </div>

@@ -29,8 +29,9 @@ const hourOptions = Array.from({ length: 24 }, (_, i) => {
 const insulinTypes = [
     InjectableType.NPH,
     InjectableType.CRYSTALLINE,
-    InjectableType.LANTUS,
-    InjectableType.TRESIBA,
+    InjectableType.INSULIN_LANTUS,
+    InjectableType.INSULIN_TOUJEO,
+    InjectableType.INSULIN_TRESIBA,
 ];
 
 const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpdateInjectable, editingInjectable, onCancelEdit }) => {

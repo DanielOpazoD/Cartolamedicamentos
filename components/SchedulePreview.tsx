@@ -230,7 +230,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                     {item.name}
                                                 </p>
                                                 <p className="text-sm text-slate-600">{item.presentacion}</p>
-                                                <p className="text-xs text-slate-500 italic">{`${item.dose} comp. - ${item.frequency}`}</p>
+                                                <p className="text-xs text-slate-500 italic">{`${item.dose} ${item.dosageForm} - ${item.frequency}`}</p>
                                             </td>
                                             <td className="p-2 text-center align-middle cursor-pointer" contentEditable={false} onClick={() => handleDoseClick(item.id, 'morning')}>
                                                 {editableDoses[item.id]?.morning && <DoseVisualizer dose={editableDoses[item.id].morning} className="text-blue-600" />}
@@ -398,6 +398,13 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                         Suspender los siguientes medicamentos
                     </h3>
                     <div className="p-3 border border-black rounded text-black text-sm whitespace-pre-wrap">{controlInfo.suspendText}</div>
+                </section>
+            )}
+
+            {controlInfo.freeNoteEnabled && controlInfo.freeNoteText && (
+                <section className="mb-8">
+                    <h3 className="text-base font-bold text-black mb-2 text-center">Nota</h3>
+                    <div className="p-3 border border-black rounded text-black text-sm whitespace-pre-wrap">{controlInfo.freeNoteText}</div>
                 </section>
             )}
 
