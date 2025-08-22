@@ -23,10 +23,9 @@ export enum Dose {
 }
 
 export enum DosageForm {
-    TABLET_CAPSULE = 'comprimido/capsula',
+    TABLET = 'comprimido',
     SOBRE = 'sobre',
-    BICARBONATE_POWDER = 'bicarbonato en polvo',
-    DROPS = 'gotas',
+    DROPS = 'gota',
     OTHER = 'otro',
 }
 

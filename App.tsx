@@ -212,7 +212,7 @@ const App: React.FC = () => {
                                                                 {med.requiresPurchase && <MoneyIcon className="inline w-4 h-4 text-green-600" />}
                                                                 {med.name} <span className="text-slate-600 font-normal">{med.presentacion}</span>
                                                             </p>
-                                                            <p className="text-sm text-slate-500">{`${med.dose} comprimido(s) - ${med.frequency}`}</p>
+                                                            <p className="text-sm text-slate-500">{`${med.dose} ${med.dosageForm} - ${med.frequency}`}</p>
                                                             {med.notes && <p className="text-xs text-slate-500 italic mt-1">Nota: {med.notes}</p>}
                                                         </div>
                                                         <div className="flex gap-2">

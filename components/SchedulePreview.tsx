@@ -129,7 +129,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
     return (
         <div id="schedule-preview" className="bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl mx-auto border border-slate-200">
             <header className="text-center mb-8 border-b-2 pb-4 border-slate-200">
-                <h1 className="text-2xl font-extrabold text-blue-700">Cartola de Medicamentos</h1>
+                <h1 className="text-2xl font-extrabold text-blue-700">Guía de Medicamentos</h1>
             </header>
             
             <section className="mb-8 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
@@ -233,13 +233,13 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                 <p className="text-xs text-slate-500 italic">{`${item.dose} ${item.dosageForm} - ${item.frequency}`}</p>
                                             </td>
                                             <td className="p-2 text-center align-middle cursor-pointer" contentEditable={false} onClick={() => handleDoseClick(item.id, 'morning')}>
-                                                {editableDoses[item.id]?.morning && <DoseVisualizer dose={editableDoses[item.id].morning} className="text-blue-600" />}
+                                                {editableDoses[item.id]?.morning && <DoseVisualizer dose={editableDoses[item.id].morning!} dosageForm={item.dosageForm} className="text-blue-600" />}
                                             </td>
                                             <td className="p-2 text-center align-middle cursor-pointer" contentEditable={false} onClick={() => handleDoseClick(item.id, 'afternoon')}>
-                                                {editableDoses[item.id]?.afternoon && <DoseVisualizer dose={editableDoses[item.id].afternoon} className="text-amber-500" />}
+                                                {editableDoses[item.id]?.afternoon && <DoseVisualizer dose={editableDoses[item.id].afternoon!} dosageForm={item.dosageForm} className="text-amber-500" />}
                                             </td>
                                             <td className="p-2 text-center align-middle cursor-pointer" contentEditable={false} onClick={() => handleDoseClick(item.id, 'night')}>
-                                                {editableDoses[item.id]?.night && <DoseVisualizer dose={editableDoses[item.id].night} className="text-blue-600" />}
+                                                {editableDoses[item.id]?.night && <DoseVisualizer dose={editableDoses[item.id].night!} dosageForm={item.dosageForm} className="text-blue-600" />}
                                             </td>
                                             <td className="p-2 align-top text-sm text-slate-700 whitespace-pre-wrap break-words">
                                                 {item.notes || ''}
@@ -458,6 +458,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                     </div>
                 </div>
             </section>
+            <p className="mt-6 text-center text-xs text-slate-500">Esta hoja es un recordatorio personal. Ante dudas o eventos adversos, consulte a su médico tratante.</p>
         </div>
     );
 };

@@ -1,16 +1,47 @@
 import React from 'react';
-import { Dose } from '../types';
+import { Dose, DosageForm } from '../types';
 import PillIcon from './icons/PillIcon';
 import HalfPillIcon from './icons/HalfPillIcon';
 import QuarterPillIcon from './icons/QuarterPillIcon';
 import ThreeQuarterPillIcon from './icons/ThreeQuarterPillIcon';
+import DropIcon from './icons/DropIcon';
+import CircleIcon from './icons/CircleIcon';
+import SachetIcon from './icons/SachetIcon';
 
 interface DoseVisualizerProps {
     dose: Dose;
+    dosageForm?: DosageForm;
     className?: string; // e.g. "text-sky-500"
 }
 
-const DoseVisualizer: React.FC<DoseVisualizerProps> = ({ dose, className }) => {
+const DoseVisualizer: React.FC<DoseVisualizerProps> = ({ dose, dosageForm = DosageForm.TABLET, className }) => {
+
+    if (dosageForm === DosageForm.DROPS) {
+        return (
+            <div className={`inline-flex flex-col items-center justify-center gap-1.5 ${className}`}>
+                <DropIcon className="w-10 h-10" />
+                <span className="font-bold text-base uppercase tracking-wide">{dose}</span>
+            </div>
+        );
+    }
+
+    if (dosageForm === DosageForm.OTHER) {
+        return (
+            <div className="inline-flex flex-col items-center justify-center gap-1.5 text-purple-500">
+                <CircleIcon className="w-10 h-10" />
+                <span className="font-bold text-base uppercase tracking-wide">{dose}</span>
+            </div>
+        );
+    }
+
+    if (dosageForm === DosageForm.SOBRE) {
+        return (
+            <div className="inline-flex flex-col items-center justify-center gap-1.5 text-green-600">
+                <SachetIcon className="w-10 h-10" />
+                <span className="font-bold text-base uppercase tracking-wide">{dose}</span>
+            </div>
+        );
+    }
     
     // Renderiza múltiples cápsulas para dosis mayores a 1
     const renderMultiplePills = (count: number) => {

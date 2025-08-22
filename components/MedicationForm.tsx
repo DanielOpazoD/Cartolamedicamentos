@@ -15,7 +15,7 @@ const initialMedState: Omit<Medication, 'id'> = {
     presentacion: '',
     dose: Dose.ONE,
     frequency: Frequency.EVERY_12H,
-    dosageForm: DosageForm.TABLET_CAPSULE,
+    dosageForm: DosageForm.TABLET,
     notes: '',
     isNewMedication: false,
     doseIncreased: false,
