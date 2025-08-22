@@ -33,9 +33,9 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4 pt-4 border-t border-slate-200">
+        <form onSubmit={handleSubmit} className="space-y-2 pt-2 border-t border-slate-200">
             <h2 className="text-2xl font-bold text-slate-800 border-b-2 border-blue-200 pb-2">Añadir Medicamento</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
                     <label htmlFor="medName" className="block text-sm font-medium text-slate-600 mb-1">Nombre del Medicamento</label>
                     <input
@@ -45,7 +45,7 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication }) => {
                         value={medication.name}
                         onChange={handleChange}
                         placeholder="Ej: Losartán"
-                        className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         required
                     />
                 </div>
@@ -58,12 +58,12 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication }) => {
                         value={medication.presentacion}
                         onChange={handleChange}
                         placeholder="Ej: 50mg"
-                        className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         required
                     />
                 </div>
             </div>
-             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
                     <label htmlFor="dose" className="block text-sm font-medium text-slate-600 mb-1">Dosis (comprimidos)</label>
                     <select
@@ -71,7 +71,7 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication }) => {
                         name="dose"
                         value={medication.dose}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+                        className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
                     >
                         {Object.values(Dose).map(d => (
                             <option key={d} value={d}>{d}</option>
@@ -85,7 +85,7 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication }) => {
                         name="frequency"
                         value={medication.frequency}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+                        className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
                     >
                         {Object.values(Frequency).map(freq => (
                             <option key={freq} value={freq}>{freq}</option>
@@ -113,12 +113,12 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication }) => {
                     onChange={handleChange}
                     placeholder="Ej: Tomar con abundante agua"
                     rows={2}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 />
             </div>
             <button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center justify-center gap-2"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center justify-center gap-2"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
