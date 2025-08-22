@@ -7,10 +7,7 @@ import InjectableForm from './components/InjectableForm';
 import SchedulePreview from './components/SchedulePreview';
 import TrashIcon from './components/icons/TrashIcon';
 import ControlInfoForm from './components/ControlInfoForm';
-
-// Declare jsPDF and html2canvas to be available in the global scope from the CDN
-declare const jspdf: any;
-declare const html2canvas: any;
+import MoneyIcon from './components/icons/MoneyIcon';
 
 const initialControlInfo: ControlInfo = {
     applies: 'no',
@@ -65,49 +62,8 @@ const App: React.FC = () => {
         setControlInfo(prev => ({...prev, [field]: value}));
     }, []);
 
-    const handleExportPDF = () => {
-        const input = previewRef.current;
-        if (!input) {
-            console.error("Preview element not found");
-            return;
-        }
-
-        const { jsPDF } = jspdf;
-        const pdf = new jsPDF({
-            orientation: 'p',
-            unit: 'px',
-            format: 'a4',
-            putOnlyUsedFonts:true,
-            floatPrecision: 16
-        });
-
-        // Temporarily change width to a fixed one for consistent PDF output
-        const originalWidth = input.style.width;
-        input.style.width = '700px';
-
-        html2canvas(input, {
-             scale: 2, // Higher scale for better quality
-             useCORS: true 
-        }).then((canvas) => {
-            const imgData = canvas.toDataURL('image/png');
-            
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            
-            const imgProps= pdf.getImageProperties(imgData);
-            const imgWidth = pdfWidth;
-            const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-            
-            pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-            
-            // Restore original width
-            input.style.width = originalWidth;
-
-            pdf.save(`cartola_${patient.name.replace(/\s/g, '_') || 'paciente'}.pdf`);
-        }).catch(err => {
-            console.error("Error generating PDF:", err);
-            // Restore original width on error
-            input.style.width = originalWidth;
-        });
+    const handlePrint = () => {
+        window.print();
     };
 
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -161,13 +117,13 @@ const App: React.FC = () => {
                         </button>
                         <input ref={fileInputRef} type="file" accept="application/json" className="hidden" onChange={handleImportList} />
                         <button
-                            onClick={handleExportPDF}
+                            onClick={handlePrint}
                             className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center gap-2"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                                <path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v2h12V4a2 2 0 00-2-2H6zm10 6H4v8a2 2 0 002 2h8a2 2 0 002-2V8zM6 10h8v2H6v-2z" clipRule="evenodd" />
                             </svg>
-                            Exportar a PDF
+                            Imprimir / Guardar PDF
                         </button>
                     </div>
                 </div>
@@ -188,7 +144,10 @@ const App: React.FC = () => {
                                 {medications.map((med) => (
                                     <li key={med.id} className="flex justify-between items-center bg-slate-50 p-3 rounded-lg shadow-sm">
                                         <div>
-                                            <p className="font-bold text-blue-600">{med.name} <span className="text-slate-600 font-normal">{med.presentacion}</span></p>
+                                            <p className="font-bold text-blue-600">
+                                                {med.requiresPurchase && <MoneyIcon className="inline w-4 h-4 mr-1" />}
+                                                {med.name} <span className="text-slate-600 font-normal">{med.presentacion}</span>
+                                            </p>
                                             <p className="text-sm text-slate-500">{`${med.dose} comprimido(s) - ${med.frequency}`}</p>
                                             {med.notes && <p className="text-xs text-slate-500 italic mt-1">Nota: {med.notes}</p>}
                                         </div>

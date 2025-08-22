@@ -1,9 +1,10 @@
-import React from 'react';
-import { Patient, Medication, Frequency, Injectable, InjectableSchedule, InjectableType, ControlInfo } from '../types';
+import React, { useState, useEffect } from 'react';
+import { Patient, Medication, Frequency, Dose, Injectable, InjectableSchedule, InjectableType, ControlInfo } from '../types';
 import DoseVisualizer from './DoseVisualizer';
 import MoonIcon from './icons/MoonIcon';
 import SunIcon from './icons/SunIcon';
 import InjectableDoseVisualizer from './InjectableDoseVisualizer';
+import MoneyIcon from './icons/MoneyIcon';
 
 interface SchedulePreviewProps {
     patient: Patient;
@@ -13,7 +14,7 @@ interface SchedulePreviewProps {
 }
 
 const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications, injectables, controlInfo }) => {
-    
+
     const shouldShowDose = (freq: Frequency, time: 'morning' | 'afternoon' | 'night'): boolean => {
         switch (time) {
             case 'morning':
@@ -25,6 +26,50 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
             default:
                 return false;
         }
+    };
+
+    const doseOrder: Dose[] = [
+        Dose.QUARTER,
+        Dose.HALF,
+        Dose.THREE_QUARTERS,
+        Dose.ONE,
+        Dose.ONE_AND_QUARTER,
+        Dose.ONE_AND_HALF,
+        Dose.ONE_AND_THREE_QUARTERS,
+        Dose.TWO,
+        Dose.THREE,
+        Dose.FOUR,
+    ];
+
+    const initializeDoses = (meds: Medication[]) => {
+        const map: Record<number, { morning: Dose | null; afternoon: Dose | null; night: Dose | null }> = {};
+        meds.forEach(med => {
+            map[med.id] = {
+                morning: shouldShowDose(med.frequency, 'morning') ? med.dose : null,
+                afternoon: shouldShowDose(med.frequency, 'afternoon') ? med.dose : null,
+                night: shouldShowDose(med.frequency, 'night') ? med.dose : null,
+            };
+        });
+        return map;
+    };
+
+    const [editableDoses, setEditableDoses] = useState<Record<number, { morning: Dose | null; afternoon: Dose | null; night: Dose | null }>>(() => initializeDoses(medications));
+
+    useEffect(() => {
+        setEditableDoses(initializeDoses(medications));
+    }, [medications]);
+
+    const cycleDose = (current: Dose | null): Dose | null => {
+        if (current === null) return doseOrder[0];
+        const idx = doseOrder.indexOf(current);
+        return idx === -1 || idx === doseOrder.length - 1 ? null : doseOrder[idx + 1];
+    };
+
+    const handleDoseClick = (medId: number, time: 'morning' | 'afternoon' | 'night') => {
+        setEditableDoses(prev => {
+            const next = cycleDose(prev[medId][time]);
+            return { ...prev, [medId]: { ...prev[medId], [time]: next } };
+        });
     };
 
     const groupedInjectables = injectables.reduce((acc, inj) => {
@@ -104,24 +149,31 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                 <th className="p-3 text-left font-semibold text-sm w-1/6">Notas</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody contentEditable suppressContentEditableWarning>
                             {allItems.length > 0 ? allItems.map((item, index) => {
                                 if (item.itemType === 'medication') {
                                     return (
                                         <tr key={item.id} className={`border-b border-slate-200 ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/50'}`}>
                                             <td className="p-4 align-top">
-                                                <p className="font-bold text-md text-slate-800">{item.name}</p>
+                                                <p className="font-bold text-md text-slate-800">
+                                                    {item.requiresPurchase && (
+                                                        <span contentEditable={false}>
+                                                            <MoneyIcon className="inline w-4 h-4 mr-1 text-green-600" />
+                                                        </span>
+                                                    )}
+                                                    {item.name}
+                                                </p>
                                                 <p className="text-sm text-slate-600">{item.presentacion}</p>
                                                 <p className="text-xs text-slate-500 italic">{`${item.dose} comp. - ${item.frequency}`}</p>
                                             </td>
-                                            <td className="p-4 text-center align-middle">
-                                                {shouldShowDose(item.frequency, 'morning') && <DoseVisualizer dose={item.dose} className="text-blue-600" />}
+                                            <td className="p-4 text-center align-middle cursor-pointer" contentEditable={false} onClick={() => handleDoseClick(item.id, 'morning')}>
+                                                {editableDoses[item.id]?.morning && <DoseVisualizer dose={editableDoses[item.id].morning} className="text-blue-600" />}
                                             </td>
-                                            <td className="p-4 text-center align-middle">
-                                                {shouldShowDose(item.frequency, 'afternoon') && <DoseVisualizer dose={item.dose} className="text-amber-500" />}
+                                            <td className="p-4 text-center align-middle cursor-pointer" contentEditable={false} onClick={() => handleDoseClick(item.id, 'afternoon')}>
+                                                {editableDoses[item.id]?.afternoon && <DoseVisualizer dose={editableDoses[item.id].afternoon} className="text-amber-500" />}
                                             </td>
-                                            <td className="p-4 text-center align-middle">
-                                                {shouldShowDose(item.frequency, 'night') && <DoseVisualizer dose={item.dose} className="text-blue-600" />}
+                                            <td className="p-4 text-center align-middle cursor-pointer" contentEditable={false} onClick={() => handleDoseClick(item.id, 'night')}>
+                                                {editableDoses[item.id]?.night && <DoseVisualizer dose={editableDoses[item.id].night} className="text-blue-600" />}
                                             </td>
                                             <td className="p-4 align-top text-sm text-slate-700 whitespace-pre-wrap break-words">
                                                 {item.notes || ''}
@@ -139,17 +191,17 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                 <p className="font-bold text-md text-slate-800">{item.type}</p>
                                                 <p className="text-sm text-teal-600">Inyectable</p>
                                             </td>
-                                            <td className="p-4 text-center align-middle">
+                                            <td className="p-4 text-center align-middle" contentEditable={false}>
                                                 <div className="flex flex-col items-center gap-2">
                                                     {item.schedules.mañana.map(ins => (
                                                         <InjectableDoseVisualizer key={ins.id} dose={ins.dose} time={ins.time} className="text-blue-600"/>
                                                     ))}
                                                 </div>
                                             </td>
-                                            <td className="p-4 text-center align-middle">
+                                            <td className="p-4 text-center align-middle" contentEditable={false}>
                                                 {/* typically not used in the afternoon */}
                                             </td>
-                                            <td className="p-4 text-center align-middle">
+                                            <td className="p-4 text-center align-middle" contentEditable={false}>
                                                  <div className="flex flex-col items-center gap-2">
                                                     {item.schedules.noche.map(ins => (
                                                         <InjectableDoseVisualizer key={ins.id} dose={ins.dose} time={ins.time} className="text-blue-600"/>

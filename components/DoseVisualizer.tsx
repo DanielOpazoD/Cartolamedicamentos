@@ -43,10 +43,47 @@ const DoseVisualizer: React.FC<DoseVisualizerProps> = ({ dose, className }) => {
                     <HalfPillIcon className="w-8 h-8" />
                 </DoseDisplay>
             );
+        case Dose.THREE_QUARTERS:
+            return (
+                <DoseDisplay label={Dose.THREE_QUARTERS}>
+                    <div className="flex items-center justify-center -space-x-4">
+                        <HalfPillIcon className="w-8 h-8" />
+                        <QuarterPillIcon className="w-8 h-8" />
+                    </div>
+                </DoseDisplay>
+            );
         case Dose.ONE:
              return (
                 <DoseDisplay label={Dose.ONE}>
                     <PillIcon className="w-10 h-10" />
+                </DoseDisplay>
+            );
+        case Dose.ONE_AND_QUARTER:
+            return (
+                <DoseDisplay label={Dose.ONE_AND_QUARTER}>
+                    <div className="flex items-center justify-center -space-x-4">
+                        <PillIcon className="w-10 h-10" />
+                        <QuarterPillIcon className="w-8 h-8" />
+                    </div>
+                </DoseDisplay>
+            );
+        case Dose.ONE_AND_HALF:
+            return (
+                <DoseDisplay label={Dose.ONE_AND_HALF}>
+                    <div className="flex items-center justify-center -space-x-4">
+                        <PillIcon className="w-10 h-10" />
+                        <HalfPillIcon className="w-8 h-8" />
+                    </div>
+                </DoseDisplay>
+            );
+        case Dose.ONE_AND_THREE_QUARTERS:
+            return (
+                <DoseDisplay label={Dose.ONE_AND_THREE_QUARTERS}>
+                    <div className="flex items-center justify-center -space-x-4">
+                        <PillIcon className="w-10 h-10" />
+                        <HalfPillIcon className="w-8 h-8" />
+                        <QuarterPillIcon className="w-8 h-8" />
+                    </div>
                 </DoseDisplay>
             );
         case Dose.TWO:
