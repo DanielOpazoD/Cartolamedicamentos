@@ -1,18 +1,18 @@
 import React from 'react';
-import { Patient, Medication, Frequency, Insulin, InsulinSchedule, InsulinType, ControlInfo } from '../types';
+import { Patient, Medication, Frequency, Injectable, InjectableSchedule, InjectableType, ControlInfo } from '../types';
 import DoseVisualizer from './DoseVisualizer';
 import MoonIcon from './icons/MoonIcon';
 import SunIcon from './icons/SunIcon';
-import InsulinDoseVisualizer from './InsulinDoseVisualizer';
+import InjectableDoseVisualizer from './InjectableDoseVisualizer';
 
 interface SchedulePreviewProps {
     patient: Patient;
     medications: Medication[];
-    insulins: Insulin[];
+    injectables: Injectable[];
     controlInfo: ControlInfo;
 }
 
-const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications, insulins, controlInfo }) => {
+const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications, injectables, controlInfo }) => {
     
     const shouldShowDose = (freq: Frequency, time: 'morning' | 'afternoon' | 'night'): boolean => {
         switch (time) {
@@ -27,40 +27,35 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
         }
     };
 
-    const groupedInsulins = insulins.reduce((acc, insulin) => {
-        const existing = acc.get(insulin.type);
+    const groupedInjectables = injectables.reduce((acc, inj) => {
+        const existing = acc.get(inj.type);
         if (existing) {
-            if (insulin.schedule === InsulinSchedule.MAÑANA) {
-                existing.mañana.push(insulin);
+            if (inj.schedule === InjectableSchedule.MAÑANA) {
+                existing.mañana.push(inj);
             } else {
-                existing.noche.push(insulin);
+                existing.noche.push(inj);
             }
         } else {
-            acc.set(insulin.type, {
-                mañana: insulin.schedule === InsulinSchedule.MAÑANA ? [insulin] : [],
-                noche: insulin.schedule === InsulinSchedule.NOCHE ? [insulin] : [],
+            acc.set(inj.type, {
+                mañana: inj.schedule === InjectableSchedule.MAÑANA ? [inj] : [],
+                noche: inj.schedule === InjectableSchedule.NOCHE ? [inj] : [],
             });
         }
         return acc;
-    }, new Map<InsulinType, { mañana: Insulin[], noche: Insulin[] }>());
+    }, new Map<InjectableType, { mañana: Injectable[], noche: Injectable[] }>());
 
     const medicationItems = medications.map(med => ({ ...med, itemType: 'medication' as const }));
-    
-    const insulinItems = Array.from(groupedInsulins.entries()).map(([type, schedules]) => ({
-        id: type, // Use type as a stable key
-        itemType: 'insulin' as const,
+
+    const injectableItems = Array.from(groupedInjectables.entries()).map(([type, schedules]) => ({
+        id: type,
+        itemType: 'injectable' as const,
         type,
         schedules,
     }));
-    
-    const allItems = [...medicationItems, ...insulinItems];
 
-    const getMonthName = (monthNumber: number) => {
-        const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-        return months[monthNumber];
-    };
-    
-    const formattedControlDate = controlInfo.date ? `${getMonthName(new Date(controlInfo.date + '-02').getMonth())} / ${new Date(controlInfo.date + '-02').getFullYear()}` : '';
+    const allItems = [...medicationItems, ...injectableItems];
+
+    const formattedControlDate = controlInfo.date ? new Date(`${controlInfo.date}T${controlInfo.time || '00:00'}`).toLocaleString('es-CL', { dateStyle: 'short', timeStyle: 'short' }) : '';
 
     return (
         <div id="schedule-preview" className="bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl mx-auto border border-slate-200">
@@ -133,7 +128,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                             </td>
                                         </tr>
                                     );
-                                } else { // item.itemType === 'insulin'
+                                } else { // item.itemType === 'injectable'
                                     const allNotes = [...item.schedules.mañana, ...item.schedules.noche]
                                         .map(ins => ins.notes)
                                         .filter(Boolean)
@@ -142,22 +137,22 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                         <tr key={item.id} className={`border-b border-slate-200 ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/50'}`}>
                                             <td className="p-4 align-top">
                                                 <p className="font-bold text-md text-slate-800">{item.type}</p>
-                                                <p className="text-sm text-teal-600">Insulina</p>
+                                                <p className="text-sm text-teal-600">Inyectable</p>
                                             </td>
                                             <td className="p-4 text-center align-middle">
                                                 <div className="flex flex-col items-center gap-2">
                                                     {item.schedules.mañana.map(ins => (
-                                                        <InsulinDoseVisualizer key={ins.id} dose={ins.dose} time={ins.time} className="text-blue-600"/>
+                                                        <InjectableDoseVisualizer key={ins.id} dose={ins.dose} time={ins.time} className="text-blue-600"/>
                                                     ))}
                                                 </div>
                                             </td>
                                             <td className="p-4 text-center align-middle">
-                                                {/* Insulin typically not in the afternoon */}
+                                                {/* typically not used in the afternoon */}
                                             </td>
                                             <td className="p-4 text-center align-middle">
                                                  <div className="flex flex-col items-center gap-2">
                                                     {item.schedules.noche.map(ins => (
-                                                        <InsulinDoseVisualizer key={ins.id} dose={ins.dose} time={ins.time} className="text-blue-600"/>
+                                                        <InjectableDoseVisualizer key={ins.id} dose={ins.dose} time={ins.time} className="text-blue-600"/>
                                                     ))}
                                                 </div>
                                             </td>
@@ -170,7 +165,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                             }) : (
                                 <tr>
                                     <td colSpan={5} className="text-center p-8 text-slate-500">
-                                        <p>Añada un medicamento o insulina para verlo aquí.</p>
+                                        <p>Añada un medicamento o tratamiento inyectable para verlo aquí.</p>
                                     </td>
                                 </tr>
                             )}
@@ -180,28 +175,39 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
             </section>
 
              {controlInfo.applies === 'yes' && controlInfo.date && (
-                <section className="mt-10 pt-6 border-t-2 border-slate-200 text-sm">
-                    <h3 className="text-xl font-bold text-slate-800 mb-4 text-center">Próximo Control Médico</h3>
-                    <div className="bg-slate-50 rounded-lg p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <section className="mt-6 pt-4 border-t border-slate-200 text-xs">
+                    <h3 className="text-lg font-bold text-slate-800 mb-2 text-center">Próximo Control Médico</h3>
+                    <div className="bg-slate-50 rounded-lg p-3 grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
-                            <p className="font-semibold text-slate-600">Fecha de Control:</p>
-                            <p className="text-lg font-bold text-blue-700">{formattedControlDate}</p>
+                            <p className="font-semibold text-slate-600">Fecha y hora:</p>
+                            <p className="font-bold text-blue-700">{formattedControlDate}</p>
                         </div>
                         <div>
-                            <p className="font-semibold text-slate-600">Exámenes:</p>
-                            {controlInfo.withExams === 'unspecified' && <p className="text-slate-500">No especificado</p>}
-                            {controlInfo.withExams === 'no' && <p className="text-slate-500">Sin exámenes solicitados</p>}
-                            {controlInfo.withExams === 'yes' && (
-                                <ul className="list-disc list-inside text-slate-800">
-                                    {controlInfo.exams.sangre && <li>Sangre</li>}
-                                    {controlInfo.exams.orina && <li>Orina</li>}
-                                    {controlInfo.exams.ecg && <li>ECG</li>}
-                                    {controlInfo.exams.endoscopia && <li>Endoscopía digestiva alta</li>}
-                                    {controlInfo.exams.colonoscopia && <li>Colonoscopía</li>}
-                                    {controlInfo.exams.otros && <li>{controlInfo.otrosText || 'Otros'}</li>}
-                                </ul>
-                            )}
+                            <p className="font-semibold text-slate-600">Profesional:</p>
+                            <p className="text-slate-800">{controlInfo.professional || 'No especificado'}</p>
                         </div>
+                        {controlInfo.withExams !== 'unspecified' && (
+                            <div className="md:col-span-2">
+                                <p className="font-semibold text-slate-600">Exámenes:</p>
+                                {controlInfo.withExams === 'no' && <p className="text-slate-500">Sin exámenes solicitados</p>}
+                                {controlInfo.withExams === 'yes' && (
+                                    <ul className="list-disc list-inside text-slate-800">
+                                        {controlInfo.exams.sangre && <li>Sangre</li>}
+                                        {controlInfo.exams.orina && <li>Orina</li>}
+                                        {controlInfo.exams.ecg && <li>ECG</li>}
+                                        {controlInfo.exams.endoscopia && <li>Endoscopía digestiva alta</li>}
+                                        {controlInfo.exams.colonoscopia && <li>Colonoscopía</li>}
+                                        {controlInfo.exams.otros && <li>{controlInfo.otrosText || 'Otros'}</li>}
+                                    </ul>
+                                )}
+                            </div>
+                        )}
+                        {controlInfo.note && (
+                            <div className="md:col-span-2">
+                                <p className="font-semibold text-slate-600">Nota:</p>
+                                <p className="text-slate-700 whitespace-pre-wrap">{controlInfo.note}</p>
+                            </div>
+                        )}
                     </div>
                 </section>
             )}
@@ -210,7 +216,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                 <div className="grid grid-cols-2 gap-8">
                     <div className="flex flex-col items-center">
                         <div className="w-4/5 h-12 border-b-2 border-slate-400"></div>
-                        <p className="mt-2 text-sm font-semibold text-slate-600">Nombre Profesional</p>
+                        <p className="mt-2 text-sm font-semibold text-slate-600">{controlInfo.professional || 'Nombre Profesional'}</p>
                     </div>
                     <div className="flex flex-col items-center">
                         <div className="w-4/5 h-12 border-b-2 border-slate-400"></div>

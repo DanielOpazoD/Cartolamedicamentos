@@ -33,23 +33,25 @@ export interface Patient {
   date: string;
 }
 
-export enum InsulinType {
+export enum InjectableType {
     NPH = 'Lenta (NPH)',
     CRYSTALLINE = 'Rápida (Cristalina)',
     LANTUS = 'Lantus',
     TRESIBA = 'Tresiba',
+    SEMAGLUTIDE = 'Semaglutide (Ozempic)',
+    LIRAGLUTIDE = 'Liraglutide (Victoza)',
 }
 
-export enum InsulinSchedule {
+export enum InjectableSchedule {
     MAÑANA = 'Mañana',
     NOCHE = 'Noche',
 }
 
-export interface Insulin {
+export interface Injectable {
     id: number;
-    type: InsulinType;
-    dose: number;
-    schedule: InsulinSchedule;
+    type: InjectableType;
+    dose: string;
+    schedule: InjectableSchedule;
     time: string; // "HH:mm" format
     notes?: string;
 }
@@ -65,8 +67,11 @@ export interface ExamOptions {
 
 export interface ControlInfo {
   applies: 'yes' | 'no';
-  date: string; // YYYY-MM format
+  date: string; // YYYY-MM-DD format
+  time: string; // HH:mm
+  professional: string;
   withExams: 'yes' | 'no' | 'unspecified';
   exams: ExamOptions;
   otrosText: string;
+  note: string;
 }
