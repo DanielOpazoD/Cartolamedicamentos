@@ -7,6 +7,7 @@ import InjectableForm from './components/InjectableForm';
 import SchedulePreview from './components/SchedulePreview';
 import TrashIcon from './components/icons/TrashIcon';
 import ControlInfoForm from './components/ControlInfoForm';
+import SuspensionSection from './components/SuspensionSection';
 import MoneyIcon from './components/icons/MoneyIcon';
 
 const initialControlInfo: ControlInfo = {
@@ -149,6 +150,7 @@ const App: React.FC = () => {
                     <PatientInfoForm patient={patient} onChange={handlePatientChange} />
                     <MedicationForm onAddMedication={addMedication} onUpdateMedication={updateMedication} editingMedication={editingMedication} onCancelEdit={() => setEditingMedication(null)} />
                     <InjectableForm onAddInjectable={addInjectable} onUpdateInjectable={updateInjectable} editingInjectable={editingInjectable} onCancelEdit={() => setEditingInjectable(null)} />
+                    <SuspensionSection controlInfo={controlInfo} onChange={handleControlChange} />
                     <ControlInfoForm controlInfo={controlInfo} onChange={handleControlChange} />
                     
                     {medications.length > 0 && (

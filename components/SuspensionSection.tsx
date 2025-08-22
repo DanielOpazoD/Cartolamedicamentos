@@ -1,0 +1,46 @@
+import React from 'react';
+import { ControlInfo } from '../types';
+
+interface SuspensionSectionProps {
+  controlInfo: ControlInfo;
+  onChange: (field: keyof ControlInfo, value: string | boolean) => void;
+}
+
+const SuspensionSection: React.FC<SuspensionSectionProps> = ({ controlInfo, onChange }) => (
+  <div className="space-y-4 pt-4 border-t border-slate-200">
+    <h2 className="text-2xl font-bold text-slate-800 border-b-2 border-blue-200 pb-2">
+      Suspender Medicamentos
+    </h2>
+    <div>
+      <label htmlFor="suspendEnabled" className="block text-sm font-medium text-slate-600 mb-1">
+        Incluir sección de suspensión
+      </label>
+      <select
+        id="suspendEnabled"
+        name="suspendEnabled"
+        value={controlInfo.suspendEnabled ? 'yes' : 'no'}
+        onChange={(e) => onChange('suspendEnabled', e.target.value === 'yes')}
+        className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+      >
+        <option value="no">No</option>
+        <option value="yes">Sí</option>
+      </select>
+    </div>
+    {controlInfo.suspendEnabled && (
+      <div>
+        <label className="block text-sm font-medium text-black mb-1">
+          Suspender los siguientes medicamentos
+        </label>
+        <textarea
+          name="suspendText"
+          value={controlInfo.suspendText}
+          onChange={(e) => onChange('suspendText', e.target.value)}
+          rows={2}
+          className="w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-black"
+        />
+      </div>
+    )}
+  </div>
+);
+
+export default SuspensionSection;

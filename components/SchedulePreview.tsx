@@ -4,7 +4,10 @@ import DoseVisualizer from './DoseVisualizer';
 import MoonIcon from './icons/MoonIcon';
 import SunIcon from './icons/SunIcon';
 import InjectableDoseVisualizer from './InjectableDoseVisualizer';
-import MoneyIcon from './icons/MoneyIcon';
+import StarIcon from './icons/StarIcon';
+import MoneyIcon from "./icons/MoneyIcon";
+import ArrowUpIcon from './icons/ArrowUpIcon';
+import ArrowDownIcon from './icons/ArrowDownIcon';
 
 interface SchedulePreviewProps {
     patient: Patient;
@@ -128,6 +131,16 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                     <span className="font-bold text-slate-600">Fecha:</span>
                     <span className="ml-2 text-slate-800">{patient.date ? new Date(patient.date + 'T00:00:00').toLocaleDateString('es-CL') : '...'}</span>
                 </div>
+            </section>
+
+            <section className="mb-4 text-xs text-slate-600">
+                <p className="font-semibold mb-1">Iconos:</p>
+                <ul className="flex flex-wrap gap-4">
+                    <li className="flex items-center gap-1"><ArrowUpIcon className="w-4 h-4"/> Aumento de dosis</li>
+                    <li className="flex items-center gap-1"><ArrowDownIcon className="w-4 h-4"/> Disminución de dosis</li>
+                    <li className="flex items-center gap-1"><StarIcon className="w-4 h-4 text-yellow-500"/> Nuevo medicamento</li>
+                    <li className="flex items-center gap-1"><MoneyIcon className="w-4 h-4 text-green-600"/> Comprar afuera</li>
+                </ul>
             </section>
 
             <section>

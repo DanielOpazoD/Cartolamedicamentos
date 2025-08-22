@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Injectable, InjectableType, InjectableSchedule } from '../types';
-import StarIcon from './icons/StarIcon';
+import PlusIcon from './icons/PlusIcon';
 
 interface InjectableFormProps {
     onAddInjectable: (inj: Omit<Injectable, 'id'>) => void;
@@ -211,9 +211,9 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpda
             <div className="flex gap-2">
                 <button
                     type="submit"
-                    className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center justify-center gap-2"
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center justify-center gap-2"
                 >
-                    <StarIcon className="h-5 w-5 text-yellow-400" />
+                    <PlusIcon className="h-5 w-5" />
                     {editingInjectable ? 'Actualizar Tratamiento' : 'Añadir Tratamiento'}
                 </button>
                 {editingInjectable && (

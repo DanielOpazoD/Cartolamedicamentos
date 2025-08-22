@@ -155,32 +155,6 @@ const ControlInfoForm: React.FC<ControlInfoFormProps> = ({ controlInfo, onChange
                         />
                     </div>
 
-                    <div>
-                        <label htmlFor="suspendEnabled" className="block text-sm font-medium text-slate-600 mb-1">Incluir sección de suspensión</label>
-                        <select
-                            id="suspendEnabled"
-                            name="suspendEnabled"
-                            value={controlInfo.suspendEnabled ? 'yes' : 'no'}
-                            onChange={(e) => onChange('suspendEnabled', e.target.value === 'yes')}
-                            className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
-                        >
-                            <option value="no">No</option>
-                            <option value="yes">Sí</option>
-                        </select>
-                    </div>
-
-                    {controlInfo.suspendEnabled && (
-                        <div>
-                            <label className="block text-sm font-medium text-black mb-1">Suspender los siguientes medicamentos</label>
-                            <textarea
-                                name="suspendText"
-                                value={controlInfo.suspendText}
-                                onChange={(e) => onChange('suspendText', e.target.value)}
-                                rows={2}
-                                className="w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-black"
-                            />
-                        </div>
-                    )}
                 </div>
             )}
         </div>
