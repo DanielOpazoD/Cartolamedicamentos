@@ -227,39 +227,58 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                 <p className="text-sm text-slate-600">{item.presentacion}</p>
                                                 <p className="text-xs text-slate-500 italic">{`${item.dose} ${item.dosageForm} - ${item.frequency}`}</p>
                                             </td>
-                                            <td className={`p-2 text-center align-middle ${item.dosageForm === DosageForm.TABLET ? 'cursor-pointer' : 'cursor-text'}`} contentEditable={false} onClick={() => handleDoseClick(item.id, 'morning')}>
-                                                {editableDoses[item.id]?.morning !== null && (
-                                                    <DoseVisualizer
-                                                        dose={editableDoses[item.id].morning || ''}
-                                                        dosageForm={item.dosageForm}
-                                                        className="text-blue-600"
-                                                        editable={item.dosageForm !== DosageForm.TABLET}
-                                                        onDoseChange={(val) => handleDoseInputChange(item.id, 'morning', val)}
-                                                    />
-                                                )}
-                                            </td>
-                                            <td className={`p-2 text-center align-middle ${item.dosageForm === DosageForm.TABLET ? 'cursor-pointer' : 'cursor-text'}`} contentEditable={false} onClick={() => handleDoseClick(item.id, 'afternoon')}>
-                                                {editableDoses[item.id]?.afternoon !== null && (
-                                                    <DoseVisualizer
-                                                        dose={editableDoses[item.id].afternoon || ''}
-                                                        dosageForm={item.dosageForm}
-                                                        className="text-amber-500"
-                                                        editable={item.dosageForm !== DosageForm.TABLET}
-                                                        onDoseChange={(val) => handleDoseInputChange(item.id, 'afternoon', val)}
-                                                    />
-                                                )}
-                                            </td>
-                                            <td className={`p-2 text-center align-middle ${item.dosageForm === DosageForm.TABLET ? 'cursor-pointer' : 'cursor-text'}`} contentEditable={false} onClick={() => handleDoseClick(item.id, 'night')}>
-                                                {editableDoses[item.id]?.night !== null && (
-                                                    <DoseVisualizer
-                                                        dose={editableDoses[item.id].night || ''}
-                                                        dosageForm={item.dosageForm}
-                                                        className="text-blue-600"
-                                                        editable={item.dosageForm !== DosageForm.TABLET}
-                                                        onDoseChange={(val) => handleDoseInputChange(item.id, 'night', val)}
-                                                    />
-                                                )}
-                                            </td>
+                                            {(() => {
+                                                const doses = editableDoses[item.id];
+                                                return (
+                                                    <>
+                                                        <td
+                                                            className={`p-2 text-center align-middle ${item.dosageForm === DosageForm.TABLET ? 'cursor-pointer' : 'cursor-text'}`}
+                                                            contentEditable={false}
+                                                            onClick={() => handleDoseClick(item.id, 'morning')}
+                                                        >
+                                                            {doses && doses.morning != null && (
+                                                                <DoseVisualizer
+                                                                    dose={doses.morning || ''}
+                                                                    dosageForm={item.dosageForm}
+                                                                    className="text-blue-600"
+                                                                    editable={item.dosageForm !== DosageForm.TABLET}
+                                                                    onDoseChange={(val) => handleDoseInputChange(item.id, 'morning', val)}
+                                                                />
+                                                            )}
+                                                        </td>
+                                                        <td
+                                                            className={`p-2 text-center align-middle ${item.dosageForm === DosageForm.TABLET ? 'cursor-pointer' : 'cursor-text'}`}
+                                                            contentEditable={false}
+                                                            onClick={() => handleDoseClick(item.id, 'afternoon')}
+                                                        >
+                                                            {doses && doses.afternoon != null && (
+                                                                <DoseVisualizer
+                                                                    dose={doses.afternoon || ''}
+                                                                    dosageForm={item.dosageForm}
+                                                                    className="text-amber-500"
+                                                                    editable={item.dosageForm !== DosageForm.TABLET}
+                                                                    onDoseChange={(val) => handleDoseInputChange(item.id, 'afternoon', val)}
+                                                                />
+                                                            )}
+                                                        </td>
+                                                        <td
+                                                            className={`p-2 text-center align-middle ${item.dosageForm === DosageForm.TABLET ? 'cursor-pointer' : 'cursor-text'}`}
+                                                            contentEditable={false}
+                                                            onClick={() => handleDoseClick(item.id, 'night')}
+                                                        >
+                                                            {doses && doses.night != null && (
+                                                                <DoseVisualizer
+                                                                    dose={doses.night || ''}
+                                                                    dosageForm={item.dosageForm}
+                                                                    className="text-blue-600"
+                                                                    editable={item.dosageForm !== DosageForm.TABLET}
+                                                                    onDoseChange={(val) => handleDoseInputChange(item.id, 'night', val)}
+                                                                />
+                                                            )}
+                                                        </td>
+                                                    </>
+                                                );
+                                            })()}
                                             <td className="p-2 align-top text-sm text-slate-700 whitespace-pre-wrap break-words">
                                                 {item.notes || ''}
                                             </td>
