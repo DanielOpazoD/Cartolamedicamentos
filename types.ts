@@ -25,7 +25,7 @@ export enum Dose {
 export enum DosageForm {
     TABLET = 'comprimido',
     SOBRE = 'sobre',
-    DROPS = 'gota',
+    DROPS = 'gotas',
     OTHER = 'otro',
 }
 
@@ -33,7 +33,7 @@ export interface Medication {
   id: number;
   name: string;
   presentacion: string;
-  dose: Dose;
+  dose: string;
   frequency: Frequency;
   dosageForm: DosageForm;
   notes?: string;

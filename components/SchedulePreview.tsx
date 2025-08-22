@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Patient, Medication, Frequency, Dose, Injectable, InjectableSchedule, InjectableType, ControlInfo, Inhaler } from '../types';
+import { Patient, Medication, Frequency, Dose, DosageForm, Injectable, InjectableSchedule, InjectableType, ControlInfo, Inhaler } from '../types';
 import DoseVisualizer from './DoseVisualizer';
 import MoonIcon from './icons/MoonIcon';
 import SunIcon from './icons/SunIcon';
@@ -37,21 +37,10 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
         }
     };
 
-    const doseOrder: Dose[] = [
-        Dose.QUARTER,
-        Dose.HALF,
-        Dose.THREE_QUARTERS,
-        Dose.ONE,
-        Dose.ONE_AND_QUARTER,
-        Dose.ONE_AND_HALF,
-        Dose.ONE_AND_THREE_QUARTERS,
-        Dose.TWO,
-        Dose.THREE,
-        Dose.FOUR,
-    ];
+    const doseOrder: string[] = Object.values(Dose);
 
     const initializeDoses = (meds: Medication[]) => {
-        const map: Record<number, { morning: Dose | null; afternoon: Dose | null; night: Dose | null }> = {};
+        const map: Record<number, { morning: string | null; afternoon: string | null; night: string | null }> = {};
         meds.forEach(med => {
             map[med.id] = {
                 morning: shouldShowDose(med.frequency, 'morning') ? med.dose : null,
@@ -62,23 +51,29 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
         return map;
     };
 
-    const [editableDoses, setEditableDoses] = useState<Record<number, { morning: Dose | null; afternoon: Dose | null; night: Dose | null }>>(() => initializeDoses(medications));
+    const [editableDoses, setEditableDoses] = useState<Record<number, { morning: string | null; afternoon: string | null; night: string | null }>>(() => initializeDoses(medications));
 
     useEffect(() => {
         setEditableDoses(initializeDoses(medications));
     }, [medications]);
 
-    const cycleDose = (current: Dose | null): Dose | null => {
+    const cycleDose = (current: string | null): string | null => {
         if (current === null) return doseOrder[0];
         const idx = doseOrder.indexOf(current);
         return idx === -1 || idx === doseOrder.length - 1 ? null : doseOrder[idx + 1];
     };
 
     const handleDoseClick = (medId: number, time: 'morning' | 'afternoon' | 'night') => {
+        const med = medications.find(m => m.id === medId);
+        if (!med || med.dosageForm !== DosageForm.TABLET) return;
         setEditableDoses(prev => {
             const next = cycleDose(prev[medId][time]);
             return { ...prev, [medId]: { ...prev[medId], [time]: next } };
         });
+    };
+
+    const handleDoseInputChange = (medId: number, time: 'morning' | 'afternoon' | 'night', value: string) => {
+        setEditableDoses(prev => ({ ...prev, [medId]: { ...prev[medId], [time]: value } }));
     };
 
     const groupedInjectables = injectables.reduce((acc, inj) => {
@@ -232,14 +227,38 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                 <p className="text-sm text-slate-600">{item.presentacion}</p>
                                                 <p className="text-xs text-slate-500 italic">{`${item.dose} ${item.dosageForm} - ${item.frequency}`}</p>
                                             </td>
-                                            <td className="p-2 text-center align-middle cursor-pointer" contentEditable={false} onClick={() => handleDoseClick(item.id, 'morning')}>
-                                                {editableDoses[item.id]?.morning && <DoseVisualizer dose={editableDoses[item.id].morning!} dosageForm={item.dosageForm} className="text-blue-600" />}
+                                            <td className={`p-2 text-center align-middle ${item.dosageForm === DosageForm.TABLET ? 'cursor-pointer' : 'cursor-text'}`} contentEditable={false} onClick={() => handleDoseClick(item.id, 'morning')}>
+                                                {editableDoses[item.id]?.morning !== null && (
+                                                    <DoseVisualizer
+                                                        dose={editableDoses[item.id].morning || ''}
+                                                        dosageForm={item.dosageForm}
+                                                        className="text-blue-600"
+                                                        editable={item.dosageForm !== DosageForm.TABLET}
+                                                        onDoseChange={(val) => handleDoseInputChange(item.id, 'morning', val)}
+                                                    />
+                                                )}
                                             </td>
-                                            <td className="p-2 text-center align-middle cursor-pointer" contentEditable={false} onClick={() => handleDoseClick(item.id, 'afternoon')}>
-                                                {editableDoses[item.id]?.afternoon && <DoseVisualizer dose={editableDoses[item.id].afternoon!} dosageForm={item.dosageForm} className="text-amber-500" />}
+                                            <td className={`p-2 text-center align-middle ${item.dosageForm === DosageForm.TABLET ? 'cursor-pointer' : 'cursor-text'}`} contentEditable={false} onClick={() => handleDoseClick(item.id, 'afternoon')}>
+                                                {editableDoses[item.id]?.afternoon !== null && (
+                                                    <DoseVisualizer
+                                                        dose={editableDoses[item.id].afternoon || ''}
+                                                        dosageForm={item.dosageForm}
+                                                        className="text-amber-500"
+                                                        editable={item.dosageForm !== DosageForm.TABLET}
+                                                        onDoseChange={(val) => handleDoseInputChange(item.id, 'afternoon', val)}
+                                                    />
+                                                )}
                                             </td>
-                                            <td className="p-2 text-center align-middle cursor-pointer" contentEditable={false} onClick={() => handleDoseClick(item.id, 'night')}>
-                                                {editableDoses[item.id]?.night && <DoseVisualizer dose={editableDoses[item.id].night!} dosageForm={item.dosageForm} className="text-blue-600" />}
+                                            <td className={`p-2 text-center align-middle ${item.dosageForm === DosageForm.TABLET ? 'cursor-pointer' : 'cursor-text'}`} contentEditable={false} onClick={() => handleDoseClick(item.id, 'night')}>
+                                                {editableDoses[item.id]?.night !== null && (
+                                                    <DoseVisualizer
+                                                        dose={editableDoses[item.id].night || ''}
+                                                        dosageForm={item.dosageForm}
+                                                        className="text-blue-600"
+                                                        editable={item.dosageForm !== DosageForm.TABLET}
+                                                        onDoseChange={(val) => handleDoseInputChange(item.id, 'night', val)}
+                                                    />
+                                                )}
                                             </td>
                                             <td className="p-2 align-top text-sm text-slate-700 whitespace-pre-wrap break-words">
                                                 {item.notes || ''}
@@ -410,7 +429,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
 
              {controlInfo.applies === 'yes' && controlInfo.date && (
                 <section className="mt-6 pt-4 border-t border-slate-200 text-xs">
-                    <h3 className="text-lg font-bold text-slate-800 mb-2 text-center">Próximo Control Médico</h3>
+                    <h3 className="text-base font-bold text-slate-800 mb-2 text-center">Próximo Control Médico</h3>
                     <div className="bg-slate-50 rounded-lg p-3 grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
                             <p className="font-semibold text-slate-600">Fecha y hora:</p>
@@ -458,7 +477,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                     </div>
                 </div>
             </section>
-            <p className="mt-6 text-center text-xs text-slate-500">Esta hoja es un recordatorio personal. Ante dudas o eventos adversos, consulte a su médico tratante.</p>
+            <p className="mt-6 text-center text-[10px] text-slate-500">Esta hoja es un recordatorio personal. Ante dudas o eventos adversos, consulte a su médico tratante.</p>
         </div>
     );
 };

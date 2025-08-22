@@ -9,36 +9,48 @@ import CircleIcon from './icons/CircleIcon';
 import SachetIcon from './icons/SachetIcon';
 
 interface DoseVisualizerProps {
-    dose: Dose;
+    dose: string;
     dosageForm?: DosageForm;
     className?: string; // e.g. "text-sky-500"
+    editable?: boolean;
+    onDoseChange?: (value: string) => void;
 }
 
-const DoseVisualizer: React.FC<DoseVisualizerProps> = ({ dose, dosageForm = DosageForm.TABLET, className }) => {
+const DoseVisualizer: React.FC<DoseVisualizerProps> = ({ dose, dosageForm = DosageForm.TABLET, className, editable = false, onDoseChange }) => {
+
+    const renderEditableLabel = (value: string, colorClass?: string) => (
+        <input
+            type="text"
+            value={value}
+            onChange={e => onDoseChange && onDoseChange(e.target.value)}
+            onClick={e => e.stopPropagation()}
+            className={`w-10 text-center border-b border-slate-400 focus:outline-none focus:border-blue-500 bg-transparent ${colorClass ?? ''}`}
+        />
+    );
 
     if (dosageForm === DosageForm.DROPS) {
         return (
             <div className={`inline-flex flex-col items-center justify-center gap-1.5 ${className}`}>
                 <DropIcon className="w-10 h-10" />
-                <span className="font-bold text-base uppercase tracking-wide">{dose}</span>
+                {editable ? renderEditableLabel(dose) : <span className="font-bold text-base uppercase tracking-wide">{dose}</span>}
             </div>
         );
     }
 
     if (dosageForm === DosageForm.OTHER) {
         return (
-            <div className="inline-flex flex-col items-center justify-center gap-1.5 text-purple-500">
+            <div className={`inline-flex flex-col items-center justify-center gap-1.5 text-purple-500 ${className}`}>
                 <CircleIcon className="w-10 h-10" />
-                <span className="font-bold text-base uppercase tracking-wide">{dose}</span>
+                {editable ? renderEditableLabel(dose, 'text-slate-800') : <span className="font-bold text-base uppercase tracking-wide">{dose}</span>}
             </div>
         );
     }
 
     if (dosageForm === DosageForm.SOBRE) {
         return (
-            <div className="inline-flex flex-col items-center justify-center gap-1.5 text-green-600">
+            <div className={`inline-flex flex-col items-center justify-center gap-1.5 text-green-600 ${className}`}>
                 <SachetIcon className="w-10 h-10" />
-                <span className="font-bold text-base uppercase tracking-wide">{dose}</span>
+                {editable ? renderEditableLabel(dose, 'text-slate-800') : <span className="font-bold text-base uppercase tracking-wide">{dose}</span>}
             </div>
         );
     }
@@ -63,7 +75,7 @@ const DoseVisualizer: React.FC<DoseVisualizerProps> = ({ dose, dosageForm = Dosa
         </div>
     );
 
-    switch (dose) {
+    switch (dose as Dose) {
         case Dose.QUARTER:
             return (
                 <DoseDisplay label={Dose.QUARTER}>

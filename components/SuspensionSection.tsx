@@ -9,9 +9,6 @@ interface SuspensionSectionProps {
 
 const SuspensionSection: React.FC<SuspensionSectionProps> = ({ controlInfo, onChange }) => (
   <div className="space-y-4 pt-4 border-t border-slate-200">
-    <h2 className="text-2xl font-bold text-slate-800 border-b-2 border-blue-200 pb-2">
-      Suspender Medicamentos
-    </h2>
     <div>
       <label htmlFor="suspendEnabled" className="block text-sm font-medium text-slate-600 mb-1">
         Incluir sección de suspensión

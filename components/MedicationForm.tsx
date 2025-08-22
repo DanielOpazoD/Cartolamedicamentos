@@ -36,9 +36,21 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
     }, [editingMedication]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        const { name, type } = e.target;
-        const value = type === 'checkbox' ? (e.target as HTMLInputElement).checked : e.target.value;
-        setMedication(prev => ({ ...prev, [name]: value }));
+        const { name, type, value: rawValue } = e.target;
+        const value = type === 'checkbox' ? (e.target as HTMLInputElement).checked : rawValue;
+        setMedication(prev => {
+            const updated = { ...prev, [name]: value };
+            if (name === 'dosageForm') {
+                if (value === DosageForm.TABLET) {
+                    if (!Object.values(Dose).includes(prev.dose as Dose)) {
+                        updated.dose = Dose.ONE;
+                    }
+                } else {
+                    updated.dose = '';
+                }
+            }
+            return updated;
+        });
     };
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -56,7 +68,7 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
 
     return (
         <form onSubmit={handleSubmit} className="space-y-2 pt-2 border-t border-slate-200">
-            <h2 className="text-2xl font-bold text-slate-800 border-b-2 border-blue-200 pb-2">
+            <h2 className="text-xl font-bold text-slate-800 border-b-2 border-blue-200 pb-2">
                 {editingMedication ? 'Editar Fármaco Oral' : 'Añadir Fármaco Oral'}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -90,17 +102,28 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <div>
                     <label htmlFor="dose" className="block text-sm font-medium text-slate-600 mb-1">Dosis</label>
-                    <select
-                        id="dose"
-                        name="dose"
-                        value={medication.dose}
-                        onChange={handleChange}
-                        className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
-                    >
-                        {Object.values(Dose).map(d => (
-                            <option key={d} value={d}>{d}</option>
-                        ))}
-                    </select>
+                    {medication.dosageForm === DosageForm.TABLET ? (
+                        <select
+                            id="dose"
+                            name="dose"
+                            value={medication.dose}
+                            onChange={handleChange}
+                            className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+                        >
+                            {Object.values(Dose).map(d => (
+                                <option key={d} value={d}>{d}</option>
+                            ))}
+                        </select>
+                    ) : (
+                        <input
+                            type="text"
+                            id="dose"
+                            name="dose"
+                            value={medication.dose}
+                            onChange={handleChange}
+                            className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        />
+                    )}
                 </div>
                 <div>
                     <label htmlFor="frequency" className="block text-sm font-medium text-slate-600 mb-1">Frecuencia</label>

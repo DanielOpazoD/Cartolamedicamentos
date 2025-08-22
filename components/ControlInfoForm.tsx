@@ -31,7 +31,7 @@ const ControlInfoForm: React.FC<ControlInfoFormProps> = ({ controlInfo, onChange
 
     return (
         <div className="space-y-4 pt-4 border-t border-slate-200">
-            <h2 className="text-2xl font-bold text-slate-800 border-b-2 border-blue-200 pb-2">Próximo Control Médico</h2>
+            <h2 className="text-xl font-bold text-slate-800 border-b-2 border-blue-200 pb-2">Próximo Control Médico</h2>
 
             <div>
                 <label htmlFor="controlApplies" className="block text-sm font-medium text-slate-600 mb-1">Aplica Control</label>
