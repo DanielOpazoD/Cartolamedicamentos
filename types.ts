@@ -79,4 +79,6 @@ export interface ControlInfo {
   exams: ExamOptions;
   otrosText: string;
   note: string;
+  suspendEnabled: boolean;
+  suspendText: string;
 }

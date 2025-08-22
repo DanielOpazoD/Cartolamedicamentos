@@ -1,9 +1,13 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Medication, Frequency, Dose } from '../types';
+import StarIcon from './icons/StarIcon';
 
 interface MedicationFormProps {
     onAddMedication: (med: Omit<Medication, 'id'>) => void;
+    onUpdateMedication?: (id: number, med: Omit<Medication, 'id'>) => void;
+    editingMedication?: Medication | null;
+    onCancelEdit?: () => void;
 }
 
 const initialMedState: Omit<Medication, 'id'> = {
@@ -15,8 +19,17 @@ const initialMedState: Omit<Medication, 'id'> = {
     requiresPurchase: false,
 };
 
-const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication }) => {
+const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpdateMedication, editingMedication, onCancelEdit }) => {
     const [medication, setMedication] = useState(initialMedState);
+
+    useEffect(() => {
+        if (editingMedication) {
+            const { id, ...rest } = editingMedication;
+            setMedication(rest);
+        } else {
+            setMedication(initialMedState);
+        }
+    }, [editingMedication]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, type } = e.target;
@@ -27,14 +40,21 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication }) => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (medication.name && medication.presentacion) {
-            onAddMedication(medication);
+            if (editingMedication) {
+                onUpdateMedication && onUpdateMedication(editingMedication.id, medication);
+                onCancelEdit && onCancelEdit();
+            } else {
+                onAddMedication(medication);
+            }
             setMedication(initialMedState);
         }
     };
 
     return (
         <form onSubmit={handleSubmit} className="space-y-2 pt-2 border-t border-slate-200">
-            <h2 className="text-2xl font-bold text-slate-800 border-b-2 border-blue-200 pb-2">Añadir Medicamento</h2>
+            <h2 className="text-2xl font-bold text-slate-800 border-b-2 border-blue-200 pb-2">
+                {editingMedication ? 'Editar Medicamento' : 'Añadir Medicamento'}
+            </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
                     <label htmlFor="medName" className="block text-sm font-medium text-slate-600 mb-1">Nombre del Medicamento</label>
@@ -116,15 +136,24 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication }) => {
                     className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 />
             </div>
-            <button
-                type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center justify-center gap-2"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                </svg>
-                Añadir Medicamento
-            </button>
+            <div className="flex gap-2">
+                <button
+                    type="submit"
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center justify-center gap-2"
+                >
+                    <StarIcon className="h-5 w-5 text-yellow-400" />
+                    {editingMedication ? 'Actualizar Medicamento' : 'Añadir Medicamento'}
+                </button>
+                {editingMedication && (
+                    <button
+                        type="button"
+                        onClick={onCancelEdit}
+                        className="px-3 py-1 rounded-lg border border-slate-300 text-slate-600"
+                    >
+                        Cancelar
+                    </button>
+                )}
+            </div>
         </form>
     );
 };

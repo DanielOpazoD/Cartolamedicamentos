@@ -3,6 +3,7 @@ import { Dose } from '../types';
 import PillIcon from './icons/PillIcon';
 import HalfPillIcon from './icons/HalfPillIcon';
 import QuarterPillIcon from './icons/QuarterPillIcon';
+import ThreeQuarterPillIcon from './icons/ThreeQuarterPillIcon';
 
 interface DoseVisualizerProps {
     dose: Dose;
@@ -46,10 +47,7 @@ const DoseVisualizer: React.FC<DoseVisualizerProps> = ({ dose, className }) => {
         case Dose.THREE_QUARTERS:
             return (
                 <DoseDisplay label={Dose.THREE_QUARTERS}>
-                    <div className="flex items-center justify-center -space-x-4">
-                        <HalfPillIcon className="w-8 h-8" />
-                        <QuarterPillIcon className="w-8 h-8" />
-                    </div>
+                    <ThreeQuarterPillIcon className="w-8 h-8" />
                 </DoseDisplay>
             );
         case Dose.ONE:
@@ -81,8 +79,7 @@ const DoseVisualizer: React.FC<DoseVisualizerProps> = ({ dose, className }) => {
                 <DoseDisplay label={Dose.ONE_AND_THREE_QUARTERS}>
                     <div className="flex items-center justify-center -space-x-4">
                         <PillIcon className="w-10 h-10" />
-                        <HalfPillIcon className="w-8 h-8" />
-                        <QuarterPillIcon className="w-8 h-8" />
+                        <ThreeQuarterPillIcon className="w-8 h-8" />
                     </div>
                 </DoseDisplay>
             );

@@ -102,6 +102,13 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
 
     const formattedControlDate = controlInfo.date ? new Date(`${controlInfo.date}T${controlInfo.time || '00:00'}`).toLocaleString('es-CL', { dateStyle: 'short', timeStyle: 'short' }) : '';
 
+    const qrLines = [
+        `Nombre: ${patient.name}`,
+        `RUT: ${patient.rut}`,
+        ...medications.map((m, i) => `${i + 1}. ${m.name} ${m.presentacion}: ${m.dose} comp. ${m.frequency}`),
+    ];
+    const qrData = encodeURIComponent(qrLines.join('\n'));
+
     return (
         <div id="schedule-preview" className="bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl mx-auto border border-slate-200">
             <header className="text-center mb-8 border-b-2 pb-4 border-slate-200">
@@ -110,7 +117,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
             
             <section className="mb-8 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                 <div className="bg-slate-50 p-3 rounded">
-                    <span className="font-bold text-slate-600">Paciente:</span>
+                    <span className="font-bold text-slate-600">Nombre y Apellido:</span>
                     <span className="ml-2 text-slate-800">{patient.name || '...'}</span>
                 </div>
                 <div className="bg-slate-50 p-3 rounded">
@@ -156,7 +163,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                     return (
                                         <tr key={item.id} className={`border-b border-slate-200 ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/50'}`}>
                                             <td className="p-2 text-center align-top">{index + 1}</td>
-                                            <td className="p-2 align-top">
+                                            <td className="p-2 align-top text-center">
                                                 <p className="font-bold text-md text-slate-800">
                                                     {item.requiresPurchase && (
                                                         <span contentEditable={false}>
@@ -229,6 +236,13 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                 </div>
             </section>
 
+            {controlInfo.suspendEnabled && controlInfo.suspendText && (
+                <section className="mb-8">
+                    <h3 className="text-lg font-bold text-black mb-2 text-center">Suspender los siguientes medicamentos</h3>
+                    <div className="p-3 border border-black rounded text-black text-sm whitespace-pre-wrap">{controlInfo.suspendText}</div>
+                </section>
+            )}
+
              {controlInfo.applies === 'yes' && controlInfo.date && (
                 <section className="mt-6 pt-4 border-t border-slate-200 text-xs">
                     <h3 className="text-lg font-bold text-slate-800 mb-2 text-center">Próximo Control Médico</h3>
@@ -266,6 +280,10 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                     </div>
                 </section>
             )}
+
+            <section className="mt-8 flex justify-center">
+                <img src={`https://api.qrserver.com/v1/create-qr-code/?data=${qrData}&size=150x150`} alt="QR" />
+            </section>
 
             <section className="mt-16 pt-8 text-center">
                 <div className="grid grid-cols-2 gap-8">

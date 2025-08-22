@@ -16,6 +16,13 @@ const examsList: { key: keyof ExamOptions; label: string }[] = [
 ];
 
 const ControlInfoForm: React.FC<ControlInfoFormProps> = ({ controlInfo, onChange }) => {
+
+    const timeOptions = Array.from({ length: 19 }, (_, i) => {
+        const total = 8 * 60 + i * 30;
+        const h = String(Math.floor(total / 60)).padStart(2, '0');
+        const m = String(total % 60).padStart(2, '0');
+        return `${h}:${m}`;
+    });
     
     const handleExamChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, checked } = e.target;
@@ -59,14 +66,18 @@ const ControlInfoForm: React.FC<ControlInfoFormProps> = ({ controlInfo, onChange
                         </div>
                         <div>
                             <label htmlFor="controlTime" className="block text-sm font-medium text-slate-600 mb-1">Hora</label>
-                            <input
-                                type="time"
+                            <select
                                 id="controlTime"
                                 name="time"
                                 value={controlInfo.time}
                                 onChange={(e) => onChange('time', e.target.value)}
-                                className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                            />
+                                className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+                            >
+                                <option value="">Seleccione hora</option>
+                                {timeOptions.map(t => (
+                                    <option key={t} value={t}>{t}</option>
+                                ))}
+                            </select>
                         </div>
                     </div>
                     <div>
@@ -143,6 +154,33 @@ const ControlInfoForm: React.FC<ControlInfoFormProps> = ({ controlInfo, onChange
                             className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         />
                     </div>
+
+                    <div>
+                        <label htmlFor="suspendEnabled" className="block text-sm font-medium text-slate-600 mb-1">Incluir sección de suspensión</label>
+                        <select
+                            id="suspendEnabled"
+                            name="suspendEnabled"
+                            value={controlInfo.suspendEnabled ? 'yes' : 'no'}
+                            onChange={(e) => onChange('suspendEnabled', e.target.value === 'yes')}
+                            className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+                        >
+                            <option value="no">No</option>
+                            <option value="yes">Sí</option>
+                        </select>
+                    </div>
+
+                    {controlInfo.suspendEnabled && (
+                        <div>
+                            <label className="block text-sm font-medium text-black mb-1">Suspender los siguientes medicamentos</label>
+                            <textarea
+                                name="suspendText"
+                                value={controlInfo.suspendText}
+                                onChange={(e) => onChange('suspendText', e.target.value)}
+                                rows={2}
+                                className="w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-black"
+                            />
+                        </div>
+                    )}
                 </div>
             )}
         </div>

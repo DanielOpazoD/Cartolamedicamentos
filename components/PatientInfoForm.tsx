@@ -13,7 +13,7 @@ const PatientInfoForm: React.FC<PatientInfoFormProps> = ({ patient, onChange }) 
             <h2 className="text-2xl font-bold text-slate-800 border-b-2 border-blue-200 pb-2">Datos del Paciente</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-slate-600 mb-1">Nombre del Paciente</label>
+                    <label htmlFor="name" className="block text-sm font-medium text-slate-600 mb-1">Nombre y Apellido</label>
                     <input
                         type="text"
                         id="name"

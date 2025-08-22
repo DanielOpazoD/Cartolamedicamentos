@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Injectable, InjectableType, InjectableSchedule } from '../types';
+import StarIcon from './icons/StarIcon';
 
 interface InjectableFormProps {
     onAddInjectable: (inj: Omit<Injectable, 'id'>) => void;
+    onUpdateInjectable?: (id: number, inj: Omit<Injectable, 'id'>) => void;
+    editingInjectable?: Injectable | null;
+    onCancelEdit?: () => void;
 }
 
 const initialInjectableState: Omit<Injectable, 'id'> = {
@@ -25,9 +29,18 @@ const insulinTypes = [
     InjectableType.TRESIBA,
 ];
 
-const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable }) => {
+const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpdateInjectable, editingInjectable, onCancelEdit }) => {
     const [injectable, setInjectable] = useState<Omit<Injectable, 'id'>>(initialInjectableState);
     const [customDose, setCustomDose] = useState('');
+
+    useEffect(() => {
+        if (editingInjectable) {
+            const { id, ...rest } = editingInjectable;
+            setInjectable(rest);
+        } else {
+            setInjectable(initialInjectableState);
+        }
+    }, [editingInjectable]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -51,11 +64,18 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable }) => {
             } else {
                 finalDose = injectable.dose;
             }
+            finalDose = finalDose.toLowerCase();
         } else if (injectable.type === InjectableType.LIRAGLUTIDE) {
             if (!injectable.dose) return;
+            finalDose = injectable.dose.toLowerCase();
         }
 
-        onAddInjectable({ ...injectable, dose: finalDose });
+        if (editingInjectable) {
+            onUpdateInjectable && onUpdateInjectable(editingInjectable.id, { ...injectable, dose: finalDose });
+            onCancelEdit && onCancelEdit();
+        } else {
+            onAddInjectable({ ...injectable, dose: finalDose });
+        }
         setInjectable(initialInjectableState);
         setCustomDose('');
     };
@@ -63,7 +83,7 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable }) => {
     return (
         <form onSubmit={handleSubmit} className="space-y-4 pt-4 border-t border-slate-200">
             <h2 className="text-2xl font-bold text-slate-800 border-b-2 border-blue-200 pb-2">
-                Añadir Tratamiento Inyectable (Insulinas, Agonistas GLP-1)
+                {editingInjectable ? 'Editar Tratamiento Inyectable' : 'Añadir Tratamiento Inyectable (Insulinas, Agonistas GLP-1)'}
             </h2>
 
             <div>
@@ -188,15 +208,24 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable }) => {
                 />
             </div>
 
-            <button
-                type="submit"
-                className="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center justify-center gap-2"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                </svg>
-                Añadir Tratamiento
-            </button>
+            <div className="flex gap-2">
+                <button
+                    type="submit"
+                    className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center justify-center gap-2"
+                >
+                    <StarIcon className="h-5 w-5 text-yellow-400" />
+                    {editingInjectable ? 'Actualizar Tratamiento' : 'Añadir Tratamiento'}
+                </button>
+                {editingInjectable && (
+                    <button
+                        type="button"
+                        onClick={onCancelEdit}
+                        className="px-3 py-2 rounded-lg border border-slate-300 text-slate-600"
+                    >
+                        Cancelar
+                    </button>
+                )}
+            </div>
         </form>
     );
 };
