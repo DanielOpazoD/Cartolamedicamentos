@@ -1,6 +1,10 @@
 
 import React, { useState } from 'react';
-import { Medication, Frequency, Dose } from '../types';
+import { Medication, Frequency, Dose, MedicationDescriptor } from '../types';
+import MoneyIcon from './icons/MoneyIcon';
+import ArrowUpIcon from './icons/ArrowUpIcon';
+import ArrowDownIcon from './icons/ArrowDownIcon';
+import NewIcon from './icons/NewIcon';
 
 interface MedicationFormProps {
     onAddMedication: (med: Omit<Medication, 'id'>) => void;
@@ -12,16 +16,27 @@ const initialMedState: Omit<Medication, 'id'> = {
     dose: Dose.ONE,
     frequency: Frequency.EVERY_12H,
     notes: '',
-    requiresPurchase: false,
+    descriptors: [],
 };
 
 const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication }) => {
     const [medication, setMedication] = useState(initialMedState);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        const { name, type } = e.target;
-        const value = type === 'checkbox' ? (e.target as HTMLInputElement).checked : e.target.value;
+        const { name, value } = e.target;
         setMedication(prev => ({ ...prev, [name]: value }));
+    };
+
+    const toggleDescriptor = (desc: MedicationDescriptor) => {
+        setMedication(prev => {
+            const hasDesc = prev.descriptors.includes(desc);
+            return {
+                ...prev,
+                descriptors: hasDesc
+                    ? prev.descriptors.filter(d => d !== desc)
+                    : [...prev.descriptors, desc],
+            };
+        });
     };
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -63,7 +78,7 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication }) => {
                     />
                 </div>
             </div>
-             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
                     <label htmlFor="dose" className="block text-sm font-medium text-slate-600 mb-1">Dosis (comprimidos)</label>
                     <select
@@ -93,16 +108,43 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication }) => {
                     </select>
                 </div>
             </div>
-            <div className="flex items-center">
-                <input
-                    type="checkbox"
-                    id="requiresPurchase"
-                    name="requiresPurchase"
-                    checked={medication.requiresPurchase}
-                    onChange={handleChange}
-                    className="mr-2"
-                />
-                <label htmlFor="requiresPurchase" className="text-sm text-slate-600">Paciente compra este medicamento</label>
+            <div className="flex flex-wrap items-center gap-4">
+                <label className="flex items-center text-sm text-slate-600">
+                    <input
+                        type="checkbox"
+                        className="mr-1"
+                        checked={medication.descriptors.includes(MedicationDescriptor.BUY_OUTSIDE)}
+                        onChange={() => toggleDescriptor(MedicationDescriptor.BUY_OUTSIDE)}
+                    />
+                    <MoneyIcon className="w-4 h-4 mr-1" /> Comprar afuera
+                </label>
+                <label className="flex items-center text-sm text-slate-600">
+                    <input
+                        type="checkbox"
+                        className="mr-1"
+                        checked={medication.descriptors.includes(MedicationDescriptor.DOSE_INCREASE)}
+                        onChange={() => toggleDescriptor(MedicationDescriptor.DOSE_INCREASE)}
+                    />
+                    <ArrowUpIcon className="w-4 h-4 mr-1" /> Aumento de dosis
+                </label>
+                <label className="flex items-center text-sm text-slate-600">
+                    <input
+                        type="checkbox"
+                        className="mr-1"
+                        checked={medication.descriptors.includes(MedicationDescriptor.DOSE_DECREASE)}
+                        onChange={() => toggleDescriptor(MedicationDescriptor.DOSE_DECREASE)}
+                    />
+                    <ArrowDownIcon className="w-4 h-4 mr-1" /> Disminución de dosis
+                </label>
+                <label className="flex items-center text-sm text-slate-600">
+                    <input
+                        type="checkbox"
+                        className="mr-1"
+                        checked={medication.descriptors.includes(MedicationDescriptor.NEW)}
+                        onChange={() => toggleDescriptor(MedicationDescriptor.NEW)}
+                    />
+                    <NewIcon className="w-4 h-4 mr-1" /> Nuevo fármaco
+                </label>
             </div>
             <div>
                 <label htmlFor="notes" className="block text-sm font-medium text-slate-600 mb-1">Notas (Opcional)</label>
