@@ -1,18 +1,22 @@
 export enum Frequency {
-  EVERY_24H = 'Cada 24 horas (mañana)',
-  EVERY_24H_NIGHT = 'Cada 24 horas (noche)',
-  EVERY_12H = 'Cada 12 horas',
-  EVERY_8H = 'Cada 8 horas',
+  EVERY_24H = 'cada 24 horas (mañana)',
+  EVERY_24H_NIGHT = 'cada 24 horas (noche)',
+  EVERY_12H = 'cada 12 horas',
+  EVERY_8H = 'cada 8 horas',
   MORNING = 'Solo en la mañana',
   AFTERNOON = 'Solo en la tarde',
   NIGHT = 'Solo en la noche',
-  WITH_MEALS = 'Con cada comida principal',
+  WITH_MEALS = 'con cada comida principal',
 }
 
 export enum Dose {
     QUARTER = '1/4',
     HALF = '1/2',
+    THREE_QUARTERS = '3/4',
     ONE = '1',
+    ONE_AND_QUARTER = '1 1/4',
+    ONE_AND_HALF = '1 1/2',
+    ONE_AND_THREE_QUARTERS = '1 3/4',
     TWO = '2',
     THREE = '3',
     FOUR = '4',
@@ -25,6 +29,7 @@ export interface Medication {
   dose: Dose;
   frequency: Frequency;
   notes?: string;
+  requiresPurchase?: boolean;
 }
 
 export interface Patient {

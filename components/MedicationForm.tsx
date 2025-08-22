@@ -6,19 +6,21 @@ interface MedicationFormProps {
     onAddMedication: (med: Omit<Medication, 'id'>) => void;
 }
 
-const initialMedState = {
+const initialMedState: Omit<Medication, 'id'> = {
     name: '',
     presentacion: '',
     dose: Dose.ONE,
     frequency: Frequency.EVERY_12H,
     notes: '',
+    requiresPurchase: false,
 };
 
 const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication }) => {
     const [medication, setMedication] = useState(initialMedState);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
+        const { name, type } = e.target;
+        const value = type === 'checkbox' ? (e.target as HTMLInputElement).checked : e.target.value;
         setMedication(prev => ({ ...prev, [name]: value }));
     };
 
@@ -90,6 +92,17 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication }) => {
                         ))}
                     </select>
                 </div>
+            </div>
+            <div className="flex items-center">
+                <input
+                    type="checkbox"
+                    id="requiresPurchase"
+                    name="requiresPurchase"
+                    checked={medication.requiresPurchase}
+                    onChange={handleChange}
+                    className="mr-2"
+                />
+                <label htmlFor="requiresPurchase" className="text-sm text-slate-600">Paciente compra este medicamento</label>
             </div>
             <div>
                 <label htmlFor="notes" className="block text-sm font-medium text-slate-600 mb-1">Notas (Opcional)</label>
