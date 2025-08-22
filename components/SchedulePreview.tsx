@@ -4,6 +4,7 @@ import DoseVisualizer from './DoseVisualizer';
 import MoonIcon from './icons/MoonIcon';
 import SunIcon from './icons/SunIcon';
 import InsulinDoseVisualizer from './InsulinDoseVisualizer';
+import MoneyIcon from './icons/MoneyIcon';
 
 interface SchedulePreviewProps {
     patient: Patient;
@@ -114,21 +115,21 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                 if (item.itemType === 'medication') {
                                     return (
                                         <tr key={item.id} className={`border-b border-slate-200 ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/50'}`}>
-                                            <td className="p-4 align-top">
-                                                <p className="font-bold text-md text-slate-800">{item.name}</p>
+                                            <td className="p-4 align-top" contentEditable suppressContentEditableWarning>
+                                                <p className="font-bold text-md text-slate-800">{item.externalPurchase && <MoneyIcon className="inline mr-1" />}{item.name}</p>
                                                 <p className="text-sm text-slate-600">{item.presentacion}</p>
                                                 <p className="text-xs text-slate-500 italic">{`${item.dose} comp. - ${item.frequency}`}</p>
                                             </td>
-                                            <td className="p-4 text-center align-middle">
+                                            <td className="p-4 text-center align-middle" contentEditable suppressContentEditableWarning>
                                                 {shouldShowDose(item.frequency, 'morning') && <DoseVisualizer dose={item.dose} className="text-blue-600" />}
                                             </td>
-                                            <td className="p-4 text-center align-middle">
+                                            <td className="p-4 text-center align-middle" contentEditable suppressContentEditableWarning>
                                                 {shouldShowDose(item.frequency, 'afternoon') && <DoseVisualizer dose={item.dose} className="text-amber-500" />}
                                             </td>
-                                            <td className="p-4 text-center align-middle">
+                                            <td className="p-4 text-center align-middle" contentEditable suppressContentEditableWarning>
                                                 {shouldShowDose(item.frequency, 'night') && <DoseVisualizer dose={item.dose} className="text-blue-600" />}
                                             </td>
-                                            <td className="p-4 align-top text-sm text-slate-700 whitespace-pre-wrap break-words">
+                                            <td className="p-4 align-top text-sm text-slate-700 whitespace-pre-wrap break-words" contentEditable suppressContentEditableWarning>
                                                 {item.notes || ''}
                                             </td>
                                         </tr>
@@ -140,28 +141,28 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                         .join('\n');
                                     return (
                                         <tr key={item.id} className={`border-b border-slate-200 ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/50'}`}>
-                                            <td className="p-4 align-top">
+                                            <td className="p-4 align-top" contentEditable suppressContentEditableWarning>
                                                 <p className="font-bold text-md text-slate-800">{item.type}</p>
                                                 <p className="text-sm text-teal-600">Insulina</p>
                                             </td>
-                                            <td className="p-4 text-center align-middle">
+                                            <td className="p-4 text-center align-middle" contentEditable suppressContentEditableWarning>
                                                 <div className="flex flex-col items-center gap-2">
                                                     {item.schedules.mañana.map(ins => (
                                                         <InsulinDoseVisualizer key={ins.id} dose={ins.dose} time={ins.time} className="text-blue-600"/>
                                                     ))}
                                                 </div>
                                             </td>
-                                            <td className="p-4 text-center align-middle">
+                                            <td className="p-4 text-center align-middle" contentEditable suppressContentEditableWarning>
                                                 {/* Insulin typically not in the afternoon */}
                                             </td>
-                                            <td className="p-4 text-center align-middle">
+                                            <td className="p-4 text-center align-middle" contentEditable suppressContentEditableWarning>
                                                  <div className="flex flex-col items-center gap-2">
                                                     {item.schedules.noche.map(ins => (
                                                         <InsulinDoseVisualizer key={ins.id} dose={ins.dose} time={ins.time} className="text-blue-600"/>
                                                     ))}
                                                 </div>
                                             </td>
-                                            <td className="p-4 align-top text-sm text-slate-700 whitespace-pre-wrap break-words">
+                                            <td className="p-4 align-top text-sm text-slate-700 whitespace-pre-wrap break-words" contentEditable suppressContentEditableWarning>
                                                 {allNotes}
                                             </td>
                                         </tr>

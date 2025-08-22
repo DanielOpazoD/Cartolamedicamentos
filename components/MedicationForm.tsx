@@ -12,14 +12,15 @@ const initialMedState = {
     dose: Dose.ONE,
     frequency: Frequency.EVERY_12H,
     notes: '',
+    externalPurchase: false,
 };
 
 const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication }) => {
     const [medication, setMedication] = useState(initialMedState);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setMedication(prev => ({ ...prev, [name]: value }));
+        const { name, value, type, checked } = e.target as HTMLInputElement;
+        setMedication(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
     };
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -102,6 +103,17 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication }) => {
                     rows={2}
                     className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 />
+            </div>
+            <div className="flex items-center gap-2">
+                <input
+                    type="checkbox"
+                    id="externalPurchase"
+                    name="externalPurchase"
+                    checked={medication.externalPurchase}
+                    onChange={handleChange}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded"
+                />
+                <label htmlFor="externalPurchase" className="text-sm text-slate-600">Debe ser comprado por el paciente</label>
             </div>
             <button
                 type="submit"
