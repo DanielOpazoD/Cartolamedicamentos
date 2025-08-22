@@ -4,7 +4,10 @@ import DoseVisualizer from './DoseVisualizer';
 import MoonIcon from './icons/MoonIcon';
 import SunIcon from './icons/SunIcon';
 import InjectableDoseVisualizer from './InjectableDoseVisualizer';
-import MoneyIcon from './icons/MoneyIcon';
+import StarIcon from './icons/StarIcon';
+import MoneyIcon from "./icons/MoneyIcon";
+import ArrowUpIcon from './icons/ArrowUpIcon';
+import ArrowDownIcon from './icons/ArrowDownIcon';
 
 interface SchedulePreviewProps {
     patient: Patient;
@@ -80,22 +83,34 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
             } else {
                 existing.noche.push(inj);
             }
+            existing.isNewMedication ||= inj.isNewMedication;
+            existing.doseIncreased ||= inj.doseIncreased;
+            existing.doseDecreased ||= inj.doseDecreased;
+            existing.requiresPurchase ||= inj.requiresPurchase;
         } else {
             acc.set(inj.type, {
                 mañana: inj.schedule === InjectableSchedule.MAÑANA ? [inj] : [],
                 noche: inj.schedule === InjectableSchedule.NOCHE ? [inj] : [],
+                isNewMedication: inj.isNewMedication || false,
+                doseIncreased: inj.doseIncreased || false,
+                doseDecreased: inj.doseDecreased || false,
+                requiresPurchase: inj.requiresPurchase || false,
             });
         }
         return acc;
-    }, new Map<InjectableType, { mañana: Injectable[], noche: Injectable[] }>());
+    }, new Map<InjectableType, { mañana: Injectable[], noche: Injectable[], isNewMedication: boolean, doseIncreased: boolean, doseDecreased: boolean, requiresPurchase: boolean }>());
 
     const medicationItems = medications.map(med => ({ ...med, itemType: 'medication' as const }));
 
-    const injectableItems = Array.from(groupedInjectables.entries()).map(([type, schedules]) => ({
+    const injectableItems = Array.from(groupedInjectables.entries()).map(([type, data]) => ({
         id: type,
         itemType: 'injectable' as const,
         type,
-        schedules,
+        schedules: { mañana: data.mañana, noche: data.noche },
+        isNewMedication: data.isNewMedication,
+        doseIncreased: data.doseIncreased,
+        doseDecreased: data.doseDecreased,
+        requiresPurchase: data.requiresPurchase,
     }));
 
     const allItems = [...medicationItems, ...injectableItems];
@@ -110,7 +125,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
             
             <section className="mb-8 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                 <div className="bg-slate-50 p-3 rounded">
-                    <span className="font-bold text-slate-600">Paciente:</span>
+                    <span className="font-bold text-slate-600">Nombre y Apellido:</span>
                     <span className="ml-2 text-slate-800">{patient.name || '...'}</span>
                 </div>
                 <div className="bg-slate-50 p-3 rounded">
@@ -121,6 +136,16 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                     <span className="font-bold text-slate-600">Fecha:</span>
                     <span className="ml-2 text-slate-800">{patient.date ? new Date(patient.date + 'T00:00:00').toLocaleDateString('es-CL') : '...'}</span>
                 </div>
+            </section>
+
+            <section className="mb-4 text-xs text-slate-600">
+                <p className="font-semibold mb-1">Iconos:</p>
+                <ul className="flex flex-wrap gap-4">
+                    <li className="flex items-center gap-1"><ArrowUpIcon className="w-4 h-4"/> Aumento de dosis</li>
+                    <li className="flex items-center gap-1"><ArrowDownIcon className="w-4 h-4"/> Disminución de dosis</li>
+                    <li className="flex items-center gap-1"><StarIcon className="w-4 h-4 text-yellow-500"/> Nuevo medicamento</li>
+                    <li className="flex items-center gap-1"><MoneyIcon className="w-4 h-4 text-green-600"/> Comprar afuera</li>
+                </ul>
             </section>
 
             <section>
@@ -156,11 +181,26 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                     return (
                                         <tr key={item.id} className={`border-b border-slate-200 ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/50'}`}>
                                             <td className="p-2 text-center align-top">{index + 1}</td>
-                                            <td className="p-2 align-top">
-                                                <p className="font-bold text-md text-slate-800">
+                                            <td className="p-2 align-top text-center">
+                                                <p className="font-bold text-md text-slate-800 flex items-center justify-center gap-1">
+                                                    {item.isNewMedication && (
+                                                        <span contentEditable={false}>
+                                                            <StarIcon className="inline w-4 h-4 text-yellow-500" />
+                                                        </span>
+                                                    )}
+                                                    {item.doseIncreased && (
+                                                        <span contentEditable={false}>
+                                                            <ArrowUpIcon className="inline w-4 h-4" />
+                                                        </span>
+                                                    )}
+                                                    {item.doseDecreased && (
+                                                        <span contentEditable={false}>
+                                                            <ArrowDownIcon className="inline w-4 h-4" />
+                                                        </span>
+                                                    )}
                                                     {item.requiresPurchase && (
                                                         <span contentEditable={false}>
-                                                            <MoneyIcon className="inline w-4 h-4 mr-1 text-green-600" />
+                                                            <MoneyIcon className="inline w-4 h-4 text-green-600" />
                                                         </span>
                                                     )}
                                                     {item.name}
@@ -191,7 +231,29 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                         <tr key={item.id} className={`border-b border-slate-200 ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/50'}`}>
                                             <td className="p-2 text-center align-top">{index + 1}</td>
                                             <td className="p-2 align-top">
-                                                <p className="font-bold text-md text-slate-800">{item.type}</p>
+                                                <p className="font-bold text-md text-slate-800 flex items-center gap-1">
+                                                    {item.isNewMedication && (
+                                                        <span contentEditable={false}>
+                                                            <StarIcon className="inline w-4 h-4 text-yellow-500" />
+                                                        </span>
+                                                    )}
+                                                    {item.doseIncreased && (
+                                                        <span contentEditable={false}>
+                                                            <ArrowUpIcon className="inline w-4 h-4" />
+                                                        </span>
+                                                    )}
+                                                    {item.doseDecreased && (
+                                                        <span contentEditable={false}>
+                                                            <ArrowDownIcon className="inline w-4 h-4" />
+                                                        </span>
+                                                    )}
+                                                    {item.requiresPurchase && (
+                                                        <span contentEditable={false}>
+                                                            <MoneyIcon className="inline w-4 h-4 text-green-600" />
+                                                        </span>
+                                                    )}
+                                                    {item.type}
+                                                </p>
                                                 <p className="text-sm text-teal-600">Inyectable</p>
                                             </td>
                                             <td className="p-2 text-center align-middle" contentEditable={false}>
@@ -228,6 +290,13 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                     </table>
                 </div>
             </section>
+
+            {controlInfo.suspendEnabled && controlInfo.suspendText && (
+                <section className="mb-8">
+                    <h3 className="text-lg font-bold text-black mb-2 text-center">Suspender los siguientes medicamentos</h3>
+                    <div className="p-3 border border-black rounded text-black text-sm whitespace-pre-wrap">{controlInfo.suspendText}</div>
+                </section>
+            )}
 
              {controlInfo.applies === 'yes' && controlInfo.date && (
                 <section className="mt-6 pt-4 border-t border-slate-200 text-xs">

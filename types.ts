@@ -14,12 +14,12 @@ export enum Dose {
     HALF = '1/2',
     THREE_QUARTERS = '3/4',
     ONE = '1',
-    ONE_AND_QUARTER = '1 1/4',
-    ONE_AND_HALF = '1 1/2',
-    ONE_AND_THREE_QUARTERS = '1 3/4',
-    TWO = '2',
-    THREE = '3',
-    FOUR = '4',
+    ONE_AND_QUARTER = '1 + 1/4',
+    ONE_AND_HALF = '1 + 1/2',
+    ONE_AND_THREE_QUARTERS = '1 + 3/4',
+    TWO = '1 + 1',
+    THREE = '1 + 2',
+    FOUR = '1 + 3',
 }
 
 export interface Medication {
@@ -29,6 +29,9 @@ export interface Medication {
   dose: Dose;
   frequency: Frequency;
   notes?: string;
+  isNewMedication?: boolean;
+  doseIncreased?: boolean;
+  doseDecreased?: boolean;
   requiresPurchase?: boolean;
 }
 
@@ -59,6 +62,10 @@ export interface Injectable {
     schedule: InjectableSchedule;
     time: string; // "HH:mm" format
     notes?: string;
+    isNewMedication?: boolean;
+    doseIncreased?: boolean;
+    doseDecreased?: boolean;
+    requiresPurchase?: boolean;
 }
 
 export interface ExamOptions {
@@ -79,4 +86,6 @@ export interface ControlInfo {
   exams: ExamOptions;
   otrosText: string;
   note: string;
+  suspendEnabled: boolean;
+  suspendText: string;
 }

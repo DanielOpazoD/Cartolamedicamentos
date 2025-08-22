@@ -7,7 +7,11 @@ import InjectableForm from './components/InjectableForm';
 import SchedulePreview from './components/SchedulePreview';
 import TrashIcon from './components/icons/TrashIcon';
 import ControlInfoForm from './components/ControlInfoForm';
+import SuspensionSection from './components/SuspensionSection';
 import MoneyIcon from './components/icons/MoneyIcon';
+import StarIcon from './components/icons/StarIcon';
+import ArrowUpIcon from './components/icons/ArrowUpIcon';
+import ArrowDownIcon from './components/icons/ArrowDownIcon';
 
 const initialControlInfo: ControlInfo = {
     applies: 'no',
@@ -24,7 +28,9 @@ const initialControlInfo: ControlInfo = {
         otros: false,
     },
     otrosText: '',
-    note: ''
+    note: '',
+    suspendEnabled: false,
+    suspendText: ''
 };
 
 const App: React.FC = () => {
@@ -33,6 +39,8 @@ const App: React.FC = () => {
     const [medications, setMedications] = useState<Medication[]>([]);
     const [injectables, setInjectables] = useState<Injectable[]>([]);
     const [controlInfo, setControlInfo] = useState<ControlInfo>(initialControlInfo);
+    const [editingMedication, setEditingMedication] = useState<Medication | null>(null);
+    const [editingInjectable, setEditingInjectable] = useState<Injectable | null>(null);
 
 
     const previewRef = useRef<HTMLDivElement>(null);
@@ -46,12 +54,20 @@ const App: React.FC = () => {
         setMedications(prev => [...prev, { ...med, id: Date.now() }]);
     }, []);
 
+    const updateMedication = useCallback((id: number, med: Omit<Medication, 'id'>) => {
+        setMedications(prev => prev.map(m => m.id === id ? { ...m, ...med } : m));
+    }, []);
+
     const removeMedication = useCallback((id: number) => {
         setMedications(prev => prev.filter(med => med.id !== id));
     }, []);
 
     const addInjectable = useCallback((inj: Omit<Injectable, 'id'>) => {
         setInjectables(prev => [...prev, { ...inj, id: Date.now() }]);
+    }, []);
+
+    const updateInjectable = useCallback((id: number, inj: Omit<Injectable, 'id'>) => {
+        setInjectables(prev => prev.map(i => i.id === id ? { ...i, ...inj } : i));
     }, []);
 
     const removeInjectable = useCallback((id: number) => {
@@ -105,22 +121,24 @@ const App: React.FC = () => {
                     <div className="flex gap-2">
                         <button
                             onClick={handleExportList}
-                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105"
+                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center gap-1"
                         >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20"><path d="M3 3a2 2 0 012-2h6a2 2 0 012 2v3h-2V3H5v14h6v-3h2v3a2 2 0 01-2 2H5a2 2 0 01-2-2V3z"/><path d="M9 7h2v5h3l-4 4-4-4h3V7z"/></svg>
                             Exportar Lista
                         </button>
                         <button
                             onClick={handleImportClick}
-                            className="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105"
+                            className="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center gap-1"
                         >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20"><path d="M3 3a2 2 0 012-2h6a2 2 0 012 2v3h-2V3H5v14h6v-3h2v3a2 2 0 01-2 2H5a2 2 0 01-2-2V3z"/><path d="M11 13H9V8H6l4-4 4 4h-3v5z"/></svg>
                             Importar Lista
                         </button>
                         <input ref={fileInputRef} type="file" accept="application/json" className="hidden" onChange={handleImportList} />
                         <button
                             onClick={handlePrint}
-                            className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center gap-2"
+                            className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center gap-1"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                                 <path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v2h12V4a2 2 0 00-2-2H6zm10 6H4v8a2 2 0 002 2h8a2 2 0 002-2V8zM6 10h8v2H6v-2z" clipRule="evenodd" />
                             </svg>
                             Imprimir / Guardar PDF
@@ -133,8 +151,9 @@ const App: React.FC = () => {
                 {/* Control Panel */}
                 <div className="bg-white p-6 rounded-xl shadow-lg space-y-8">
                     <PatientInfoForm patient={patient} onChange={handlePatientChange} />
-                    <MedicationForm onAddMedication={addMedication} />
-                    <InjectableForm onAddInjectable={addInjectable} />
+                    <MedicationForm onAddMedication={addMedication} onUpdateMedication={updateMedication} editingMedication={editingMedication} onCancelEdit={() => setEditingMedication(null)} />
+                    <InjectableForm onAddInjectable={addInjectable} onUpdateInjectable={updateInjectable} editingInjectable={editingInjectable} onCancelEdit={() => setEditingInjectable(null)} />
+                    <SuspensionSection controlInfo={controlInfo} onChange={handleControlChange} />
                     <ControlInfoForm controlInfo={controlInfo} onChange={handleControlChange} />
                     
                     {medications.length > 0 && (
@@ -144,20 +163,32 @@ const App: React.FC = () => {
                                 {medications.map((med) => (
                                     <li key={med.id} className="flex justify-between items-center bg-slate-50 p-3 rounded-lg shadow-sm">
                                         <div>
-                                            <p className="font-bold text-blue-600">
-                                                {med.requiresPurchase && <MoneyIcon className="inline w-4 h-4 mr-1" />}
+                                            <p className="font-bold text-blue-600 flex items-center gap-1">
+                                                {med.isNewMedication && <StarIcon className="inline w-4 h-4 text-yellow-500" />}
+                                                {med.doseIncreased && <ArrowUpIcon className="inline w-4 h-4" />}
+                                                {med.doseDecreased && <ArrowDownIcon className="inline w-4 h-4" />}
+                                                {med.requiresPurchase && <MoneyIcon className="inline w-4 h-4 text-green-600" />}
                                                 {med.name} <span className="text-slate-600 font-normal">{med.presentacion}</span>
                                             </p>
-                                            <p className="text-sm text-slate-500">{`${med.dose} comprimido(s) - ${med.frequency}`}</p>
+                        <p className="text-sm text-slate-500">{`${med.dose} comprimido(s) - ${med.frequency}`}</p>
                                             {med.notes && <p className="text-xs text-slate-500 italic mt-1">Nota: {med.notes}</p>}
                                         </div>
-                                        <button 
-                                            onClick={() => removeMedication(med.id)}
-                                            className="p-2 text-red-500 hover:bg-red-100 rounded-full transition-colors"
-                                            aria-label="Eliminar medicamento"
-                                        >
-                                            <TrashIcon className="w-5 h-5" />
-                                        </button>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => setEditingMedication(med)}
+                                                className="p-2 text-blue-500 hover:bg-blue-100 rounded-full transition-colors"
+                                                aria-label="Editar medicamento"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L7.5 21.036H3v-4.5L16.732 3.732z" /></svg>
+                                            </button>
+                                            <button
+                                                onClick={() => removeMedication(med.id)}
+                                                className="p-2 text-red-500 hover:bg-red-100 rounded-full transition-colors"
+                                                aria-label="Eliminar medicamento"
+                                            >
+                                                <TrashIcon className="w-5 h-5" />
+                                            </button>
+                                        </div>
                                     </li>
                                 ))}
                             </ul>
@@ -171,17 +202,32 @@ const App: React.FC = () => {
                                 {injectables.map((ins) => (
                                     <li key={ins.id} className="flex justify-between items-center bg-slate-50 p-3 rounded-lg shadow-sm">
                                         <div>
-                                            <p className="font-bold text-teal-600">{ins.type}</p>
+                                            <p className="font-bold text-teal-600 flex items-center gap-1">
+                                                {ins.isNewMedication && <StarIcon className="inline w-4 h-4 text-yellow-500" />}
+                                                {ins.doseIncreased && <ArrowUpIcon className="inline w-4 h-4" />}
+                                                {ins.doseDecreased && <ArrowDownIcon className="inline w-4 h-4" />}
+                                                {ins.requiresPurchase && <MoneyIcon className="inline w-4 h-4 text-green-600" />}
+                                                {ins.type}
+                                            </p>
                                             <p className="text-sm text-slate-500">{`${ins.dose} - ${ins.schedule} a las ${ins.time}`}</p>
                                             {ins.notes && <p className="text-xs text-slate-500 italic mt-1">Nota: {ins.notes}</p>}
                                         </div>
-                                        <button
-                                            onClick={() => removeInjectable(ins.id)}
-                                            className="p-2 text-red-500 hover:bg-red-100 rounded-full transition-colors"
-                                            aria-label="Eliminar inyectable"
-                                        >
-                                            <TrashIcon className="w-5 h-5" />
-                                        </button>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => setEditingInjectable(ins)}
+                                                className="p-2 text-blue-500 hover:bg-blue-100 rounded-full transition-colors"
+                                                aria-label="Editar inyectable"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L7.5 21.036H3v-4.5L16.732 3.732z" /></svg>
+                                            </button>
+                                            <button
+                                                onClick={() => removeInjectable(ins.id)}
+                                                className="p-2 text-red-500 hover:bg-red-100 rounded-full transition-colors"
+                                                aria-label="Eliminar inyectable"
+                                            >
+                                                <TrashIcon className="w-5 h-5" />
+                                            </button>
+                                        </div>
                                     </li>
                                 ))}
                             </ul>
