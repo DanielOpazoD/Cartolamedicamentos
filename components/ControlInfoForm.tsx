@@ -25,18 +25,21 @@ const ControlInfoForm: React.FC<ControlInfoFormProps> = ({ controlInfo, onChange
     return (
         <div className="space-y-4 pt-4 border-t border-slate-200">
             <h2 className="text-2xl font-bold text-slate-800 border-b-2 border-blue-200 pb-2">Próximo Control Médico</h2>
-            
-             <div>
+
+            <div>
                 <label htmlFor="controlApplies" className="block text-sm font-medium text-slate-600 mb-1">Aplica Control</label>
                 <select
                     id="controlApplies"
                     name="applies"
                     value={controlInfo.applies}
-                    onChange={(e) => onChange('applies', e.target.value)}
+                    onChange={(e) => {
+                        onChange('applies', e.target.value);
+                        if (e.target.value === 'yes') onChange('withExams', 'unspecified');
+                    }}
                     className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
                 >
-                    <option value="yes">Sí, aplica</option>
                     <option value="no">No aplica</option>
+                    <option value="yes">Sí, aplica</option>
                 </select>
             </div>
 
@@ -44,9 +47,9 @@ const ControlInfoForm: React.FC<ControlInfoFormProps> = ({ controlInfo, onChange
                 <div className="space-y-4 pt-2">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label htmlFor="controlDate" className="block text-sm font-medium text-slate-600 mb-1">Mes / Año</label>
+                            <label htmlFor="controlDate" className="block text-sm font-medium text-slate-600 mb-1">Fecha</label>
                             <input
-                                type="month"
+                                type="date"
                                 id="controlDate"
                                 name="date"
                                 value={controlInfo.date}
@@ -55,19 +58,41 @@ const ControlInfoForm: React.FC<ControlInfoFormProps> = ({ controlInfo, onChange
                             />
                         </div>
                         <div>
-                            <label htmlFor="withExams" className="block text-sm font-medium text-slate-600 mb-1">Con Exámenes</label>
-                            <select
-                                id="withExams"
-                                name="withExams"
-                                value={controlInfo.withExams}
-                                onChange={(e) => onChange('withExams', e.target.value)}
-                                className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
-                            >
-                                <option value="unspecified">No especificado</option>
-                                <option value="yes">Sí</option>
-                                <option value="no">No</option>
-                            </select>
+                            <label htmlFor="controlTime" className="block text-sm font-medium text-slate-600 mb-1">Hora</label>
+                            <input
+                                type="time"
+                                id="controlTime"
+                                name="time"
+                                value={controlInfo.time}
+                                onChange={(e) => onChange('time', e.target.value)}
+                                className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            />
                         </div>
+                    </div>
+                    <div>
+                        <label htmlFor="professional" className="block text-sm font-medium text-slate-600 mb-1">Profesional</label>
+                        <input
+                            type="text"
+                            id="professional"
+                            name="professional"
+                            value={controlInfo.professional}
+                            onChange={(e) => onChange('professional', e.target.value)}
+                            className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="withExams" className="block text-sm font-medium text-slate-600 mb-1">Con Exámenes</label>
+                        <select
+                            id="withExams"
+                            name="withExams"
+                            value={controlInfo.withExams}
+                            onChange={(e) => onChange('withExams', e.target.value)}
+                            className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+                        >
+                            <option value="unspecified">No especificado</option>
+                            <option value="yes">Sí</option>
+                            <option value="no">No</option>
+                        </select>
                     </div>
 
                     {controlInfo.withExams === 'yes' && (
@@ -106,6 +131,18 @@ const ControlInfoForm: React.FC<ControlInfoFormProps> = ({ controlInfo, onChange
                             )}
                         </div>
                     )}
+
+                    <div>
+                        <label htmlFor="controlNote" className="block text-sm font-medium text-slate-600 mb-1">Nota</label>
+                        <textarea
+                            id="controlNote"
+                            name="note"
+                            value={controlInfo.note}
+                            onChange={(e) => onChange('note', e.target.value)}
+                            rows={2}
+                            className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        />
+                    </div>
                 </div>
             )}
         </div>
