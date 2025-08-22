@@ -31,7 +31,9 @@ const initialControlInfo: ControlInfo = {
     otrosText: '',
     note: '',
     suspendEnabled: false,
-    suspendText: ''
+    suspendText: '',
+    freeNoteEnabled: false,
+    freeNoteText: ''
 };
 
 const App: React.FC = () => {
@@ -118,7 +120,7 @@ const App: React.FC = () => {
         reader.onload = ev => {
             try {
                 const data = JSON.parse(ev.target?.result as string);
-                setMedications(data.medications || []);
+                setMedications((data.medications || []).map((m: Medication) => ({ description: 'comprimido/capsula', ...m })));
                 setInjectables(data.injectables || []);
                 setInhalers(data.inhalers || []);
             } catch (err) {
@@ -134,7 +136,7 @@ const App: React.FC = () => {
         <div className="min-h-screen font-sans text-slate-800">
             <header className="bg-white shadow-md">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap gap-2 justify-between items-center">
-                    <h1 className="text-2xl font-bold text-blue-700">Generador de Cartola de Medicamentos</h1>
+                    <h1 className="text-2xl font-bold text-blue-700">Guía de Medicamentos</h1>
                     <div className="flex gap-2">
                         <button
                             onClick={handleExportList}

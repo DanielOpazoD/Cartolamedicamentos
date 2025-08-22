@@ -13,6 +13,7 @@ interface MedicationFormProps {
 const initialMedState: Omit<Medication, 'id'> = {
     name: '',
     presentacion: '',
+    description: 'comprimido/capsula',
     dose: Dose.ONE,
     frequency: Frequency.EVERY_12H,
     notes: '',
@@ -24,13 +25,18 @@ const initialMedState: Omit<Medication, 'id'> = {
 
 const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpdateMedication, editingMedication, onCancelEdit }) => {
     const [medication, setMedication] = useState(initialMedState);
+    const [descriptionOption, setDescriptionOption] = useState('comprimido/capsula');
 
     useEffect(() => {
         if (editingMedication) {
             const { id, ...rest } = editingMedication;
-            setMedication(rest);
+            const descOptions = ['comprimido/capsula', 'sobre', 'bicarbonato en polvo', 'gotas'];
+            const desc = rest.description || 'comprimido/capsula';
+            setMedication({ ...rest, description: desc });
+            setDescriptionOption(descOptions.includes(desc) ? desc : 'otro');
         } else {
             setMedication(initialMedState);
+            setDescriptionOption('comprimido/capsula');
         }
     }, [editingMedication]);
 
@@ -38,6 +44,12 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
         const { name, type } = e.target;
         const value = type === 'checkbox' ? (e.target as HTMLInputElement).checked : e.target.value;
         setMedication(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleDescriptionOptionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const value = e.target.value;
+        setDescriptionOption(value);
+        setMedication(prev => ({ ...prev, description: value === 'otro' ? '' : value }));
     };
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -50,8 +62,11 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
                 onAddMedication(medication);
             }
             setMedication(initialMedState);
+            setDescriptionOption('comprimido/capsula');
         }
     };
+
+    const displayDescription = descriptionOption === 'otro' ? (medication.description || 'unidad') : descriptionOption;
 
     return (
         <form onSubmit={handleSubmit} className="space-y-2 pt-2 border-t border-slate-200">
@@ -86,9 +101,35 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
                     />
                 </div>
             </div>
-             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+                <label htmlFor="descriptionOption" className="block text-sm font-medium text-slate-600 mb-1">Descripción</label>
+                <select
+                    id="descriptionOption"
+                    value={descriptionOption}
+                    onChange={handleDescriptionOptionChange}
+                    className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+                >
+                    <option value="comprimido/capsula">Comprimido/Cápsula</option>
+                    <option value="sobre">Sobre</option>
+                    <option value="bicarbonato en polvo">Bicarbonato en polvo</option>
+                    <option value="gotas">Gotas</option>
+                    <option value="otro">Otro</option>
+                </select>
+                {descriptionOption === 'otro' && (
+                    <input
+                        type="text"
+                        name="description"
+                        value={medication.description}
+                        onChange={handleChange}
+                        placeholder="Ingrese descripción"
+                        className="mt-2 w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        required
+                    />
+                )}
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
-                    <label htmlFor="dose" className="block text-sm font-medium text-slate-600 mb-1">Dosis (comprimidos)</label>
+                    <label htmlFor="dose" className="block text-sm font-medium text-slate-600 mb-1">{`Dosis (${displayDescription})`}</label>
                     <select
                         id="dose"
                         name="dose"

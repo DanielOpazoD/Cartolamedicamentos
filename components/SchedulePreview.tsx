@@ -129,7 +129,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
     return (
         <div id="schedule-preview" className="bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl mx-auto border border-slate-200">
             <header className="text-center mb-8 border-b-2 pb-4 border-slate-200">
-                <h1 className="text-2xl font-extrabold text-blue-700">Cartola de Medicamentos</h1>
+                <h1 className="text-2xl font-extrabold text-blue-700">Guía de Medicamentos</h1>
             </header>
             
             <section className="mb-8 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
@@ -230,7 +230,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                     {item.name}
                                                 </p>
                                                 <p className="text-sm text-slate-600">{item.presentacion}</p>
-                                                <p className="text-xs text-slate-500 italic">{`${item.dose} comp. - ${item.frequency}`}</p>
+                                                <p className="text-xs text-slate-500 italic">{`${item.dose} ${item.description || 'comprimido/capsula'} - ${item.frequency}`}</p>
                                             </td>
                                             <td className="p-2 text-center align-middle cursor-pointer" contentEditable={false} onClick={() => handleDoseClick(item.id, 'morning')}>
                                                 {editableDoses[item.id]?.morning && <DoseVisualizer dose={editableDoses[item.id].morning} className="text-blue-600" />}
@@ -391,13 +391,23 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                 </div>
             </section>
 
-            {controlInfo.suspendEnabled && controlInfo.suspendText && (
+            {controlInfo.suspendEnabled && (
                 <section className="mb-8">
-                    <h3 className="text-base font-bold text-black mb-2 text-center flex items-center justify-center gap-1">
-                        <RedCrossIcon className="w-4 h-4 text-red-600" />
-                        Suspender los siguientes medicamentos
-                    </h3>
-                    <div className="p-3 border border-black rounded text-black text-sm whitespace-pre-wrap">{controlInfo.suspendText}</div>
+                    {controlInfo.suspendText && (
+                        <>
+                            <h3 className="text-base font-bold text-black mb-2 text-center flex items-center justify-center gap-1">
+                                <RedCrossIcon className="w-4 h-4 text-red-600" />
+                                Suspender los siguientes medicamentos
+                            </h3>
+                            <div className="p-3 border border-black rounded text-black text-sm whitespace-pre-wrap">{controlInfo.suspendText}</div>
+                        </>
+                    )}
+                    {controlInfo.freeNoteEnabled && controlInfo.freeNoteText && (
+                        <div className="mt-4">
+                            <h3 className="text-base font-bold text-black mb-2 text-center">Nota</h3>
+                            <div className="p-3 border border-black rounded text-black text-sm whitespace-pre-wrap">{controlInfo.freeNoteText}</div>
+                        </div>
+                    )}
                 </section>
             )}
 
