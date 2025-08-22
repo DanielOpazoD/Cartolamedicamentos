@@ -295,13 +295,13 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                 <p className="text-xs text-slate-500 italic">{`${item.dose} puff - cada ${item.frequencyHours} h`}</p>
                                             </td>
                                             <td className="p-2 text-center align-middle" contentEditable={false}>
-                                                {showMorning && <span className="font-bold">{item.dose}</span>}
+                                                {showMorning && <span className="font-bold">{`${item.dose} puff`}</span>}
                                             </td>
                                             <td className="p-2 text-center align-middle" contentEditable={false}>
-                                                {showAfternoon && <span className="font-bold">{item.dose}</span>}
+                                                {showAfternoon && <span className="font-bold">{`${item.dose} puff`}</span>}
                                             </td>
                                             <td className="p-2 text-center align-middle" contentEditable={false}>
-                                                {showNight && <span className="font-bold">{item.dose}</span>}
+                                                {showNight && <span className="font-bold">{`${item.dose} puff`}</span>}
                                             </td>
                                             <td className="p-2 align-top text-sm text-slate-700 whitespace-pre-wrap break-words">
                                                 {item.notes || ''}
@@ -439,8 +439,8 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                 </section>
             )}
 
-            <section className="mt-16 pt-8 text-center">
-                <div className="grid grid-cols-2 gap-8">
+            <section className="mt-12 pt-6 text-center">
+                <div className="grid grid-cols-2 gap-4">
                     <div className="flex flex-col items-center">
                         <div className="w-4/5 h-12 border-b-2 border-slate-400"></div>
                         <p className="mt-2 text-sm font-semibold text-slate-600">{controlInfo.professional || 'Nombre Profesional'}</p>

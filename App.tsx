@@ -326,6 +326,17 @@ const App: React.FC = () => {
                     </div>
 
                     <SuspensionSection controlInfo={controlInfo} onChange={handleControlChange} />
+                    <div className="space-y-2 pt-4 border-t border-slate-200">
+                        <label htmlFor="professional" className="block text-sm font-medium text-slate-600 mb-1">Profesional</label>
+                        <input
+                            type="text"
+                            id="professional"
+                            name="professional"
+                            value={controlInfo.professional}
+                            onChange={(e) => handleControlChange('professional', e.target.value)}
+                            className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        />
+                    </div>
                     <ControlInfoForm controlInfo={controlInfo} onChange={handleControlChange} />
                 </div>
 
@@ -340,15 +351,24 @@ const App: React.FC = () => {
                        controlInfo={controlInfo}
                        onEditMedication={(id) => {
                          const med = medications.find(m => m.id === id);
-                         if (med) setEditingMedication(med);
+                         if (med) {
+                           setActiveTab('oral');
+                           setEditingMedication(med);
+                         }
                        }}
                        onEditInjectable={(id) => {
                          const inj = injectables.find(i => i.id === id);
-                         if (inj) setEditingInjectable(inj);
+                         if (inj) {
+                           setActiveTab('injectable');
+                           setEditingInjectable(inj);
+                         }
                        }}
                        onEditInhaler={(id) => {
                          const inh = inhalers.find(i => i.id === id);
-                         if (inh) setEditingInhaler(inh);
+                         if (inh) {
+                           setActiveTab('inhaled');
+                           setEditingInhaler(inh);
+                         }
                        }}
                      />
                    </div>
