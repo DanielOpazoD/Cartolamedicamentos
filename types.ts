@@ -22,6 +22,13 @@ export enum Dose {
     FOUR = '4',
 }
 
+export enum MedicationDescriptor {
+  BUY_OUTSIDE = 'buyOutside',
+  DOSE_INCREASE = 'doseIncrease',
+  DOSE_DECREASE = 'doseDecrease',
+  NEW = 'newMedication',
+}
+
 export interface Medication {
   id: number;
   name: string;
@@ -29,7 +36,7 @@ export interface Medication {
   dose: Dose;
   frequency: Frequency;
   notes?: string;
-  requiresPurchase?: boolean;
+  descriptors?: MedicationDescriptor[];
 }
 
 export interface Patient {

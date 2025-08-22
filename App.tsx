@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useCallback } from 'react';
-import { Patient, Medication, Injectable, ControlInfo, ExamOptions } from './types';
+import { Patient, Medication, Injectable, ControlInfo, ExamOptions, MedicationDescriptor } from './types';
 import PatientInfoForm from './components/PatientInfoForm';
 import MedicationForm from './components/MedicationForm';
 import InjectableForm from './components/InjectableForm';
@@ -8,6 +8,9 @@ import SchedulePreview from './components/SchedulePreview';
 import TrashIcon from './components/icons/TrashIcon';
 import ControlInfoForm from './components/ControlInfoForm';
 import MoneyIcon from './components/icons/MoneyIcon';
+import ArrowUpIcon from './components/icons/ArrowUpIcon';
+import ArrowDownIcon from './components/icons/ArrowDownIcon';
+import NewIcon from './components/icons/NewIcon';
 
 const initialControlInfo: ControlInfo = {
     applies: 'no',
@@ -69,7 +72,7 @@ const App: React.FC = () => {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleExportList = () => {
-        const data = { medications, injectables };
+        const data = { patient, medications, injectables };
         const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -88,6 +91,13 @@ const App: React.FC = () => {
                 const data = JSON.parse(ev.target?.result as string);
                 setMedications(data.medications || []);
                 setInjectables(data.injectables || []);
+                if (data.patient) {
+                    setPatient({
+                        name: data.patient.name || '',
+                        rut: data.patient.rut || '',
+                        date: data.patient.date || today,
+                    });
+                }
             } catch (err) {
                 console.error('Error al importar lista', err);
             }
@@ -145,7 +155,15 @@ const App: React.FC = () => {
                                     <li key={med.id} className="flex justify-between items-center bg-slate-50 p-3 rounded-lg shadow-sm">
                                         <div>
                                             <p className="font-bold text-blue-600">
-                                                {med.requiresPurchase && <MoneyIcon className="inline w-4 h-4 mr-1" />}
+                                                {med.descriptors?.map(desc => {
+                                                    const Icon = {
+                                                        [MedicationDescriptor.BUY_OUTSIDE]: MoneyIcon,
+                                                        [MedicationDescriptor.DOSE_INCREASE]: ArrowUpIcon,
+                                                        [MedicationDescriptor.DOSE_DECREASE]: ArrowDownIcon,
+                                                        [MedicationDescriptor.NEW]: NewIcon,
+                                                    }[desc];
+                                                    return <Icon key={desc} className="inline w-4 h-4 mr-1" />;
+                                                })}
                                                 {med.name} <span className="text-slate-600 font-normal">{med.presentacion}</span>
                                             </p>
                                             <p className="text-sm text-slate-500">{`${med.dose} comprimido(s) - ${med.frequency}`}</p>

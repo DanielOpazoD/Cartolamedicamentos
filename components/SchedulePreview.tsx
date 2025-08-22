@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Patient, Medication, Frequency, Dose, Injectable, InjectableSchedule, InjectableType, ControlInfo } from '../types';
+import { Patient, Medication, Frequency, Dose, Injectable, InjectableSchedule, InjectableType, ControlInfo, MedicationDescriptor } from '../types';
 import DoseVisualizer from './DoseVisualizer';
 import MoonIcon from './icons/MoonIcon';
 import SunIcon from './icons/SunIcon';
 import InjectableDoseVisualizer from './InjectableDoseVisualizer';
 import MoneyIcon from './icons/MoneyIcon';
+import ArrowUpIcon from './icons/ArrowUpIcon';
+import ArrowDownIcon from './icons/ArrowDownIcon';
+import NewIcon from './icons/NewIcon';
+import StopIcon from './icons/StopIcon';
 
 interface SchedulePreviewProps {
     patient: Patient;
@@ -158,11 +162,19 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                             <td className="p-2 text-center align-top">{index + 1}</td>
                                             <td className="p-2 align-top">
                                                 <p className="font-bold text-md text-slate-800">
-                                                    {item.requiresPurchase && (
-                                                        <span contentEditable={false}>
-                                                            <MoneyIcon className="inline w-4 h-4 mr-1 text-green-600" />
-                                                        </span>
-                                                    )}
+                                                    {item.descriptors?.map(desc => {
+                                                        const Icon = {
+                                                            [MedicationDescriptor.BUY_OUTSIDE]: MoneyIcon,
+                                                            [MedicationDescriptor.DOSE_INCREASE]: ArrowUpIcon,
+                                                            [MedicationDescriptor.DOSE_DECREASE]: ArrowDownIcon,
+                                                            [MedicationDescriptor.NEW]: NewIcon,
+                                                        }[desc];
+                                                        return (
+                                                            <span key={desc} contentEditable={false}>
+                                                                <Icon className="inline w-4 h-4 mr-1" />
+                                                            </span>
+                                                        );
+                                                    })}
                                                     {item.name}
                                                 </p>
                                                 <p className="text-sm text-slate-600">{item.presentacion}</p>
@@ -229,7 +241,18 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                 </div>
             </section>
 
-             {controlInfo.applies === 'yes' && controlInfo.date && (
+            <section className="mt-6" contentEditable={false}>
+                <h3 className="text-md font-bold text-red-600 flex items-center gap-1">
+                    <StopIcon className="w-5 h-5 text-red-600" /> Suspender los siguientes medicamentos
+                </h3>
+                <div
+                    className="mt-2 border border-red-300 rounded p-2 h-16"
+                    contentEditable
+                    suppressContentEditableWarning
+                ></div>
+            </section>
+
+            {controlInfo.applies === 'yes' && controlInfo.date && (
                 <section className="mt-6 pt-4 border-t border-slate-200 text-xs">
                     <h3 className="text-lg font-bold text-slate-800 mb-2 text-center">Próximo Control Médico</h3>
                     <div className="bg-slate-50 rounded-lg p-3 grid grid-cols-1 md:grid-cols-2 gap-3">
