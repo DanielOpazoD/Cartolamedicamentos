@@ -30,7 +30,9 @@ const insulinTypes = [
     InjectableType.NPH,
     InjectableType.CRYSTALLINE,
     InjectableType.LANTUS,
+    InjectableType.TOUJEO,
     InjectableType.TRESIBA,
+    InjectableType.OTHER,
 ];
 
 const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpdateInjectable, editingInjectable, onCancelEdit }) => {

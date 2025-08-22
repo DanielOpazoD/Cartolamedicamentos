@@ -40,6 +40,35 @@ const SuspensionSection: React.FC<SuspensionSectionProps> = ({ controlInfo, onCh
           rows={2}
           className="w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-black"
         />
+
+        <div className="mt-4">
+          <label htmlFor="freeNoteEnabled" className="block text-sm font-medium text-slate-600 mb-1">
+            Incluir sección nota libre
+          </label>
+          <select
+            id="freeNoteEnabled"
+            name="freeNoteEnabled"
+            value={controlInfo.freeNoteEnabled ? 'yes' : 'no'}
+            onChange={(e) => onChange('freeNoteEnabled', e.target.value === 'yes')}
+            className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+          >
+            <option value="no">No</option>
+            <option value="yes">Sí</option>
+          </select>
+        </div>
+
+        {controlInfo.freeNoteEnabled && (
+          <div className="mt-2">
+            <label className="block text-xs font-medium text-black mb-1">Nota</label>
+            <textarea
+              name="freeNoteText"
+              value={controlInfo.freeNoteText}
+              onChange={(e) => onChange('freeNoteText', e.target.value)}
+              rows={2}
+              className="w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-black"
+            />
+          </div>
+        )}
       </div>
     )}
   </div>
