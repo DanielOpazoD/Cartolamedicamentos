@@ -15,9 +15,9 @@ const DoseVisualizer: React.FC<DoseVisualizerProps> = ({ dose, className }) => {
     // Renderiza múltiples cápsulas para dosis mayores a 1
     const renderMultiplePills = (count: number) => {
         return (
-            <div className="flex items-center justify-center -space-x-4">
+            <div className="flex items-center justify-center space-x-2">
                 {Array.from({ length: count }).map((_, i) => (
-                     <PillIcon key={i} className="w-10 h-10" />
+                    <PillIcon key={i} className="w-10 h-10" />
                 ))}
             </div>
         );
@@ -59,7 +59,7 @@ const DoseVisualizer: React.FC<DoseVisualizerProps> = ({ dose, className }) => {
         case Dose.ONE_AND_QUARTER:
             return (
                 <DoseDisplay label={Dose.ONE_AND_QUARTER}>
-                    <div className="flex items-center justify-center -space-x-4">
+                    <div className="flex items-center justify-center space-x-2">
                         <PillIcon className="w-10 h-10" />
                         <QuarterPillIcon className="w-8 h-8" />
                     </div>
@@ -68,7 +68,7 @@ const DoseVisualizer: React.FC<DoseVisualizerProps> = ({ dose, className }) => {
         case Dose.ONE_AND_HALF:
             return (
                 <DoseDisplay label={Dose.ONE_AND_HALF}>
-                    <div className="flex items-center justify-center -space-x-4">
+                    <div className="flex items-center justify-center space-x-2">
                         <PillIcon className="w-10 h-10" />
                         <HalfPillIcon className="w-8 h-8" />
                     </div>
@@ -77,7 +77,7 @@ const DoseVisualizer: React.FC<DoseVisualizerProps> = ({ dose, className }) => {
         case Dose.ONE_AND_THREE_QUARTERS:
             return (
                 <DoseDisplay label={Dose.ONE_AND_THREE_QUARTERS}>
-                    <div className="flex items-center justify-center -space-x-4">
+                    <div className="flex items-center justify-center space-x-2">
                         <PillIcon className="w-10 h-10" />
                         <ThreeQuarterPillIcon className="w-8 h-8" />
                     </div>

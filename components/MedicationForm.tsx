@@ -16,6 +16,9 @@ const initialMedState: Omit<Medication, 'id'> = {
     dose: Dose.ONE,
     frequency: Frequency.EVERY_12H,
     notes: '',
+    isNewMedication: false,
+    doseIncreased: false,
+    doseDecreased: false,
     requiresPurchase: false,
 };
 
@@ -113,16 +116,47 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
                     </select>
                 </div>
             </div>
-            <div className="flex items-center">
-                <input
-                    type="checkbox"
-                    id="requiresPurchase"
-                    name="requiresPurchase"
-                    checked={medication.requiresPurchase}
-                    onChange={handleChange}
-                    className="mr-2"
-                />
-                <label htmlFor="requiresPurchase" className="text-sm text-slate-600">Paciente compra este medicamento</label>
+            <div className="grid grid-cols-2 gap-2">
+                <label className="flex items-center text-sm text-slate-600">
+                    <input
+                        type="checkbox"
+                        name="isNewMedication"
+                        checked={medication.isNewMedication}
+                        onChange={handleChange}
+                        className="mr-2"
+                    />
+                    Nuevo medicamento
+                </label>
+                <label className="flex items-center text-sm text-slate-600">
+                    <input
+                        type="checkbox"
+                        name="doseIncreased"
+                        checked={medication.doseIncreased}
+                        onChange={handleChange}
+                        className="mr-2"
+                    />
+                    Aumento de dosis
+                </label>
+                <label className="flex items-center text-sm text-slate-600">
+                    <input
+                        type="checkbox"
+                        name="doseDecreased"
+                        checked={medication.doseDecreased}
+                        onChange={handleChange}
+                        className="mr-2"
+                    />
+                    Disminución de dosis
+                </label>
+                <label className="flex items-center text-sm text-slate-600">
+                    <input
+                        type="checkbox"
+                        name="requiresPurchase"
+                        checked={medication.requiresPurchase}
+                        onChange={handleChange}
+                        className="mr-2"
+                    />
+                    Comprar afuera
+                </label>
             </div>
             <div>
                 <label htmlFor="notes" className="block text-sm font-medium text-slate-600 mb-1">Notas (Opcional)</label>

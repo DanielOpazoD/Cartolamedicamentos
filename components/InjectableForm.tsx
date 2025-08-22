@@ -15,6 +15,10 @@ const initialInjectableState: Omit<Injectable, 'id'> = {
     schedule: InjectableSchedule.MAÑANA,
     time: '08:00',
     notes: '',
+    isNewMedication: false,
+    doseIncreased: false,
+    doseDecreased: false,
+    requiresPurchase: false,
 };
 
 const hourOptions = Array.from({ length: 24 }, (_, i) => {
@@ -43,7 +47,8 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpda
     }, [editingInjectable]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
+        const { name, type } = e.target;
+        const value = type === 'checkbox' ? (e.target as HTMLInputElement).checked : e.target.value;
         setInjectable(prev => ({
             ...prev,
             [name]: value,
@@ -193,6 +198,49 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpda
                         ))}
                     </select>
                 </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+                <label className="flex items-center text-sm text-slate-600">
+                    <input
+                        type="checkbox"
+                        name="isNewMedication"
+                        checked={injectable.isNewMedication}
+                        onChange={handleChange}
+                        className="mr-2"
+                    />
+                    Nuevo medicamento
+                </label>
+                <label className="flex items-center text-sm text-slate-600">
+                    <input
+                        type="checkbox"
+                        name="doseIncreased"
+                        checked={injectable.doseIncreased}
+                        onChange={handleChange}
+                        className="mr-2"
+                    />
+                    Aumento de dosis
+                </label>
+                <label className="flex items-center text-sm text-slate-600">
+                    <input
+                        type="checkbox"
+                        name="doseDecreased"
+                        checked={injectable.doseDecreased}
+                        onChange={handleChange}
+                        className="mr-2"
+                    />
+                    Disminución de dosis
+                </label>
+                <label className="flex items-center text-sm text-slate-600">
+                    <input
+                        type="checkbox"
+                        name="requiresPurchase"
+                        checked={injectable.requiresPurchase}
+                        onChange={handleChange}
+                        className="mr-2"
+                    />
+                    Comprar afuera
+                </label>
             </div>
 
             <div>

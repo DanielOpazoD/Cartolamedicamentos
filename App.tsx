@@ -9,6 +9,9 @@ import TrashIcon from './components/icons/TrashIcon';
 import ControlInfoForm from './components/ControlInfoForm';
 import SuspensionSection from './components/SuspensionSection';
 import MoneyIcon from './components/icons/MoneyIcon';
+import StarIcon from './components/icons/StarIcon';
+import ArrowUpIcon from './components/icons/ArrowUpIcon';
+import ArrowDownIcon from './components/icons/ArrowDownIcon';
 
 const initialControlInfo: ControlInfo = {
     applies: 'no',
@@ -120,14 +123,14 @@ const App: React.FC = () => {
                             onClick={handleExportList}
                             className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center gap-1"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path d="M3 3a2 2 0 012-2h6a2 2 0 012 2v3h-2V3H5v14h6v-3h2v3a2 2 0 01-2 2H5a2 2 0 01-2-2V3z"/><path d="M9 7h2v5h3l-4 4-4-4h3V7z"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20"><path d="M3 3a2 2 0 012-2h6a2 2 0 012 2v3h-2V3H5v14h6v-3h2v3a2 2 0 01-2 2H5a2 2 0 01-2-2V3z"/><path d="M9 7h2v5h3l-4 4-4-4h3V7z"/></svg>
                             Exportar Lista
                         </button>
                         <button
                             onClick={handleImportClick}
                             className="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center gap-1"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path d="M3 3a2 2 0 012-2h6a2 2 0 012 2v3h-2V3H5v14h6v-3h2v3a2 2 0 01-2 2H5a2 2 0 01-2-2V3z"/><path d="M11 13H9V8H6l4-4 4 4h-3v5z"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20"><path d="M3 3a2 2 0 012-2h6a2 2 0 012 2v3h-2V3H5v14h6v-3h2v3a2 2 0 01-2 2H5a2 2 0 01-2-2V3z"/><path d="M11 13H9V8H6l4-4 4 4h-3v5z"/></svg>
                             Importar Lista
                         </button>
                         <input ref={fileInputRef} type="file" accept="application/json" className="hidden" onChange={handleImportList} />
@@ -135,7 +138,7 @@ const App: React.FC = () => {
                             onClick={handlePrint}
                             className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center gap-1"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                                 <path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v2h12V4a2 2 0 00-2-2H6zm10 6H4v8a2 2 0 002 2h8a2 2 0 002-2V8zM6 10h8v2H6v-2z" clipRule="evenodd" />
                             </svg>
                             Imprimir / Guardar PDF
@@ -160,8 +163,11 @@ const App: React.FC = () => {
                                 {medications.map((med) => (
                                     <li key={med.id} className="flex justify-between items-center bg-slate-50 p-3 rounded-lg shadow-sm">
                                         <div>
-                                            <p className="font-bold text-blue-600">
-                                                {med.requiresPurchase && <MoneyIcon className="inline w-4 h-4 mr-1" />}
+                                            <p className="font-bold text-blue-600 flex items-center gap-1">
+                                                {med.isNewMedication && <StarIcon className="inline w-4 h-4 text-yellow-500" />}
+                                                {med.doseIncreased && <ArrowUpIcon className="inline w-4 h-4" />}
+                                                {med.doseDecreased && <ArrowDownIcon className="inline w-4 h-4" />}
+                                                {med.requiresPurchase && <MoneyIcon className="inline w-4 h-4 text-green-600" />}
                                                 {med.name} <span className="text-slate-600 font-normal">{med.presentacion}</span>
                                             </p>
                         <p className="text-sm text-slate-500">{`${med.dose} comprimido(s) - ${med.frequency}`}</p>
@@ -196,7 +202,13 @@ const App: React.FC = () => {
                                 {injectables.map((ins) => (
                                     <li key={ins.id} className="flex justify-between items-center bg-slate-50 p-3 rounded-lg shadow-sm">
                                         <div>
-                                            <p className="font-bold text-teal-600">{ins.type}</p>
+                                            <p className="font-bold text-teal-600 flex items-center gap-1">
+                                                {ins.isNewMedication && <StarIcon className="inline w-4 h-4 text-yellow-500" />}
+                                                {ins.doseIncreased && <ArrowUpIcon className="inline w-4 h-4" />}
+                                                {ins.doseDecreased && <ArrowDownIcon className="inline w-4 h-4" />}
+                                                {ins.requiresPurchase && <MoneyIcon className="inline w-4 h-4 text-green-600" />}
+                                                {ins.type}
+                                            </p>
                                             <p className="text-sm text-slate-500">{`${ins.dose} - ${ins.schedule} a las ${ins.time}`}</p>
                                             {ins.notes && <p className="text-xs text-slate-500 italic mt-1">Nota: {ins.notes}</p>}
                                         </div>
