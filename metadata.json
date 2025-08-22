@@ -1,0 +1,5 @@
+{
+  "name": "Generador de Cartola de Medicamentos",
+  "description": "Una aplicación para crear cartolas de medicamentos personalizadas para pacientes, con la opción de exportar a PDF para imprimir.",
+  "requestFramePermissions": []
+}
