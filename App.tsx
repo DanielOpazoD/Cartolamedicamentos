@@ -33,6 +33,7 @@ const App: React.FC = () => {
     const [medications, setMedications] = useState<Medication[]>([]);
     const [injectables, setInjectables] = useState<Injectable[]>([]);
     const [controlInfo, setControlInfo] = useState<ControlInfo>(initialControlInfo);
+    const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
 
 
     const previewRef = useRef<HTMLDivElement>(null);
@@ -65,6 +66,32 @@ const App: React.FC = () => {
     const handlePrint = () => {
         window.print();
     };
+
+    const handleDownloadPdf = useCallback(async () => {
+        const element = previewRef.current;
+        if (!element) return;
+        const html2canvas = (await import('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/+esm')).default;
+        const { jsPDF } = await import('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/+esm');
+        const QRCode = (await import('https://cdn.jsdelivr.net/npm/qrcode@1.5.3/+esm')).default;
+
+        const canvas = await html2canvas(element);
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const imgProps = pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        const pdfBlob = pdf.output('blob');
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+
+        const qrDataUrl = await QRCode.toDataURL(pdfUrl);
+        setQrCodeUrl(qrDataUrl);
+
+        const link = document.createElement('a');
+        link.href = pdfUrl;
+        link.download = 'cartola.pdf';
+        link.click();
+    }, []);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -124,6 +151,12 @@ const App: React.FC = () => {
                                 <path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v2h12V4a2 2 0 00-2-2H6zm10 6H4v8a2 2 0 002 2h8a2 2 0 002-2V8zM6 10h8v2H6v-2z" clipRule="evenodd" />
                             </svg>
                             Imprimir / Guardar PDF
+                        </button>
+                        <button
+                            onClick={handleDownloadPdf}
+                            className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105"
+                        >
+                            Descargar PDF con QR
                         </button>
                     </div>
                 </div>
@@ -193,6 +226,12 @@ const App: React.FC = () => {
                 <div className="bg-slate-200 p-4 sm:p-6 rounded-xl shadow-inner flex items-start justify-center overflow-x-auto">
                    <div ref={previewRef} className="w-full">
                      <SchedulePreview patient={patient} medications={medications} injectables={injectables} controlInfo={controlInfo} />
+                     {qrCodeUrl && (
+                        <div className="mt-4 flex flex-col items-center gap-2" contentEditable={false}>
+                            <img src={qrCodeUrl} alt="QR del PDF" className="w-40 h-40" />
+                            <p className="text-sm text-slate-700">Escanea para descargar esta cartola</p>
+                        </div>
+                     )}
                    </div>
                 </div>
             </main>
