@@ -88,7 +88,7 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpda
     return (
         <form onSubmit={handleSubmit} className="space-y-4 pt-4 border-t border-slate-200">
             <h2 className="text-2xl font-bold text-slate-800 border-b-2 border-blue-200 pb-2">
-                {editingInjectable ? 'Editar Tratamiento Inyectable' : 'Añadir Tratamiento Inyectable (Insulinas, Agonistas GLP-1)'}
+                {editingInjectable ? 'Editar Fármaco Inyectable' : 'Añadir Fármaco Inyectable'}
             </h2>
 
             <div>
@@ -262,7 +262,7 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpda
                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center justify-center gap-2"
                 >
                     <PlusIcon className="h-5 w-5" />
-                    {editingInjectable ? 'Actualizar Tratamiento' : 'Añadir Tratamiento'}
+                    {editingInjectable ? 'Actualizar Inyectable' : 'Añadir Inyectable'}
                 </button>
                 {editingInjectable && (
                     <button

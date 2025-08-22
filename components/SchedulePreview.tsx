@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Patient, Medication, Frequency, Dose, Injectable, InjectableSchedule, InjectableType, ControlInfo } from '../types';
+import { Patient, Medication, Frequency, Dose, Injectable, InjectableSchedule, InjectableType, ControlInfo, Inhaler } from '../types';
 import DoseVisualizer from './DoseVisualizer';
 import MoonIcon from './icons/MoonIcon';
 import SunIcon from './icons/SunIcon';
@@ -15,12 +15,14 @@ interface SchedulePreviewProps {
     patient: Patient;
     medications: Medication[];
     injectables: Injectable[];
+    inhalers: Inhaler[];
     controlInfo: ControlInfo;
     onEditMedication?: (id: number) => void;
     onEditInjectable?: (id: number) => void;
+    onEditInhaler?: (id: number) => void;
 }
 
-const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications, injectables, controlInfo, onEditMedication, onEditInjectable }) => {
+const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications, injectables, inhalers, controlInfo, onEditMedication, onEditInjectable, onEditInhaler }) => {
 
     const shouldShowDose = (freq: Frequency, time: 'morning' | 'afternoon' | 'night'): boolean => {
         switch (time) {
@@ -106,6 +108,8 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
 
     const medicationItems = medications.map(med => ({ ...med, itemType: 'medication' as const }));
 
+    const inhalerItems = inhalers.map(inh => ({ ...inh, itemType: 'inhaler' as const }));
+
     const injectableItems = Array.from(groupedInjectables.entries()).map(([type, data]) => ({
         id: type,
         editId: data.mañana[0]?.id ?? data.noche[0]?.id,
@@ -118,7 +122,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
         requiresPurchase: data.requiresPurchase,
     }));
 
-    const allItems = [...medicationItems, ...injectableItems];
+    const allItems = [...medicationItems, ...inhalerItems, ...injectableItems];
 
     const formattedControlDate = controlInfo.date ? new Date(`${controlInfo.date}T${controlInfo.time || '00:00'}`).toLocaleString('es-CL', { dateStyle: 'short', timeStyle: 'short' }) : '';
 
@@ -168,6 +172,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                 </th>
                                 <th className="p-2 text-center font-semibold text-sm w-1/6">
                                     <div className="flex flex-col items-center justify-center gap-0.5">
+                                        <SunIcon className="w-5 h-5" />
                                         <span>Tarde</span>
                                     </div>
                                 </th>
@@ -185,9 +190,9 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                 if (item.itemType === 'medication') {
                                     return (
                                         <tr key={item.id} className={`border-b border-slate-200 ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/50'}`}>
-                                            <td className="p-2 text-center align-top">{index + 1}</td>
-                                            <td className="p-2 align-top text-center">
-                                                <p className="font-bold text-md text-slate-800 flex items-center justify-center gap-1">
+                                            <td className="p-2 text-center align-top">
+                                                <div className="flex items-center justify-center gap-1">
+                                                    <span>{index + 1}</span>
                                                     {onEditMedication && (
                                                         <button
                                                             onClick={() => onEditMedication(item.id)}
@@ -198,6 +203,10 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                             <EditIcon className="w-4 h-4" />
                                                         </button>
                                                     )}
+                                                </div>
+                                            </td>
+                                            <td className="p-2 align-top text-center">
+                                                <p className="font-bold text-md text-slate-800 flex items-center justify-center gap-1">
                                                     {item.isNewMedication && (
                                                         <span contentEditable={false}>
                                                             <StarIcon className="inline w-4 h-4 text-yellow-500" />
@@ -237,6 +246,68 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                             </td>
                                         </tr>
                                     );
+                                } else if (item.itemType === 'inhaler') {
+                                    const showMorning = item.frequencyHours === 8 || item.frequencyHours === 12;
+                                    const showAfternoon = item.frequencyHours === 8;
+                                    const showNight = item.frequencyHours === 8 || item.frequencyHours === 12;
+                                    return (
+                                        <tr key={item.id} className={`border-b border-slate-200 ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/50'}`}>
+                                            <td className="p-2 text-center align-top">
+                                                <div className="flex items-center justify-center gap-1">
+                                                    <span>{index + 1}</span>
+                                                    {onEditInhaler && (
+                                                        <button
+                                                            onClick={() => onEditInhaler(item.id)}
+                                                            className="text-blue-500 hover:text-blue-700 print:hidden"
+                                                            contentEditable={false}
+                                                            aria-label="Editar inhalador"
+                                                        >
+                                                            <EditIcon className="w-4 h-4" />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="p-2 align-top text-center">
+                                                <p className="font-bold text-md text-slate-800 flex items-center justify-center gap-1">
+                                                    {item.isNewMedication && (
+                                                        <span contentEditable={false}>
+                                                            <StarIcon className="inline w-4 h-4 text-yellow-500" />
+                                                        </span>
+                                                    )}
+                                                    {item.doseIncreased && (
+                                                        <span contentEditable={false}>
+                                                            <ArrowUpIcon className="inline w-4 h-4" />
+                                                        </span>
+                                                    )}
+                                                    {item.doseDecreased && (
+                                                        <span contentEditable={false}>
+                                                            <ArrowDownIcon className="inline w-4 h-4" />
+                                                        </span>
+                                                    )}
+                                                    {item.requiresPurchase && (
+                                                        <span contentEditable={false}>
+                                                            <MoneyIcon className="inline w-4 h-4 text-green-600" />
+                                                        </span>
+                                                    )}
+                                                    {item.name}
+                                                </p>
+                                                <p className="text-sm text-slate-600">{item.presentacion}</p>
+                                                <p className="text-xs text-slate-500 italic">{`${item.dose} puff - cada ${item.frequencyHours} h`}</p>
+                                            </td>
+                                            <td className="p-2 text-center align-middle" contentEditable={false}>
+                                                {showMorning && <span className="font-bold">{item.dose}</span>}
+                                            </td>
+                                            <td className="p-2 text-center align-middle" contentEditable={false}>
+                                                {showAfternoon && <span className="font-bold">{item.dose}</span>}
+                                            </td>
+                                            <td className="p-2 text-center align-middle" contentEditable={false}>
+                                                {showNight && <span className="font-bold">{item.dose}</span>}
+                                            </td>
+                                            <td className="p-2 align-top text-sm text-slate-700 whitespace-pre-wrap break-words">
+                                                {item.notes || ''}
+                                            </td>
+                                        </tr>
+                                    );
                                 } else { // item.itemType === 'injectable'
                                     const allNotes = [...item.schedules.mañana, ...item.schedules.noche]
                                         .map(ins => ins.notes)
@@ -244,9 +315,9 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                         .join('\n');
                                     return (
                                         <tr key={item.id} className={`border-b border-slate-200 ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/50'}`}>
-                                            <td className="p-2 text-center align-top">{index + 1}</td>
-                                            <td className="p-2 align-top text-center">
-                                                <p className="font-bold text-md text-slate-800 flex items-center justify-center gap-1">
+                                            <td className="p-2 text-center align-top">
+                                                <div className="flex items-center justify-center gap-1">
+                                                    <span>{index + 1}</span>
                                                     {onEditInjectable && item.editId != null && (
                                                         <button
                                                             onClick={() => onEditInjectable(item.editId!)}
@@ -257,6 +328,10 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                             <EditIcon className="w-4 h-4" />
                                                         </button>
                                                     )}
+                                                </div>
+                                            </td>
+                                            <td className="p-2 align-top text-center">
+                                                <p className="font-bold text-md text-slate-800 flex items-center justify-center gap-1">
                                                     {item.isNewMedication && (
                                                         <span contentEditable={false}>
                                                             <StarIcon className="inline w-4 h-4 text-yellow-500" />
@@ -307,7 +382,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                             }) : (
                                 <tr>
                                     <td colSpan={6} className="text-center p-4 text-slate-500">
-                                        <p>Añada un medicamento o tratamiento inyectable para verlo aquí.</p>
+                                        <p>Añada un medicamento, inhalador o tratamiento inyectable para verlo aquí.</p>
                                     </td>
                                 </tr>
                             )}

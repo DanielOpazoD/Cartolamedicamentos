@@ -68,6 +68,19 @@ export interface Injectable {
     requiresPurchase?: boolean;
 }
 
+export interface Inhaler {
+    id: number;
+    name: string;
+    presentacion: string;
+    dose: number; // número de puff
+    frequencyHours: number; // cada X horas
+    notes?: string;
+    isNewMedication?: boolean;
+    doseIncreased?: boolean;
+    doseDecreased?: boolean;
+    requiresPurchase?: boolean;
+}
+
 export interface ExamOptions {
   sangre: boolean;
   orina: boolean;

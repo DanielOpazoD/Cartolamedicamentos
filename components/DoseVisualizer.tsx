@@ -14,8 +14,9 @@ const DoseVisualizer: React.FC<DoseVisualizerProps> = ({ dose, className }) => {
     
     // Renderiza múltiples cápsulas para dosis mayores a 1
     const renderMultiplePills = (count: number) => {
+        const spacingClass = count >= 3 ? '-space-x-2' : 'space-x-2';
         return (
-            <div className="flex items-center justify-center space-x-2">
+            <div className={`flex items-center justify-center ${spacingClass}`}>
                 {Array.from({ length: count }).map((_, i) => (
                     <PillIcon key={i} className="w-10 h-10" />
                 ))}
