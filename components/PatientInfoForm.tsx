@@ -10,7 +10,7 @@ interface PatientInfoFormProps {
 const PatientInfoForm: React.FC<PatientInfoFormProps> = ({ patient, onChange }) => {
     return (
         <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-slate-800 border-b-2 border-blue-200 pb-2">Datos del Paciente</h2>
+            <h2 className="text-xl font-bold text-slate-800 border-b-2 border-blue-200 pb-2">Datos del Paciente</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label htmlFor="name" className="block text-sm font-medium text-slate-600 mb-1">Nombre y Apellido</label>

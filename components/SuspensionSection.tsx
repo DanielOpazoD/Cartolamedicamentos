@@ -9,9 +9,6 @@ interface SuspensionSectionProps {
 
 const SuspensionSection: React.FC<SuspensionSectionProps> = ({ controlInfo, onChange }) => (
   <div className="space-y-4 pt-4 border-t border-slate-200">
-    <h2 className="text-2xl font-bold text-slate-800 border-b-2 border-blue-200 pb-2">
-      Suspender Medicamentos
-    </h2>
     <div>
       <label htmlFor="suspendEnabled" className="block text-sm font-medium text-slate-600 mb-1">
         Incluir sección de suspensión
@@ -37,6 +34,36 @@ const SuspensionSection: React.FC<SuspensionSectionProps> = ({ controlInfo, onCh
           name="suspendText"
           value={controlInfo.suspendText}
           onChange={(e) => onChange('suspendText', e.target.value)}
+          rows={2}
+          className="w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-black"
+        />
+      </div>
+    )}
+    <div>
+      <label htmlFor="freeNoteEnabled" className="block text-sm font-medium text-slate-600 mb-1">
+        Incluir sección nota libre
+      </label>
+      <select
+        id="freeNoteEnabled"
+        name="freeNoteEnabled"
+        value={controlInfo.freeNoteEnabled ? 'yes' : 'no'}
+        onChange={(e) => onChange('freeNoteEnabled', e.target.value === 'yes')}
+        className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+      >
+        <option value="no">No</option>
+        <option value="yes">Sí</option>
+      </select>
+    </div>
+    {controlInfo.freeNoteEnabled && (
+      <div>
+        <label htmlFor="freeNoteText" className="block text-xs font-medium text-black mb-1">
+          Nota
+        </label>
+        <textarea
+          id="freeNoteText"
+          name="freeNoteText"
+          value={controlInfo.freeNoteText}
+          onChange={(e) => onChange('freeNoteText', e.target.value)}
           rows={2}
           className="w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-black"
         />
