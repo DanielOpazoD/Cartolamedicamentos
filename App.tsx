@@ -238,7 +238,20 @@ const App: React.FC = () => {
                 {/* Preview Panel */}
                 <div className="bg-slate-200 p-4 sm:p-6 rounded-xl shadow-inner flex items-start justify-center overflow-x-auto">
                    <div ref={previewRef} className="w-full">
-                     <SchedulePreview patient={patient} medications={medications} injectables={injectables} controlInfo={controlInfo} />
+                     <SchedulePreview
+                       patient={patient}
+                       medications={medications}
+                       injectables={injectables}
+                       controlInfo={controlInfo}
+                       onEditMedication={(id) => {
+                         const med = medications.find(m => m.id === id);
+                         if (med) setEditingMedication(med);
+                       }}
+                       onEditInjectable={(id) => {
+                         const inj = injectables.find(i => i.id === id);
+                         if (inj) setEditingInjectable(inj);
+                       }}
+                     />
                    </div>
                 </div>
             </main>

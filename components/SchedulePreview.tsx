@@ -8,15 +8,19 @@ import StarIcon from './icons/StarIcon';
 import MoneyIcon from "./icons/MoneyIcon";
 import ArrowUpIcon from './icons/ArrowUpIcon';
 import ArrowDownIcon from './icons/ArrowDownIcon';
+import EditIcon from './icons/EditIcon';
+import RedCrossIcon from './icons/RedCrossIcon';
 
 interface SchedulePreviewProps {
     patient: Patient;
     medications: Medication[];
     injectables: Injectable[];
     controlInfo: ControlInfo;
+    onEditMedication?: (id: number) => void;
+    onEditInjectable?: (id: number) => void;
 }
 
-const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications, injectables, controlInfo }) => {
+const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications, injectables, controlInfo, onEditMedication, onEditInjectable }) => {
 
     const shouldShowDose = (freq: Frequency, time: 'morning' | 'afternoon' | 'night'): boolean => {
         switch (time) {
@@ -104,6 +108,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
 
     const injectableItems = Array.from(groupedInjectables.entries()).map(([type, data]) => ({
         id: type,
+        editId: data.mañana[0]?.id ?? data.noche[0]?.id,
         itemType: 'injectable' as const,
         type,
         schedules: { mañana: data.mañana, noche: data.noche },
@@ -120,7 +125,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
     return (
         <div id="schedule-preview" className="bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl mx-auto border border-slate-200">
             <header className="text-center mb-8 border-b-2 pb-4 border-slate-200">
-                <h1 className="text-3xl font-extrabold text-blue-700">Cartola de Medicamentos</h1>
+                <h1 className="text-2xl font-extrabold text-blue-700">Cartola de Medicamentos</h1>
             </header>
             
             <section className="mb-8 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
@@ -183,6 +188,16 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                             <td className="p-2 text-center align-top">{index + 1}</td>
                                             <td className="p-2 align-top text-center">
                                                 <p className="font-bold text-md text-slate-800 flex items-center justify-center gap-1">
+                                                    {onEditMedication && (
+                                                        <button
+                                                            onClick={() => onEditMedication(item.id)}
+                                                            className="text-blue-500 hover:text-blue-700 print:hidden"
+                                                            contentEditable={false}
+                                                            aria-label="Editar medicamento"
+                                                        >
+                                                            <EditIcon className="w-4 h-4" />
+                                                        </button>
+                                                    )}
                                                     {item.isNewMedication && (
                                                         <span contentEditable={false}>
                                                             <StarIcon className="inline w-4 h-4 text-yellow-500" />
@@ -230,8 +245,18 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                     return (
                                         <tr key={item.id} className={`border-b border-slate-200 ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/50'}`}>
                                             <td className="p-2 text-center align-top">{index + 1}</td>
-                                            <td className="p-2 align-top">
-                                                <p className="font-bold text-md text-slate-800 flex items-center gap-1">
+                                            <td className="p-2 align-top text-center">
+                                                <p className="font-bold text-md text-slate-800 flex items-center justify-center gap-1">
+                                                    {onEditInjectable && item.editId != null && (
+                                                        <button
+                                                            onClick={() => onEditInjectable(item.editId!)}
+                                                            className="text-blue-500 hover:text-blue-700 print:hidden"
+                                                            contentEditable={false}
+                                                            aria-label="Editar inyectable"
+                                                        >
+                                                            <EditIcon className="w-4 h-4" />
+                                                        </button>
+                                                    )}
                                                     {item.isNewMedication && (
                                                         <span contentEditable={false}>
                                                             <StarIcon className="inline w-4 h-4 text-yellow-500" />
@@ -293,7 +318,10 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
 
             {controlInfo.suspendEnabled && controlInfo.suspendText && (
                 <section className="mb-8">
-                    <h3 className="text-lg font-bold text-black mb-2 text-center">Suspender los siguientes medicamentos</h3>
+                    <h3 className="text-base font-bold text-black mb-2 text-center flex items-center justify-center gap-1">
+                        <RedCrossIcon className="w-4 h-4 text-red-600" />
+                        Suspender los siguientes medicamentos
+                    </h3>
                     <div className="p-3 border border-black rounded text-black text-sm whitespace-pre-wrap">{controlInfo.suspendText}</div>
                 </section>
             )}

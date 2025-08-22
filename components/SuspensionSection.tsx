@@ -1,5 +1,6 @@
 import React from 'react';
 import { ControlInfo } from '../types';
+import RedCrossIcon from './icons/RedCrossIcon';
 
 interface SuspensionSectionProps {
   controlInfo: ControlInfo;
@@ -28,7 +29,8 @@ const SuspensionSection: React.FC<SuspensionSectionProps> = ({ controlInfo, onCh
     </div>
     {controlInfo.suspendEnabled && (
       <div>
-        <label className="block text-sm font-medium text-black mb-1">
+        <label className="block text-xs font-medium text-black mb-1 flex items-center gap-1">
+          <RedCrossIcon className="w-4 h-4" />
           Suspender los siguientes medicamentos
         </label>
         <textarea
