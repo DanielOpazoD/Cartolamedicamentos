@@ -50,10 +50,13 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpda
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, type } = e.target;
         const value = type === 'checkbox' ? (e.target as HTMLInputElement).checked : e.target.value;
-        setInjectable(prev => ({
-            ...prev,
-            [name]: value,
-        }));
+        setInjectable(prev => {
+            const updated = { ...prev, [name]: value };
+            if (name === 'type') {
+                updated.dose = value === InjectableType.LIRAGLUTIDE ? '0.6 mg/día' : '';
+            }
+            return updated;
+        });
     };
 
     const handleSubmit = (e: React.FormEvent) => {

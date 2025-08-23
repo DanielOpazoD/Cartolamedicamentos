@@ -104,7 +104,7 @@ const App: React.FC = () => {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleExportList = () => {
-        const data = { medications, injectables, inhalers };
+        const data = { patient, medications, injectables, inhalers };
         const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -121,6 +121,7 @@ const App: React.FC = () => {
         reader.onload = ev => {
             try {
                 const data = JSON.parse(ev.target?.result as string);
+                setPatient(data.patient || { name: '', rut: '', date: today });
                 setMedications(data.medications || []);
                 setInjectables(data.injectables || []);
                 setInhalers(data.inhalers || []);
