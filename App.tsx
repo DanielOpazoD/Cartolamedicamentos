@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useCallback } from 'react';
-import { Patient, Medication, Injectable, ControlInfo, ExamOptions, Inhaler } from './types';
+import { Patient, Medication, Injectable, ControlInfo, ExamOptions, Inhaler, DosageForm } from './types';
 import PatientInfoForm from './components/PatientInfoForm';
 import MedicationForm from './components/MedicationForm';
 import InjectableForm from './components/InjectableForm';
@@ -47,6 +47,7 @@ const App: React.FC = () => {
     const [editingInjectable, setEditingInjectable] = useState<Injectable | null>(null);
     const [editingInhaler, setEditingInhaler] = useState<Inhaler | null>(null);
     const [activeTab, setActiveTab] = useState<'oral' | 'injectable' | 'inhaled'>('oral');
+    const [showQr, setShowQr] = useState(false);
 
 
     const previewRef = useRef<HTMLDivElement>(null);
@@ -169,7 +170,7 @@ const App: React.FC = () => {
             <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Control Panel */}
                 <div className="bg-white p-6 rounded-xl shadow-lg space-y-8">
-                    <PatientInfoForm patient={patient} onChange={handlePatientChange} />
+                    <PatientInfoForm patient={patient} onChange={handlePatientChange} showQr={showQr} onToggleQr={setShowQr} />
                     <div>
                         <div className="flex border-b">
                             <button
@@ -212,7 +213,18 @@ const App: React.FC = () => {
                                                                 {med.requiresPurchase && <MoneyIcon className="inline w-4 h-4 text-green-600" />}
                                                                 {med.name} <span className="text-slate-600 font-normal">{med.presentacion}</span>
                                                             </p>
-                                                            <p className="text-sm text-slate-500">{`${med.dose} ${med.dosageForm} - ${med.frequency}`}</p>
+                                                            {(() => {
+                                                                const description = med.dosageForm === DosageForm.OTHER
+                                                                    ? med.otherDosageForm
+                                                                    : med.dosageForm === DosageForm.NONE
+                                                                        ? ''
+                                                                        : med.dosageForm;
+                                                                return (
+                                                                    <p className="text-sm text-slate-500">
+                                                                        {`${med.dose}${description ? ` ${description}` : ''} - ${med.frequency}`}
+                                                                    </p>
+                                                                );
+                                                            })()}
                                                             {med.notes && <p className="text-xs text-slate-500 italic mt-1">Nota: {med.notes}</p>}
                                                         </div>
                                                         <div className="flex gap-2">
@@ -351,6 +363,7 @@ const App: React.FC = () => {
                        injectables={injectables}
                        inhalers={inhalers}
                        controlInfo={controlInfo}
+                       showQr={showQr}
                        onEditMedication={(id) => {
                          const med = medications.find(m => m.id === id);
                          if (med) {

@@ -16,6 +16,7 @@ const initialMedState: Omit<Medication, 'id'> = {
     dose: Dose.ONE,
     frequency: Frequency.EVERY_12H,
     dosageForm: DosageForm.TABLET,
+    otherDosageForm: '',
     notes: '',
     isNewMedication: false,
     doseIncreased: false,
@@ -39,14 +40,17 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
         const { name, type, value: rawValue } = e.target;
         const value = type === 'checkbox' ? (e.target as HTMLInputElement).checked : rawValue;
         setMedication(prev => {
-            const updated = { ...prev, [name]: value };
+            const updated = { ...prev, [name]: value } as typeof prev;
             if (name === 'dosageForm') {
-                if (value === DosageForm.TABLET) {
+                if (value === DosageForm.TABLET || value === DosageForm.NONE) {
                     if (!Object.values(Dose).includes(prev.dose as Dose)) {
                         updated.dose = Dose.ONE;
                     }
                 } else {
                     updated.dose = '';
+                }
+                if (value !== DosageForm.OTHER) {
+                    updated.otherDosageForm = '';
                 }
             }
             return updated;
@@ -141,17 +145,29 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
                 </div>
                 <div>
                     <label htmlFor="dosageForm" className="block text-sm font-medium text-slate-600 mb-1">Descripción</label>
-                    <select
-                        id="dosageForm"
-                        name="dosageForm"
-                        value={medication.dosageForm}
-                        onChange={handleChange}
-                        className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
-                    >
-                        {Object.values(DosageForm).map(form => (
-                            <option key={form} value={form}>{form}</option>
-                        ))}
-                    </select>
+                    <div className="flex gap-2">
+                        <select
+                            id="dosageForm"
+                            name="dosageForm"
+                            value={medication.dosageForm}
+                            onChange={handleChange}
+                            className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+                        >
+                            {Object.values(DosageForm).map(form => (
+                                <option key={form} value={form}>{form}</option>
+                            ))}
+                        </select>
+                        {medication.dosageForm === DosageForm.OTHER && (
+                            <input
+                                type="text"
+                                name="otherDosageForm"
+                                value={medication.otherDosageForm}
+                                onChange={handleChange}
+                                className="flex-1 px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Especificar"
+                            />
+                        )}
+                    </div>
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-2">
