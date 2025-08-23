@@ -104,7 +104,7 @@ const App: React.FC = () => {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleExportList = () => {
-        const data = { medications, injectables, inhalers };
+        const data = { patient, medications, injectables, inhalers };
         const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -124,6 +124,13 @@ const App: React.FC = () => {
                 setMedications(data.medications || []);
                 setInjectables(data.injectables || []);
                 setInhalers(data.inhalers || []);
+                if (data.patient) {
+                    setPatient({
+                        name: data.patient.name || '',
+                        rut: data.patient.rut || '',
+                        date: data.patient.date || today,
+                    });
+                }
             } catch (err) {
                 console.error('Error al importar lista', err);
             }
