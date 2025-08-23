@@ -48,12 +48,23 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpda
     }, [editingInjectable]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        const { name, type } = e.target;
-        const value = type === 'checkbox' ? (e.target as HTMLInputElement).checked : e.target.value;
-        setInjectable(prev => ({
-            ...prev,
-            [name]: value,
-        }));
+        const { name, type, value } = e.target as HTMLInputElement;
+        if (name === 'type') {
+            const newType = value as InjectableType;
+            let defaultDose = '';
+            if (newType === InjectableType.SEMAGLUTIDE) {
+                defaultDose = '0.25 mg/sem';
+            } else if (newType === InjectableType.LIRAGLUTIDE) {
+                defaultDose = '0.6 mg/día';
+            }
+            setInjectable(prev => ({ ...prev, type: newType, dose: defaultDose }));
+        } else {
+            const val = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
+            setInjectable(prev => ({
+                ...prev,
+                [name]: val,
+            }));
+        }
     };
 
     const handleSubmit = (e: React.FormEvent) => {
