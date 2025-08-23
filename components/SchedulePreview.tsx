@@ -144,9 +144,16 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
     return (
         <div id="schedule-preview" className="bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl mx-auto border border-slate-200">
             <header className="mb-4 border-b-2 pb-4 border-slate-200">
-                <h1 className="text-2xl font-extrabold text-blue-700">Guía de Medicamentos</h1>
-                <div className="mt-2 flex justify-between items-start">
-                    <div className="text-sm flex flex-wrap gap-x-4 gap-y-1">
+                <h1 className="mt-0 mb-1 text-2xl font-extrabold text-blue-700 leading-tight">Guía de Medicamentos</h1>
+                <div className="grid grid-cols-1 gap-2 items-start sm:grid-cols-[1fr_auto] print:grid-cols-[1fr_auto]">
+                    {showQr && (
+                        <img
+                            src={qrImageSrc}
+                            alt="Código QR de medicamentos"
+                            className="order-1 w-36 h-36 justify-self-end self-start sm:order-2 print:order-2"
+                        />
+                    )}
+                    <div className="order-2 text-sm flex flex-wrap gap-x-4 gap-y-1 sm:order-1 print:order-1">
                         <div className="flex items-center">
                             <span className="font-bold text-slate-600">Nombre y Apellido:</span>
                             <span className="ml-1 text-slate-800">{patient.name || '...'}</span>
@@ -160,9 +167,6 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                             <span className="ml-1 text-slate-800">{patient.date ? new Date(patient.date + 'T00:00:00').toLocaleDateString('es-CL') : '...'}</span>
                         </div>
                     </div>
-                    {showQr && (
-                        <img src={qrImageSrc} alt="Código QR de medicamentos" className="w-36 h-36" />
-                    )}
                 </div>
             </header>
 
