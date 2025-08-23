@@ -17,12 +17,13 @@ interface SchedulePreviewProps {
     injectables: Injectable[];
     inhalers: Inhaler[];
     controlInfo: ControlInfo;
+    showQr: boolean;
     onEditMedication?: (id: number) => void;
     onEditInjectable?: (id: number) => void;
     onEditInhaler?: (id: number) => void;
 }
 
-const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications, injectables, inhalers, controlInfo, onEditMedication, onEditInjectable, onEditInhaler }) => {
+const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications, injectables, inhalers, controlInfo, showQr, onEditMedication, onEditInjectable, onEditInhaler }) => {
 
     const shouldShowDose = (freq: Frequency, time: 'morning' | 'afternoon' | 'night'): boolean => {
         switch (time) {
@@ -65,7 +66,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
 
     const handleDoseClick = (medId: number, time: 'morning' | 'afternoon' | 'night') => {
         const med = medications.find(m => m.id === medId);
-        if (!med || med.dosageForm !== DosageForm.TABLET) return;
+        if (!med || (med.dosageForm !== DosageForm.TABLET && med.dosageForm !== DosageForm.NONE)) return;
         setEditableDoses(prev => {
             const next = cycleDose(prev[medId][time]);
             return { ...prev, [medId]: { ...prev[medId], [time]: next } };
@@ -137,34 +138,30 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
     const inhalerStrings = inhalers.map(h => `${h.name} inh ${h.presentacion} c/${h.frequencyHours}h`);
     const medsParam = [...oralStrings, ...injectableStrings, ...inhalerStrings].join('||');
 
-    const qrLink = `https://qreceta.netlify.app/htmla.html?nombre=${encodeURIComponent(patient.name)}&rut=${encodeURIComponent(patient.rut)}&fecha=${encodeURIComponent(patient.date)}&meds=${encodeURIComponent(medsParam)}`;
-    const qrImageSrc = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrLink)}`;
+    const qrLink = showQr ? `https://qreceta.netlify.app/htmla.html?nombre=${encodeURIComponent(patient.name)}&rut=${encodeURIComponent(patient.rut)}&fecha=${encodeURIComponent(patient.date)}&meds=${encodeURIComponent(medsParam)}` : '';
+    const qrImageSrc = showQr ? `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrLink)}` : '';
 
     return (
         <div id="schedule-preview" className="bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl mx-auto border border-slate-200">
-            <header className="text-center mb-8 border-b-2 pb-4 border-slate-200">
+            <header className="mb-4 border-b-2 pb-4 border-slate-200 flex justify-between items-start">
                 <h1 className="text-2xl font-extrabold text-blue-700">Guía de Medicamentos</h1>
+                {showQr && (
+                    <img src={qrImageSrc} alt="Código QR de medicamentos" className="w-36 h-36" />
+                )}
             </header>
-            
-            <section className="mb-8 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-                <div className="bg-slate-50 p-3 rounded">
-                    <span className="font-bold text-slate-600">Nombre y Apellido:</span>
-                    <span className="ml-2 text-slate-800">{patient.name || '...'}</span>
-                </div>
-                <div className="bg-slate-50 p-3 rounded">
-                    <span className="font-bold text-slate-600">RUT:</span>
-                    <span className="ml-2 text-slate-800">{patient.rut || '...'}</span>
-                </div>
-                <div className="bg-slate-50 p-3 rounded">
-                    <span className="font-bold text-slate-600">Fecha:</span>
-                    <span className="ml-2 text-slate-800">{patient.date ? new Date(patient.date + 'T00:00:00').toLocaleDateString('es-CL') : '...'}</span>
-                </div>
-            </section>
 
-            <section className="mb-8 flex justify-center">
-                <div className="text-center">
-                    <img src={qrImageSrc} alt="Código QR de medicamentos" className="mx-auto" />
-                    <a href={qrLink} className="text-xs break-all text-blue-600">{qrLink}</a>
+            <section className="mb-4 text-sm flex flex-col sm:flex-row sm:space-x-4 gap-1">
+                <div className="flex items-center">
+                    <span className="font-bold text-slate-600">Nombre y Apellido:</span>
+                    <span className="ml-1 text-slate-800">{patient.name || '...'}</span>
+                </div>
+                <div className="flex items-center">
+                    <span className="font-bold text-slate-600">RUT:</span>
+                    <span className="ml-1 text-slate-800">{patient.rut || '...'}</span>
+                </div>
+                <div className="flex items-center">
+                    <span className="font-bold text-slate-600">Fecha:</span>
+                    <span className="ml-1 text-slate-800">{patient.date ? new Date(patient.date + 'T00:00:00').toLocaleDateString('es-CL') : '...'}</span>
                 </div>
             </section>
 
@@ -251,14 +248,25 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                     {item.name}
                                                 </p>
                                                 <p className="text-sm text-slate-600">{item.presentacion}</p>
-                                                <p className="text-xs text-slate-500 italic">{`${item.dose} ${item.dosageForm} - ${item.frequency}`}</p>
+                                                {(() => {
+                                                    const description = item.dosageForm === DosageForm.OTHER
+                                                        ? item.otherDosageForm
+                                                        : item.dosageForm === DosageForm.NONE
+                                                            ? ''
+                                                            : item.dosageForm;
+                                                    return (
+                                                        <p className="text-xs text-slate-500 italic">
+                                                            {`${item.dose}${description ? ` ${description}` : ''} - ${item.frequency}`}
+                                                        </p>
+                                                    );
+                                                })()}
                                             </td>
                                             {(() => {
                                                 const doses = editableDoses[item.id];
                                                 return (
                                                     <>
                                                         <td
-                                                            className={`p-2 text-center align-middle ${item.dosageForm === DosageForm.TABLET ? 'cursor-pointer' : 'cursor-text'}`}
+                                                            className={`p-2 text-center align-middle ${[DosageForm.TABLET, DosageForm.NONE].includes(item.dosageForm) ? 'cursor-pointer' : 'cursor-text'}`}
                                                             contentEditable={false}
                                                             onClick={() => handleDoseClick(item.id, 'morning')}
                                                         >
@@ -267,13 +275,13 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                                     dose={doses.morning || ''}
                                                                     dosageForm={item.dosageForm}
                                                                     className="text-blue-600"
-                                                                    editable={item.dosageForm !== DosageForm.TABLET}
+                                                                    editable={! [DosageForm.TABLET, DosageForm.NONE].includes(item.dosageForm)}
                                                                     onDoseChange={(val) => handleDoseInputChange(item.id, 'morning', val)}
                                                                 />
                                                             )}
                                                         </td>
                                                         <td
-                                                            className={`p-2 text-center align-middle ${item.dosageForm === DosageForm.TABLET ? 'cursor-pointer' : 'cursor-text'}`}
+                                                            className={`p-2 text-center align-middle ${[DosageForm.TABLET, DosageForm.NONE].includes(item.dosageForm) ? 'cursor-pointer' : 'cursor-text'}`}
                                                             contentEditable={false}
                                                             onClick={() => handleDoseClick(item.id, 'afternoon')}
                                                         >
@@ -282,13 +290,13 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                                     dose={doses.afternoon || ''}
                                                                     dosageForm={item.dosageForm}
                                                                     className="text-amber-500"
-                                                                    editable={item.dosageForm !== DosageForm.TABLET}
+                                                                    editable={! [DosageForm.TABLET, DosageForm.NONE].includes(item.dosageForm)}
                                                                     onDoseChange={(val) => handleDoseInputChange(item.id, 'afternoon', val)}
                                                                 />
                                                             )}
                                                         </td>
                                                         <td
-                                                            className={`p-2 text-center align-middle ${item.dosageForm === DosageForm.TABLET ? 'cursor-pointer' : 'cursor-text'}`}
+                                                            className={`p-2 text-center align-middle ${[DosageForm.TABLET, DosageForm.NONE].includes(item.dosageForm) ? 'cursor-pointer' : 'cursor-text'}`}
                                                             contentEditable={false}
                                                             onClick={() => handleDoseClick(item.id, 'night')}
                                                         >
@@ -297,7 +305,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                                     dose={doses.night || ''}
                                                                     dosageForm={item.dosageForm}
                                                                     className="text-blue-600"
-                                                                    editable={item.dosageForm !== DosageForm.TABLET}
+                                                                    editable={! [DosageForm.TABLET, DosageForm.NONE].includes(item.dosageForm)}
                                                                     onDoseChange={(val) => handleDoseInputChange(item.id, 'night', val)}
                                                                 />
                                                             )}
