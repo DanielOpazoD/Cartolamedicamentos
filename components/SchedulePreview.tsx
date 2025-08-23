@@ -121,6 +121,25 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
 
     const formattedControlDate = controlInfo.date ? new Date(`${controlInfo.date}T${controlInfo.time || '00:00'}`).toLocaleString('es-CL', { dateStyle: 'short', timeStyle: 'short' }) : '';
 
+    const frequencyShortMap: Record<Frequency, string> = {
+        [Frequency.EVERY_24H]: 'c/24h',
+        [Frequency.EVERY_24H_NIGHT]: 'c/24h noche',
+        [Frequency.EVERY_12H]: 'c/12h',
+        [Frequency.EVERY_8H]: 'c/8h',
+        [Frequency.MORNING]: 'mañana',
+        [Frequency.AFTERNOON]: 'tarde',
+        [Frequency.NIGHT]: 'noche',
+        [Frequency.WITH_MEALS]: 'con comidas',
+    };
+
+    const oralStrings = medications.map(m => `${m.name} ${m.presentacion} ${frequencyShortMap[m.frequency] ?? m.frequency}`);
+    const injectableStrings = injectables.map(i => `${i.type} ${i.dose} ${i.schedule.toLowerCase()}`);
+    const inhalerStrings = inhalers.map(h => `${h.name} inh ${h.presentacion} c/${h.frequencyHours}h`);
+    const medsParam = [...oralStrings, ...injectableStrings, ...inhalerStrings].join('||');
+
+    const qrLink = `https://qreceta.netlify.app/htmla.html?nombre=${encodeURIComponent(patient.name)}&rut=${encodeURIComponent(patient.rut)}&fecha=${encodeURIComponent(patient.date)}&meds=${encodeURIComponent(medsParam)}`;
+    const qrImageSrc = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrLink)}`;
+
     return (
         <div id="schedule-preview" className="bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl mx-auto border border-slate-200">
             <header className="text-center mb-8 border-b-2 pb-4 border-slate-200">
@@ -139,6 +158,13 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                 <div className="bg-slate-50 p-3 rounded">
                     <span className="font-bold text-slate-600">Fecha:</span>
                     <span className="ml-2 text-slate-800">{patient.date ? new Date(patient.date + 'T00:00:00').toLocaleDateString('es-CL') : '...'}</span>
+                </div>
+            </section>
+
+            <section className="mb-8 flex justify-center">
+                <div className="text-center">
+                    <img src={qrImageSrc} alt="Código QR de medicamentos" className="mx-auto" />
+                    <a href={qrLink} className="text-xs break-all text-blue-600">{qrLink}</a>
                 </div>
             </section>
 
