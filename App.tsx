@@ -13,6 +13,7 @@ import MoneyIcon from './components/icons/MoneyIcon';
 import StarIcon from './components/icons/StarIcon';
 import ArrowUpIcon from './components/icons/ArrowUpIcon';
 import ArrowDownIcon from './components/icons/ArrowDownIcon';
+import GlycemiaLog from './components/GlycemiaLog';
 
 const initialControlInfo: ControlInfo = {
     applies: 'no',
@@ -48,6 +49,7 @@ const App: React.FC = () => {
     const [editingInhaler, setEditingInhaler] = useState<Inhaler | null>(null);
     const [activeTab, setActiveTab] = useState<'oral' | 'injectable' | 'inhaled'>('oral');
     const [showQr, setShowQr] = useState(false);
+    const [activeSection, setActiveSection] = useState<'medications' | 'glycemia'>('medications');
 
 
     const previewRef = useRef<HTMLDivElement>(null);
@@ -138,23 +140,47 @@ const App: React.FC = () => {
         <div className="min-h-screen font-sans text-slate-800">
             <header className="bg-white shadow-md">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap gap-2 justify-between items-center">
-                    <h1 className="text-2xl font-bold text-blue-700">Guía de Medicamentos</h1>
+                    <div className="flex items-center gap-4">
+                        <h1 className="text-2xl font-bold text-blue-700">
+                            {activeSection === 'medications' ? 'Guía de Medicamentos' : 'Registro de Glicemia'}
+                        </h1>
+                        <nav className="flex gap-2">
+                            <button
+                                className={`text-sm font-semibold ${activeSection === 'medications' ? 'border-b-2 border-blue-500' : ''}`}
+                                onClick={() => setActiveSection('medications')}
+                                type="button"
+                            >
+                                Medicamentos
+                            </button>
+                            <button
+                                className={`text-sm font-semibold ${activeSection === 'glycemia' ? 'border-b-2 border-blue-500' : ''}`}
+                                onClick={() => setActiveSection('glycemia')}
+                                type="button"
+                            >
+                                Registro glicemia
+                            </button>
+                        </nav>
+                    </div>
                     <div className="flex gap-2">
-                        <button
-                            onClick={handleExportList}
-                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-1 px-2 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center gap-1"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20"><path d="M3 3a2 2 0 012-2h6a2 2 0 012 2v3h-2V3H5v14h6v-3h2v3a2 2 0 01-2 2H5a2 2 0 01-2-2V3z"/><path d="M9 7h2v5h3l-4 4-4-4h3V7z"/></svg>
-                            Exportar Lista
-                        </button>
-                        <button
-                            onClick={handleImportClick}
-                            className="bg-yellow-600 hover:bg-yellow-700 text-white font-bold text-xs py-1 px-2 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center gap-1"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20"><path d="M3 3a2 2 0 012-2h6a2 2 0 012 2v3h-2V3H5v14h6v-3h2v3a2 2 0 01-2 2H5a2 2 0 01-2-2V3z"/><path d="M11 13H9V8H6l4-4 4 4h-3v5z"/></svg>
-                            Importar Lista
-                        </button>
-                        <input ref={fileInputRef} type="file" accept="application/json" className="hidden" onChange={handleImportList} />
+                        {activeSection === 'medications' && (
+                            <>
+                                <button
+                                    onClick={handleExportList}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-1 px-2 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center gap-1"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20"><path d="M3 3a2 2 0 012-2h6a2 2 0 012 2v3h-2V3H5v14h6v-3h2v3a2 2 0 01-2 2H5a2 2 0 01-2-2V3z"/><path d="M9 7h2v5h3l-4 4-4-4h3V7z"/></svg>
+                                    Exportar Lista
+                                </button>
+                                <button
+                                    onClick={handleImportClick}
+                                    className="bg-yellow-600 hover:bg-yellow-700 text-white font-bold text-xs py-1 px-2 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center gap-1"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20"><path d="M3 3a2 2 0 012-2h6a2 2 0 012 2v3h-2V3H5v14h6v-3h2v3a2 2 0 01-2 2H5a2 2 0 01-2-2V3z"/><path d="M11 13H9V8H6l4-4 4 4h-3v5z"/></svg>
+                                    Importar Lista
+                                </button>
+                                <input ref={fileInputRef} type="file" accept="application/json" className="hidden" onChange={handleImportList} />
+                            </>
+                        )}
                         <button
                             onClick={handlePrint}
                             className="bg-green-600 hover:bg-green-700 text-white font-bold text-xs py-1 px-2 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center gap-1"
@@ -168,7 +194,8 @@ const App: React.FC = () => {
                 </div>
             </header>
 
-            <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {activeSection === 'medications' ? (
+                <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Control Panel */}
                 <div className="bg-white p-6 rounded-xl shadow-lg space-y-8">
                     <PatientInfoForm patient={patient} onChange={handlePatientChange} showQr={showQr} onToggleQr={setShowQr} />
@@ -389,7 +416,12 @@ const App: React.FC = () => {
                      />
                    </div>
                 </div>
-            </main>
+                </main>
+            ) : (
+                <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <GlycemiaLog />
+                </main>
+            )}
         </div>
     );
 };
