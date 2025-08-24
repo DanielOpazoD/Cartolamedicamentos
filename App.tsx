@@ -13,6 +13,7 @@ import MoneyIcon from './components/icons/MoneyIcon';
 import StarIcon from './components/icons/StarIcon';
 import ArrowUpIcon from './components/icons/ArrowUpIcon';
 import ArrowDownIcon from './components/icons/ArrowDownIcon';
+import GlycemiaTable from './components/GlycemiaTable';
 
 const initialControlInfo: ControlInfo = {
     applies: 'no',
@@ -48,6 +49,7 @@ const App: React.FC = () => {
     const [editingInhaler, setEditingInhaler] = useState<Inhaler | null>(null);
     const [activeTab, setActiveTab] = useState<'oral' | 'injectable' | 'inhaled'>('oral');
     const [showQr, setShowQr] = useState(false);
+    const [activeSection, setActiveSection] = useState<'main' | 'glycemia'>('main');
 
 
     const previewRef = useRef<HTMLDivElement>(null);
@@ -134,6 +136,16 @@ const App: React.FC = () => {
 
     const handleImportClick = () => fileInputRef.current?.click();
 
+    if (activeSection === 'glycemia') {
+        return (
+            <GlycemiaTable
+                patient={patient}
+                onPatientChange={handlePatientChange}
+                onBack={() => setActiveSection('main')}
+            />
+        );
+    }
+
     return (
         <div className="min-h-screen font-sans text-slate-800">
             <header className="bg-white shadow-md">
@@ -163,6 +175,15 @@ const App: React.FC = () => {
                                 <path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v2h12V4a2 2 0 00-2-2H6zm10 6H4v8a2 2 0 002 2h8a2 2 0 002-2V8zM6 10h8v2H6v-2z" clipRule="evenodd" />
                             </svg>
                             Imprimir / Guardar PDF
+                        </button>
+                        <button
+                            onClick={() => setActiveSection('glycemia')}
+                            className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs py-1 px-2 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center gap-1"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M3 3h14v14H3V3zm1 1v4h12V4H4zm0 5v8h3V9H4zm4 0v8h8V9H8z" />
+                            </svg>
+                            Tabla Glicemia
                         </button>
                     </div>
                 </div>
