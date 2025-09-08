@@ -40,39 +40,79 @@ const GlycemiaTable: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
   return (
     <div id="glycemia-table" className="p-4 font-sans text-black">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex justify-between items-start mb-2">
         <h2 className="text-2xl font-bold">Registro de Automonitoreo de Glicemia</h2>
-        <div className="flex items-center gap-2 print:hidden">
-          <label className="flex items-center text-xs gap-1">
-            <input
-              type="checkbox"
-              checked={showGoals}
-              onChange={e => setShowGoals(e.target.checked)}
-            />
-            Metas
-          </label>
-          <button
-            onClick={handleAddColumn}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-1 px-2 rounded-lg shadow-md"
-            type="button"
-          >
-            Agregar columna
-          </button>
-          <button
-            onClick={() => window.print()}
-            className="bg-green-600 hover:bg-green-700 text-white font-bold text-xs py-1 px-2 rounded-lg shadow-md"
-            type="button"
-          >
-            Imprimir
-          </button>
-          <button
-            onClick={onBack}
-            className="bg-gray-600 hover:bg-gray-700 text-white font-bold text-xs py-1 px-2 rounded-lg shadow-md"
-            type="button"
-          >
-            Volver
-          </button>
-        </div>
+        {showGoals && (
+          <div className="border border-gray-300 p-4 rounded-md bg-gray-50 w-[700px]">
+            <h3 className="text-center text-base font-semibold mb-3">Metas Metabólicas</h3>
+            <div className="flex justify-between mb-3">
+              <div className="flex flex-col mr-3 flex-1">
+                <label className="font-bold text-xs mb-1">Hb Glicosilada</label>
+                <input
+                  type="text"
+                  placeholder="Ej: <7%"
+                  className="p-1 border border-gray-300 rounded text-xs"
+                />
+              </div>
+              <div className="flex flex-col mr-3 flex-1">
+                <label className="font-bold text-xs mb-1">Glicemia Ayuno</label>
+                <input
+                  type="text"
+                  placeholder="Ej: 80-130 mg/dL"
+                  className="p-1 border border-gray-300 rounded text-xs"
+                />
+              </div>
+              <div className="flex flex-col flex-1">
+                <label className="font-bold text-xs mb-1">Glicemias Pre-Comidas</label>
+                <input
+                  type="text"
+                  placeholder="Ej: 90-130 mg/dL"
+                  className="p-1 border border-gray-300 rounded text-xs"
+                />
+              </div>
+            </div>
+            <div className="flex flex-col">
+              <label className="font-bold text-xs mb-1">Nota</label>
+              <input
+                type="text"
+                placeholder="Observaciones"
+                className="p-1 border border-gray-300 rounded text-xs"
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-center gap-2 mb-4 print:hidden">
+        <label className="flex items-center text-xs gap-1">
+          <input
+            type="checkbox"
+            checked={showGoals}
+            onChange={e => setShowGoals(e.target.checked)}
+          />
+          Metas
+        </label>
+        <button
+          onClick={handleAddColumn}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-1 px-2 rounded-lg shadow-md"
+          type="button"
+        >
+          Agregar columna
+        </button>
+        <button
+          onClick={() => window.print()}
+          className="bg-green-600 hover:bg-green-700 text-white font-bold text-xs py-1 px-2 rounded-lg shadow-md"
+          type="button"
+        >
+          Imprimir
+        </button>
+        <button
+          onClick={onBack}
+          className="bg-gray-600 hover:bg-gray-700 text-white font-bold text-xs py-1 px-2 rounded-lg shadow-md"
+          type="button"
+        >
+          Volver
+        </button>
       </div>
 
       <div className="mb-4 space-y-1">
@@ -91,27 +131,6 @@ const GlycemiaTable: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           <span contentEditable suppressContentEditableWarning className="outline-none">_________________________</span>
         </p>
       </div>
-
-      {showGoals && (
-        <div className="mb-4 p-2 border">
-          <p>
-            <label className="font-bold mr-1">Hemoglobina glicosilada:</label>
-            <span contentEditable suppressContentEditableWarning className="outline-none">_________________________</span>
-          </p>
-          <p>
-            <label className="font-bold mr-1">Glicemia de ayuno:</label>
-            <span contentEditable suppressContentEditableWarning className="outline-none">_________________________</span>
-          </p>
-          <p>
-            <label className="font-bold mr-1">Glicemia precomidas:</label>
-            <span contentEditable suppressContentEditableWarning className="outline-none">_________________________</span>
-          </p>
-          <p>
-            <label className="font-bold mr-1">Otras notas:</label>
-            <span contentEditable suppressContentEditableWarning className="outline-none">_________________________</span>
-          </p>
-        </div>
-      )}
 
       <div className="overflow-auto">
         <table className="border-collapse w-full text-sm table-fixed">
