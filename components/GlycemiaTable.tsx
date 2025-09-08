@@ -16,7 +16,12 @@ const initialColumns: Column[] = [
   { id: 'notas', label: 'Notas', isNotes: true }
 ];
 
-const GlycemiaTable: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+interface GlycemiaTableProps {
+  onBack: () => void;
+  patient: { name: string; rut: string };
+}
+
+const GlycemiaTable: React.FC<GlycemiaTableProps> = ({ onBack, patient }) => {
   const [columns, setColumns] = useState<Column[]>(initialColumns);
   const [showGoals, setShowGoals] = useState(false);
   const rows = Array.from({ length: 30 });
@@ -42,51 +47,42 @@ const GlycemiaTable: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     <div id="glycemia-table" className="p-4 font-sans text-black">
       <h2 className="text-2xl font-bold mb-4">Registro de Automonitoreo de Glicemia</h2>
 
-      <div className="flex items-start mb-4">
+      <div className="flex items-stretch mb-4">
         <div
-          className={`border border-gray-300 p-4 rounded-md bg-gray-50 flex-1 ${
+          className={`border border-gray-300 p-4 rounded-md bg-gray-50 flex-1 flex flex-col ${
             showGoals ? 'mr-4' : ''
           }`}
         >
-          <div className="flex flex-wrap gap-4 mb-3">
-            <div className="flex items-center flex-1">
-              <label className="font-bold mr-1 text-xs">Nombre:</label>
-              <span
-                contentEditable
-                suppressContentEditableWarning
-                className="outline-none text-xs flex-1"
-              >
-                _________________________
-              </span>
-            </div>
-            <div className="flex items-center flex-1">
-              <label className="font-bold mr-1 text-xs">RUT:</label>
-              <span
-                contentEditable
-                suppressContentEditableWarning
-                className="outline-none text-xs flex-1"
-              >
-                _________________________
-              </span>
-            </div>
+          <div className="flex items-center mb-3">
+            <label className="font-bold mr-2 text-xs">Nombre:</label>
+            <input
+              type="text"
+              defaultValue={patient.name}
+              className="p-1 border border-gray-300 rounded text-xs flex-1"
+            />
+          </div>
+          <div className="flex items-center mb-3">
+            <label className="font-bold mr-2 text-xs">RUT:</label>
+            <input
+              type="text"
+              defaultValue={patient.rut}
+              className="p-1 border border-gray-300 rounded text-xs flex-1"
+            />
           </div>
           <div className="flex items-center">
-            <label className="font-bold mr-1 text-xs">Dosis de Insulinoterapia:</label>
-            <span
-              contentEditable
-              suppressContentEditableWarning
-              className="outline-none text-xs flex-1"
-            >
-              _________________________
-            </span>
+            <label className="font-bold mr-2 text-xs">Dosis de Insulinoterapia:</label>
+            <input
+              type="text"
+              className="p-1 border border-gray-300 rounded text-xs flex-1"
+            />
           </div>
         </div>
 
         {showGoals && (
-          <div className="border border-gray-300 p-4 rounded-md bg-gray-50 flex-1">
+          <div className="border border-gray-300 p-4 rounded-md bg-gray-50 flex-1 flex flex-col">
             <h3 className="text-center text-base font-semibold mb-3">Metas Metabólicas</h3>
-            <div className="flex justify-between mb-3">
-              <div className="flex flex-col mr-3 flex-1">
+            <div className="flex flex-wrap gap-3 mb-3">
+              <div className="flex flex-col flex-1 min-w-[120px]">
                 <label className="font-bold text-xs mb-1">Hb Glicosilada</label>
                 <input
                   type="text"
@@ -94,7 +90,7 @@ const GlycemiaTable: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                   className="p-1 border border-gray-300 rounded text-xs"
                 />
               </div>
-              <div className="flex flex-col mr-3 flex-1">
+              <div className="flex flex-col flex-1 min-w-[120px]">
                 <label className="font-bold text-xs mb-1">Glicemia Ayuno</label>
                 <input
                   type="text"
@@ -102,11 +98,19 @@ const GlycemiaTable: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                   className="p-1 border border-gray-300 rounded text-xs"
                 />
               </div>
-              <div className="flex flex-col flex-1">
+              <div className="flex flex-col flex-1 min-w-[120px]">
                 <label className="font-bold text-xs mb-1">Glicemias Pre-Comidas</label>
                 <input
                   type="text"
                   placeholder="Ej: 90-130 mg/dL"
+                  className="p-1 border border-gray-300 rounded text-xs"
+                />
+              </div>
+              <div className="flex flex-col flex-1 min-w-[120px]">
+                <label className="font-bold text-xs mb-1">Presión arterial</label>
+                <input
+                  type="text"
+                  placeholder="Ej: 120/80 mmHg"
                   className="p-1 border border-gray-300 rounded text-xs"
                 />
               </div>

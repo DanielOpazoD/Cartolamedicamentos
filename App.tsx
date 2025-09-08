@@ -136,7 +136,7 @@ const App: React.FC = () => {
     const handleImportClick = () => fileInputRef.current?.click();
 
     if (view === 'glycemia') {
-        return <GlycemiaTable onBack={() => setView('guide')} />;
+        return <GlycemiaTable onBack={() => setView('guide')} patient={patient} />;
     }
 
     return (
