@@ -18,6 +18,7 @@ const initialColumns: Column[] = [
 
 const GlycemiaTable: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [columns, setColumns] = useState<Column[]>(initialColumns);
+  const [showGoals, setShowGoals] = useState(false);
   const rows = Array.from({ length: 30 });
 
   const handleAddColumn = () => {
@@ -41,7 +42,15 @@ const GlycemiaTable: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     <div id="glycemia-table" className="p-4 font-sans text-black">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-bold">Registro de Automonitoreo de Glicemia</h2>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2 print:hidden">
+          <label className="flex items-center text-xs gap-1">
+            <input
+              type="checkbox"
+              checked={showGoals}
+              onChange={e => setShowGoals(e.target.checked)}
+            />
+            Metas
+          </label>
           <button
             onClick={handleAddColumn}
             className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-1 px-2 rounded-lg shadow-md"
@@ -67,10 +76,42 @@ const GlycemiaTable: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       </div>
 
       <div className="mb-4 space-y-1">
-        <p><label className="font-bold mr-1">Nombre:</label> <span contentEditable suppressContentEditableWarning className="outline-none">_________________________</span></p>
-        <p><label className="font-bold mr-1">RUT:</label> <span contentEditable suppressContentEditableWarning className="outline-none">_________________________</span></p>
-        <p><label className="font-bold mr-1">Dosis de Insulinoterapia:</label> <span contentEditable suppressContentEditableWarning className="outline-none">_________________________</span></p>
+        <p className="flex flex-wrap gap-4">
+          <span>
+            <label className="font-bold mr-1">Nombre:</label>
+            <span contentEditable suppressContentEditableWarning className="outline-none">_________________________</span>
+          </span>
+          <span>
+            <label className="font-bold mr-1">RUT:</label>
+            <span contentEditable suppressContentEditableWarning className="outline-none">_________________________</span>
+          </span>
+        </p>
+        <p>
+          <label className="font-bold mr-1">Dosis de Insulinoterapia:</label>
+          <span contentEditable suppressContentEditableWarning className="outline-none">_________________________</span>
+        </p>
       </div>
+
+      {showGoals && (
+        <div className="mb-4 p-2 border">
+          <p>
+            <label className="font-bold mr-1">Hemoglobina glicosilada:</label>
+            <span contentEditable suppressContentEditableWarning className="outline-none">_________________________</span>
+          </p>
+          <p>
+            <label className="font-bold mr-1">Glicemia de ayuno:</label>
+            <span contentEditable suppressContentEditableWarning className="outline-none">_________________________</span>
+          </p>
+          <p>
+            <label className="font-bold mr-1">Glicemia precomidas:</label>
+            <span contentEditable suppressContentEditableWarning className="outline-none">_________________________</span>
+          </p>
+          <p>
+            <label className="font-bold mr-1">Otras notas:</label>
+            <span contentEditable suppressContentEditableWarning className="outline-none">_________________________</span>
+          </p>
+        </div>
+      )}
 
       <div className="overflow-auto">
         <table className="border-collapse w-full text-sm table-fixed">
@@ -85,7 +126,7 @@ const GlycemiaTable: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                     <button
                       type="button"
                       onClick={() => handleRemoveColumn(idx)}
-                      className="absolute top-1 right-1 text-red-600"
+                      className="absolute top-1 right-1 text-red-600 print:hidden"
                       title="Eliminar columna"
                     >
                       &times;
