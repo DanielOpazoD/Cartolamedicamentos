@@ -13,6 +13,7 @@ import MoneyIcon from './components/icons/MoneyIcon';
 import StarIcon from './components/icons/StarIcon';
 import ArrowUpIcon from './components/icons/ArrowUpIcon';
 import ArrowDownIcon from './components/icons/ArrowDownIcon';
+import GlycemiaTable from './components/GlycemiaTable';
 
 const initialControlInfo: ControlInfo = {
     applies: 'no',
@@ -48,9 +49,11 @@ const App: React.FC = () => {
     const [editingInhaler, setEditingInhaler] = useState<Inhaler | null>(null);
     const [activeTab, setActiveTab] = useState<'oral' | 'injectable' | 'inhaled'>('oral');
     const [showQr, setShowQr] = useState(false);
-
+    const [view, setView] = useState<'guide' | 'glycemia'>('guide');
+    const [showAppsMenu, setShowAppsMenu] = useState(false);
 
     const previewRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handlePatientChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -101,8 +104,6 @@ const App: React.FC = () => {
         window.print();
     };
 
-    const fileInputRef = useRef<HTMLInputElement>(null);
-
     const handleExportList = () => {
         const data = { patient, medications, injectables, inhalers };
         const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
@@ -134,12 +135,18 @@ const App: React.FC = () => {
 
     const handleImportClick = () => fileInputRef.current?.click();
 
+    if (view === 'glycemia') {
+        return <GlycemiaTable onBack={() => setView('guide')} patient={patient} />;
+    }
+
     return (
         <div className="min-h-screen font-sans text-slate-800">
             <header className="bg-white shadow-md">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap gap-2 justify-between items-center">
-                    <h1 className="text-2xl font-bold text-blue-700">Guía de Medicamentos</h1>
-                    <div className="flex gap-2">
+                    <div className="flex items-center gap-2">
+                        <h1 className="text-2xl font-bold text-blue-700">Guía de Medicamentos</h1>
+                    </div>
+                    <div className="flex gap-2 items-center">
                         <button
                             onClick={handleExportList}
                             className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-1 px-2 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center gap-1"
@@ -164,6 +171,26 @@ const App: React.FC = () => {
                             </svg>
                             Imprimir / Guardar PDF
                         </button>
+                        <div className="relative">
+                            <button
+                                onClick={() => setShowAppsMenu(prev => !prev)}
+                                className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs py-1 px-2 rounded-lg shadow-md transition-transform transform hover:scale-105"
+                                type="button"
+                            >
+                                Otras aplicaciones
+                            </button>
+                            {showAppsMenu && (
+                                <div className="absolute right-0 mt-1 bg-white border rounded shadow-lg z-10">
+                                    <button
+                                        onClick={() => { setView('glycemia'); setShowAppsMenu(false); }}
+                                        className="block w-full text-left px-4 py-2 hover:bg-slate-100"
+                                        type="button"
+                                    >
+                                        Automonitoreo de glicemia
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </header>
