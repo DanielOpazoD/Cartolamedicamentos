@@ -98,30 +98,25 @@ const GlycemiaTable: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           <tbody>
             {rows.map((_, rowIndex) => (
               <tr key={rowIndex}>
-                {columns.map((col, colIndex) => {
-                  if (col.isNotes) {
-                    if (rowIndex === 0) {
-                      return (
-                        <td
-                          key={col.id}
-                          rowSpan={rows.length}
-                          className="border p-2 align-top"
-                          contentEditable
-                          suppressContentEditableWarning
-                        ></td>
-                      );
-                    }
-                    return null;
-                  }
-                  return (
+                {columns
+                  .filter(col => !col.isNotes)
+                  .map(col => (
                     <td
                       key={col.id}
                       className="border p-2"
                       contentEditable
                       suppressContentEditableWarning
                     ></td>
-                  );
-                })}
+                  ))}
+                {rowIndex === 0 && (
+                  <td
+                    key="notes"
+                    rowSpan={rows.length}
+                    className="border p-2 align-top"
+                    contentEditable
+                    suppressContentEditableWarning
+                  ></td>
+                )}
               </tr>
             ))}
           </tbody>
