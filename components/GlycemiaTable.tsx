@@ -40,10 +40,50 @@ const GlycemiaTable: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
   return (
     <div id="glycemia-table" className="p-4 font-sans text-black">
-      <div className="flex justify-between items-start mb-2">
-        <h2 className="text-2xl font-bold">Registro de Automonitoreo de Glicemia</h2>
+      <h2 className="text-2xl font-bold mb-4">Registro de Automonitoreo de Glicemia</h2>
+
+      <div className="flex items-start mb-4">
+        <div
+          className={`border border-gray-300 p-4 rounded-md bg-gray-50 flex-1 ${
+            showGoals ? 'mr-4' : ''
+          }`}
+        >
+          <div className="flex flex-wrap gap-4 mb-3">
+            <div className="flex items-center flex-1">
+              <label className="font-bold mr-1 text-xs">Nombre:</label>
+              <span
+                contentEditable
+                suppressContentEditableWarning
+                className="outline-none text-xs flex-1"
+              >
+                _________________________
+              </span>
+            </div>
+            <div className="flex items-center flex-1">
+              <label className="font-bold mr-1 text-xs">RUT:</label>
+              <span
+                contentEditable
+                suppressContentEditableWarning
+                className="outline-none text-xs flex-1"
+              >
+                _________________________
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center">
+            <label className="font-bold mr-1 text-xs">Dosis de Insulinoterapia:</label>
+            <span
+              contentEditable
+              suppressContentEditableWarning
+              className="outline-none text-xs flex-1"
+            >
+              _________________________
+            </span>
+          </div>
+        </div>
+
         {showGoals && (
-          <div className="border border-gray-300 p-4 rounded-md bg-gray-50 w-[700px]">
+          <div className="border border-gray-300 p-4 rounded-md bg-gray-50 flex-1">
             <h3 className="text-center text-base font-semibold mb-3">Metas Metabólicas</h3>
             <div className="flex justify-between mb-3">
               <div className="flex flex-col mr-3 flex-1">
@@ -114,24 +154,7 @@ const GlycemiaTable: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           Volver
         </button>
       </div>
-
-      <div className="mb-4 space-y-1">
-        <p className="flex flex-wrap gap-4">
-          <span>
-            <label className="font-bold mr-1">Nombre:</label>
-            <span contentEditable suppressContentEditableWarning className="outline-none">_________________________</span>
-          </span>
-          <span>
-            <label className="font-bold mr-1">RUT:</label>
-            <span contentEditable suppressContentEditableWarning className="outline-none">_________________________</span>
-          </span>
-        </p>
-        <p>
-          <label className="font-bold mr-1">Dosis de Insulinoterapia:</label>
-          <span contentEditable suppressContentEditableWarning className="outline-none">_________________________</span>
-        </p>
-      </div>
-
+      
       <div className="overflow-auto">
         <table className="border-collapse w-full text-sm table-fixed">
           <thead>
