@@ -55,10 +55,6 @@ const App: React.FC = () => {
     const previewRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    if (view === 'glycemia') {
-        return <GlycemiaTable onBack={() => setView('guide')} />;
-    }
-
     const handlePatientChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setPatient(prev => ({ ...prev, [name]: value }));
@@ -138,6 +134,10 @@ const App: React.FC = () => {
     };
 
     const handleImportClick = () => fileInputRef.current?.click();
+
+    if (view === 'glycemia') {
+        return <GlycemiaTable onBack={() => setView('guide')} />;
+    }
 
     return (
         <div className="min-h-screen font-sans text-slate-800">
