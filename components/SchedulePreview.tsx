@@ -129,6 +129,11 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
         requiresPurchase: data.requiresPurchase,
     }));
 
+    const getDisplayTime = (ins: Injectable): string => {
+        const match = ins.schedule.match(/\((.*)\)/);
+        return match ? match[1] : ins.time;
+    };
+
     const allItems = [...medicationItems, ...inhalerItems, ...injectableItems];
 
     const formattedControlDate = controlInfo.date ? new Date(`${controlInfo.date}T${controlInfo.time || '00:00'}`).toLocaleString('es-CL', { dateStyle: 'short', timeStyle: 'short' }) : '';
@@ -448,24 +453,24 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                             <td className="p-2 text-center align-middle" contentEditable={false}>
                                                 <div className="flex flex-row flex-wrap justify-center items-center gap-2">
                                                     {[...item.schedules.mañana, ...item.schedules.ad].map(ins => (
-                                                        <InjectableDoseVisualizer key={ins.id} dose={ins.dose} time={ins.time} className="text-blue-600"/>
+                                                        <InjectableDoseVisualizer key={ins.id} dose={ins.dose} time={getDisplayTime(ins)} className="text-blue-600"/>
                                                     ))}
                                                 </div>
                                             </td>
                                             <td className="p-2 text-center align-middle" contentEditable={false}>
                                                 <div className="flex flex-row flex-wrap justify-center items-center gap-2">
                                                     {item.schedules.aa.map(ins => (
-                                                        <InjectableDoseVisualizer key={ins.id} dose={ins.dose} time={ins.time} className="text-blue-600"/>
+                                                        <InjectableDoseVisualizer key={ins.id} dose={ins.dose} time={getDisplayTime(ins)} className="text-blue-600"/>
                                                     ))}
                                                     {item.schedules.ao.map(ins => (
-                                                        <InjectableDoseVisualizer key={ins.id} dose={ins.dose} time={ins.time} className="text-blue-600"/>
+                                                        <InjectableDoseVisualizer key={ins.id} dose={ins.dose} time={getDisplayTime(ins)} className="text-blue-600"/>
                                                     ))}
                                                 </div>
                                             </td>
                                             <td className="p-2 text-center align-middle" contentEditable={false}>
                                                 <div className="flex flex-row flex-wrap justify-center items-center gap-2">
                                                     {[...item.schedules.ac, ...item.schedules.noche].map(ins => (
-                                                        <InjectableDoseVisualizer key={ins.id} dose={ins.dose} time={ins.time} className="text-blue-600"/>
+                                                        <InjectableDoseVisualizer key={ins.id} dose={ins.dose} time={getDisplayTime(ins)} className="text-blue-600"/>
                                                     ))}
                                                 </div>
                                             </td>

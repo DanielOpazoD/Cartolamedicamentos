@@ -54,7 +54,7 @@ export interface Patient {
 export enum InjectableType {
     NPH = 'Insulina NPH',
     CRYSTALLINE = 'Insulina Rápida',
-    ULTRA_RAPID = 'Insulina ultrarápida (UR)',
+    ULTRA_RAPID = 'Insulina ultrarápida',
     INSULIN_LANTUS = 'Insulina Lantus (Glargina 100 UI/ml)',
     INSULIN_TOUJEO = 'Insulina Toujeo (Glargina 300 UI/ml)',
     INSULIN_TRESIBA = 'Insulina Tresiba (Degludec 100 UI/ml)',
