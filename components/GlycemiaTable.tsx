@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import PlusIcon from './icons/PlusIcon';
+
+// TODO: sección con planillas predeterminadas para registro glicémico
 
 interface Column {
   id: string;
@@ -24,7 +27,8 @@ interface GlycemiaTableProps {
 const GlycemiaTable: React.FC<GlycemiaTableProps> = ({ onBack, patient }) => {
   const [columns, setColumns] = useState<Column[]>(initialColumns);
   const [showGoals, setShowGoals] = useState(false);
-  const rows = Array.from({ length: 30 });
+  const [rowCount, setRowCount] = useState(30);
+  const rows = Array.from({ length: rowCount });
 
   const handleAddColumn = () => {
     const newCol: Column = {
@@ -44,8 +48,49 @@ const GlycemiaTable: React.FC<GlycemiaTableProps> = ({ onBack, patient }) => {
   };
 
   return (
-    <div id="glycemia-table" className="p-4 font-sans text-black">
-      <h2 className="text-2xl font-bold mb-4">Registro de Automonitoreo de Glicemia</h2>
+    <>
+      <div className="fixed top-0 left-0 right-0 bg-black text-white p-1 flex items-center gap-2 text-xs print:hidden z-50">
+        <button
+          onClick={handleAddColumn}
+          className="p-1 hover:text-gray-300"
+          type="button"
+          title="Agregar columna"
+        >
+          <PlusIcon className="h-4 w-4" />
+        </button>
+        <button
+          onClick={() => window.print()}
+          className="p-1 hover:text-gray-300"
+          type="button"
+          title="Imprimir"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v2h12V4a2 2 0 00-2-2H6zm10 6H4v8a2 2 0 002 2h8a2 2 0 002-2V8zM6 10h8v2H6v-2z" clipRule="evenodd" />
+          </svg>
+        </button>
+        <button
+          onClick={onBack}
+          className="p-1 hover:text-gray-300"
+          type="button"
+          title="Volver"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L6.414 8H17a1 1 0 110 2H6.414l3.293 3.293a1 1 0 010 1.414z" clipRule="evenodd" />
+          </svg>
+        </button>
+        <label className="flex items-center gap-1 ml-2">
+          Filas:
+          <input
+            type="number"
+            min={1}
+            value={rowCount}
+            onChange={e => setRowCount(Number(e.target.value))}
+            className="w-12 text-black rounded p-0.5"
+          />
+        </label>
+      </div>
+      <div id="glycemia-table" className="p-4 pt-8 font-sans text-black">
+        <h2 className="text-2xl font-bold mb-4">Registro de Automonitoreo de Glicemia</h2>
 
       <div className="flex items-stretch mb-4">
         <div
@@ -136,27 +181,6 @@ const GlycemiaTable: React.FC<GlycemiaTableProps> = ({ onBack, patient }) => {
           />
           Metas
         </label>
-        <button
-          onClick={handleAddColumn}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-1 px-2 rounded-lg shadow-md"
-          type="button"
-        >
-          Agregar columna
-        </button>
-        <button
-          onClick={() => window.print()}
-          className="bg-green-600 hover:bg-green-700 text-white font-bold text-xs py-1 px-2 rounded-lg shadow-md"
-          type="button"
-        >
-          Imprimir
-        </button>
-        <button
-          onClick={onBack}
-          className="bg-gray-600 hover:bg-gray-700 text-white font-bold text-xs py-1 px-2 rounded-lg shadow-md"
-          type="button"
-        >
-          Volver
-        </button>
       </div>
       
       <div className="overflow-auto">
@@ -210,6 +234,7 @@ const GlycemiaTable: React.FC<GlycemiaTableProps> = ({ onBack, patient }) => {
         </table>
       </div>
     </div>
+    </>
   );
 };
 
