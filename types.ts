@@ -52,8 +52,9 @@ export interface Patient {
 }
 
 export enum InjectableType {
-    NPH = 'Lenta (NPH)',
-    CRYSTALLINE = 'Rápida (Cristalina)',
+    NPH = 'Insulina NPH',
+    CRYSTALLINE = 'Insulina Rápida',
+    ULTRA_RAPID = 'Insulina ultrarápida (UR)',
     INSULIN_LANTUS = 'Insulina Lantus (Glargina 100 UI/ml)',
     INSULIN_TOUJEO = 'Insulina Toujeo (Glargina 300 UI/ml)',
     INSULIN_TRESIBA = 'Insulina Tresiba (Degludec 100 UI/ml)',
@@ -65,6 +66,10 @@ export enum InjectableType {
 export enum InjectableSchedule {
     MAÑANA = 'Mañana',
     NOCHE = 'Noche',
+    AD = 'Antes desayuno (AD)',
+    AA = 'Antes almuerzo (AA)',
+    AO = 'Antes once (AO)',
+    AC = 'Antes cena (AC)',
 }
 
 export interface Injectable {

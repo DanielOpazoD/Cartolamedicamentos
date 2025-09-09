@@ -134,8 +134,8 @@ const GlycemiaTable: React.FC<GlycemiaTableProps> = ({ onBack, patient }) => {
         </div>
 
         {showGoals && (
-          <div className="flex-1">
-            <h3 className="text-base font-semibold mb-1">Metas Metabólicas</h3>
+          <div className="flex-1 relative">
+            <h3 className="absolute -top-5 left-0 text-base font-semibold">Metas Metabólicas</h3>
             <div className="border border-gray-300 p-2 rounded-md bg-gray-50 flex flex-col">
               <div className="flex flex-wrap gap-2 mb-2">
                 <div className="flex flex-col flex-1 min-w-[120px]">

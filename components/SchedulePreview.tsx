@@ -79,28 +79,38 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
 
     const groupedInjectables = injectables.reduce((acc, inj) => {
         const existing = acc.get(inj.type);
+        const addToSchedule = (obj: { mañana: Injectable[]; noche: Injectable[]; ad: Injectable[]; aa: Injectable[]; ao: Injectable[]; ac: Injectable[] }) => {
+            if (inj.schedule === InjectableSchedule.MAÑANA) obj.mañana.push(inj);
+            else if (inj.schedule === InjectableSchedule.NOCHE) obj.noche.push(inj);
+            else if (inj.schedule === InjectableSchedule.AD) obj.ad.push(inj);
+            else if (inj.schedule === InjectableSchedule.AA) obj.aa.push(inj);
+            else if (inj.schedule === InjectableSchedule.AO) obj.ao.push(inj);
+            else if (inj.schedule === InjectableSchedule.AC) obj.ac.push(inj);
+        };
         if (existing) {
-            if (inj.schedule === InjectableSchedule.MAÑANA) {
-                existing.mañana.push(inj);
-            } else {
-                existing.noche.push(inj);
-            }
+            addToSchedule(existing);
             existing.isNewMedication ||= inj.isNewMedication;
             existing.doseIncreased ||= inj.doseIncreased;
             existing.doseDecreased ||= inj.doseDecreased;
             existing.requiresPurchase ||= inj.requiresPurchase;
         } else {
-            acc.set(inj.type, {
-                mañana: inj.schedule === InjectableSchedule.MAÑANA ? [inj] : [],
-                noche: inj.schedule === InjectableSchedule.NOCHE ? [inj] : [],
+            const data = {
+                mañana: [],
+                noche: [],
+                ad: [],
+                aa: [],
+                ao: [],
+                ac: [],
                 isNewMedication: inj.isNewMedication || false,
                 doseIncreased: inj.doseIncreased || false,
                 doseDecreased: inj.doseDecreased || false,
                 requiresPurchase: inj.requiresPurchase || false,
-            });
+            };
+            addToSchedule(data);
+            acc.set(inj.type, data);
         }
         return acc;
-    }, new Map<InjectableType, { mañana: Injectable[], noche: Injectable[], isNewMedication: boolean, doseIncreased: boolean, doseDecreased: boolean, requiresPurchase: boolean }>());
+    }, new Map<InjectableType, { mañana: Injectable[]; noche: Injectable[]; ad: Injectable[]; aa: Injectable[]; ao: Injectable[]; ac: Injectable[]; isNewMedication: boolean; doseIncreased: boolean; doseDecreased: boolean; requiresPurchase: boolean }>());
 
     const medicationItems = medications.map(med => ({ ...med, itemType: 'medication' as const }));
 
@@ -108,10 +118,10 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
 
     const injectableItems = Array.from(groupedInjectables.entries()).map(([type, data]) => ({
         id: type,
-        editId: data.mañana[0]?.id ?? data.noche[0]?.id,
+        editId: data.mañana[0]?.id ?? data.noche[0]?.id ?? data.ad[0]?.id ?? data.aa[0]?.id ?? data.ao[0]?.id ?? data.ac[0]?.id,
         itemType: 'injectable' as const,
         type,
-        schedules: { mañana: data.mañana, noche: data.noche },
+        schedules: { mañana: data.mañana, noche: data.noche, ad: data.ad, aa: data.aa, ao: data.ao, ac: data.ac },
         isNewMedication: data.isNewMedication,
         doseIncreased: data.doseIncreased,
         doseDecreased: data.doseDecreased,
@@ -134,7 +144,10 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
     };
 
     const oralStrings = medications.map(m => `${m.name} ${m.presentacion} ${frequencyShortMap[m.frequency] ?? m.frequency}`);
-    const injectableStrings = injectables.map(i => `${i.type} ${i.dose} ${i.schedule.toLowerCase()}`);
+    const injectableStrings = injectables.map(i => {
+        const sched = i.schedule.match(/\((.*)\)/);
+        return `${i.type} ${i.dose} ${(sched ? sched[1] : i.schedule).toLowerCase()}`;
+    });
     const inhalerStrings = inhalers.map(h => `${h.name} inh ${h.presentacion} c/${h.frequencyHours}h`);
     const medsParam = [...oralStrings, ...injectableStrings, ...inhalerStrings].join('||');
 
@@ -384,7 +397,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                         </tr>
                                     );
                                 } else { // item.itemType === 'injectable'
-                                    const allNotes = [...item.schedules.mañana, ...item.schedules.noche]
+                                    const allNotes = [...item.schedules.mañana, ...item.schedules.noche, ...item.schedules.ad, ...item.schedules.aa, ...item.schedules.ao, ...item.schedules.ac]
                                         .map(ins => ins.notes)
                                         .filter(Boolean)
                                         .join('\n');
@@ -433,17 +446,24 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                             </td>
                                             <td className="p-2 text-center align-middle" contentEditable={false}>
                                                 <div className="flex flex-col items-center gap-2">
-                                                    {item.schedules.mañana.map(ins => (
+                                                    {[...item.schedules.mañana, ...item.schedules.ad].map(ins => (
                                                         <InjectableDoseVisualizer key={ins.id} dose={ins.dose} time={ins.time} className="text-blue-600"/>
                                                     ))}
                                                 </div>
                                             </td>
                                             <td className="p-2 text-center align-middle" contentEditable={false}>
-                                                {/* typically not used in the afternoon */}
+                                                <div className="flex flex-col items-center gap-2">
+                                                    {item.schedules.aa.map(ins => (
+                                                        <InjectableDoseVisualizer key={ins.id} dose={ins.dose} time={ins.time} className="text-blue-600"/>
+                                                    ))}
+                                                    {item.schedules.ao.map(ins => (
+                                                        <InjectableDoseVisualizer key={ins.id} dose={ins.dose} time={ins.time} className="text-blue-600"/>
+                                                    ))}
+                                                </div>
                                             </td>
                                             <td className="p-2 text-center align-middle" contentEditable={false}>
-                                                 <div className="flex flex-col items-center gap-2">
-                                                    {item.schedules.noche.map(ins => (
+                                                <div className="flex flex-col items-center gap-2">
+                                                    {[...item.schedules.ac, ...item.schedules.noche].map(ins => (
                                                         <InjectableDoseVisualizer key={ins.id} dose={ins.dose} time={ins.time} className="text-blue-600"/>
                                                     ))}
                                                 </div>
