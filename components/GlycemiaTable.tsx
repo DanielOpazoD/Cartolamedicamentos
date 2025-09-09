@@ -49,36 +49,45 @@ const GlycemiaTable: React.FC<GlycemiaTableProps> = ({ onBack, patient }) => {
 
   return (
     <>
-      <div className="fixed top-0 left-0 right-0 bg-black text-white p-1 flex items-center gap-2 text-xs print:hidden z-50">
+      <div className="fixed top-0 left-0 right-0 bg-black p-1 flex items-center gap-2 text-xs print:hidden z-50">
         <button
           onClick={handleAddColumn}
-          className="p-1 hover:text-gray-300"
+          className="bg-green-600 hover:bg-green-500 text-white px-2 py-1 rounded flex items-center gap-1"
           type="button"
           title="Agregar columna"
         >
           <PlusIcon className="h-4 w-4" />
+          <span>Agregar columna</span>
         </button>
         <button
           onClick={() => window.print()}
-          className="p-1 hover:text-gray-300"
+          className="bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded flex items-center gap-1"
           type="button"
           title="Imprimir"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v2h12V4a2 2 0 00-2-2H6zm10 6H4v8a2 2 0 002 2h8a2 2 0 002-2V8zM6 10h8v2H6v-2z" clipRule="evenodd" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M6 2a2 2 0 00-2 2v2h12V4a2 2 0 00-2-2H6zm10 6H4v8a2 2 0 002 2h8a2 2 0 002-2V8zM6 10h8v2H6v-2z"
+              clipRule="evenodd"
+            />
           </svg>
+          <span>Imprimir</span>
         </button>
         <button
           onClick={onBack}
-          className="p-1 hover:text-gray-300"
+          className="bg-gray-600 hover:bg-gray-500 text-white px-2 py-1 rounded"
           type="button"
           title="Volver"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L6.414 8H17a1 1 0 110 2H6.414l3.293 3.293a1 1 0 010 1.414z" clipRule="evenodd" />
-          </svg>
+          Volver
         </button>
-        <label className="flex items-center gap-1 ml-2">
+        <label className="flex items-center gap-1 ml-2 text-white">
           Filas:
           <input
             type="number"
@@ -92,7 +101,7 @@ const GlycemiaTable: React.FC<GlycemiaTableProps> = ({ onBack, patient }) => {
       <div id="glycemia-table" className="p-4 pt-8 font-sans text-black">
         <h2 className="text-2xl font-bold mb-4">Registro de Automonitoreo de Glicemia</h2>
 
-      <div className="flex items-stretch mb-4">
+      <div className="flex items-start mb-4">
         <div
           className={`border border-gray-300 p-4 rounded-md bg-gray-50 flex-1 flex flex-col ${
             showGoals ? 'mr-4' : ''
@@ -124,49 +133,51 @@ const GlycemiaTable: React.FC<GlycemiaTableProps> = ({ onBack, patient }) => {
         </div>
 
         {showGoals && (
-          <div className="border border-gray-300 p-4 rounded-md bg-gray-50 flex-1 flex flex-col">
-            <h3 className="text-center text-base font-semibold mb-3">Metas Metabólicas</h3>
-            <div className="flex flex-wrap gap-3 mb-3">
-              <div className="flex flex-col flex-1 min-w-[120px]">
-                <label className="font-bold text-xs mb-1">Hb Glicosilada</label>
+          <div className="flex-1">
+            <h3 className="text-base font-semibold mb-1">Metas Metabólicas</h3>
+            <div className="border border-gray-300 p-2 rounded-md bg-gray-50 flex flex-col">
+              <div className="flex flex-wrap gap-2 mb-2">
+                <div className="flex flex-col flex-1 min-w-[120px]">
+                  <label className="font-bold text-xs mb-1">Hb Glicosilada</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: <7%"
+                    className="p-1 border border-gray-300 rounded text-xs"
+                  />
+                </div>
+                <div className="flex flex-col flex-1 min-w-[120px]">
+                  <label className="font-bold text-xs mb-1">Glicemia Ayuno</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: 80-130 mg/dL"
+                    className="p-1 border border-gray-300 rounded text-xs"
+                  />
+                </div>
+                <div className="flex flex-col flex-1 min-w-[120px]">
+                  <label className="font-bold text-xs mb-1">Glicemias Pre-Comidas</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: 90-130 mg/dL"
+                    className="p-1 border border-gray-300 rounded text-xs"
+                  />
+                </div>
+                <div className="flex flex-col flex-1 min-w-[120px]">
+                  <label className="font-bold text-xs mb-1">Presión arterial</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: 120/80 mmHg"
+                    className="p-1 border border-gray-300 rounded text-xs"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <label className="font-bold text-xs mb-1">Nota</label>
                 <input
                   type="text"
-                  placeholder="Ej: <7%"
+                  placeholder="Observaciones"
                   className="p-1 border border-gray-300 rounded text-xs"
                 />
               </div>
-              <div className="flex flex-col flex-1 min-w-[120px]">
-                <label className="font-bold text-xs mb-1">Glicemia Ayuno</label>
-                <input
-                  type="text"
-                  placeholder="Ej: 80-130 mg/dL"
-                  className="p-1 border border-gray-300 rounded text-xs"
-                />
-              </div>
-              <div className="flex flex-col flex-1 min-w-[120px]">
-                <label className="font-bold text-xs mb-1">Glicemias Pre-Comidas</label>
-                <input
-                  type="text"
-                  placeholder="Ej: 90-130 mg/dL"
-                  className="p-1 border border-gray-300 rounded text-xs"
-                />
-              </div>
-              <div className="flex flex-col flex-1 min-w-[120px]">
-                <label className="font-bold text-xs mb-1">Presión arterial</label>
-                <input
-                  type="text"
-                  placeholder="Ej: 120/80 mmHg"
-                  className="p-1 border border-gray-300 rounded text-xs"
-                />
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <label className="font-bold text-xs mb-1">Nota</label>
-              <input
-                type="text"
-                placeholder="Observaciones"
-                className="p-1 border border-gray-300 rounded text-xs"
-              />
             </div>
           </div>
         )}
