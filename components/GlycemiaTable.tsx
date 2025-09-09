@@ -49,7 +49,8 @@ const GlycemiaTable: React.FC<GlycemiaTableProps> = ({ onBack, patient }) => {
 
   return (
     <>
-      <div className="fixed top-0 left-0 right-0 bg-black p-1 flex items-center gap-2 text-xs print:hidden z-50">
+      {/* Development toolbar - hidden when printing */}
+      <div className="fixed top-0 left-0 right-0 bg-black px-2 py-1 flex items-center gap-2 text-xs text-white print:hidden z-50">
         <button
           onClick={handleAddColumn}
           className="bg-green-600 hover:bg-green-500 text-white px-2 py-1 rounded flex items-center gap-1"
@@ -87,7 +88,7 @@ const GlycemiaTable: React.FC<GlycemiaTableProps> = ({ onBack, patient }) => {
         >
           Volver
         </button>
-        <label className="flex items-center gap-1 ml-2 text-white">
+        <label className="flex items-center gap-1 ml-2">
           Filas:
           <input
             type="number"
