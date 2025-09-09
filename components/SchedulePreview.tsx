@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Patient, Medication, Frequency, Dose, DosageForm, Injectable, InjectableSchedule, InjectableType, ControlInfo, Inhaler } from '../types';
+import { Patient, Medication, Frequency, Dose, DosageForm, Injectable, InjectableSchedule, ControlInfo, Inhaler } from '../types';
 import DoseVisualizer from './DoseVisualizer';
 import MoonIcon from './icons/MoonIcon';
 import SunIcon from './icons/SunIcon';
@@ -111,7 +111,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
             acc.set(inj.type, data);
         }
         return acc;
-    }, new Map<InjectableType, { mañana: Injectable[]; noche: Injectable[]; ad: Injectable[]; aa: Injectable[]; ao: Injectable[]; ac: Injectable[]; isNewMedication: boolean; doseIncreased: boolean; doseDecreased: boolean; requiresPurchase: boolean }>());
+    }, new Map<string, { mañana: Injectable[]; noche: Injectable[]; ad: Injectable[]; aa: Injectable[]; ao: Injectable[]; ac: Injectable[]; isNewMedication: boolean; doseIncreased: boolean; doseDecreased: boolean; requiresPurchase: boolean }>());
 
     const medicationItems = medications.map(med => ({ ...med, itemType: 'medication' as const }));
 

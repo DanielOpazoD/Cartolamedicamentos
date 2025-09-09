@@ -74,7 +74,7 @@ export enum InjectableSchedule {
 
 export interface Injectable {
     id: number;
-    type: InjectableType;
+    type: string;
     dose: string;
     schedule: InjectableSchedule;
     time: string; // "HH:mm" format
