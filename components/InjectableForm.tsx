@@ -26,9 +26,10 @@ const hourOptions = Array.from({ length: 24 }, (_, i) => {
     return `${hour}:00`;
 });
 
-const insulinTypes = [
+const insulinTypes: string[] = [
     InjectableType.NPH,
     InjectableType.CRYSTALLINE,
+    InjectableType.ULTRA_RAPID,
     InjectableType.INSULIN_LANTUS,
     InjectableType.INSULIN_TOUJEO,
     InjectableType.INSULIN_TRESIBA,
@@ -37,35 +38,66 @@ const insulinTypes = [
 const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpdateInjectable, editingInjectable, onCancelEdit }) => {
     const [injectable, setInjectable] = useState<Omit<Injectable, 'id'>>(initialInjectableState);
     const [customDose, setCustomDose] = useState('');
+    const [customType, setCustomType] = useState('');
+    const isRapid = injectable.type === InjectableType.CRYSTALLINE || injectable.type === InjectableType.ULTRA_RAPID;
+    const scheduleOptions = isRapid
+        ? [InjectableSchedule.AD, InjectableSchedule.AA, InjectableSchedule.AO, InjectableSchedule.AC]
+        : [InjectableSchedule.MAÑANA, InjectableSchedule.NOCHE];
 
     useEffect(() => {
         if (editingInjectable) {
             const { id, ...rest } = editingInjectable;
-            setInjectable(rest);
+            if (Object.values(InjectableType).includes(rest.type as InjectableType)) {
+                setInjectable(rest as Omit<Injectable, 'id'>);
+                setCustomType('');
+            } else {
+                setInjectable({ ...rest, type: InjectableType.OTHER });
+                setCustomType(rest.type);
+            }
         } else {
             setInjectable(initialInjectableState);
+            setCustomType('');
         }
     }, [editingInjectable]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, type } = e.target;
         const value = type === 'checkbox' ? (e.target as HTMLInputElement).checked : e.target.value;
+        setInjectable(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const value = e.target.value as InjectableType;
         setInjectable(prev => {
-            const updated = { ...prev, [name]: value };
-            if (name === 'type') {
-                updated.dose = value === InjectableType.LIRAGLUTIDE ? '0.6 mg/día' : '';
-            }
+            const updated = { ...prev, type: value };
+            updated.dose = value === InjectableType.LIRAGLUTIDE ? '0.6 mg/día' : '';
+            updated.schedule =
+                value === InjectableType.CRYSTALLINE || value === InjectableType.ULTRA_RAPID
+                    ? InjectableSchedule.AD
+                    : InjectableSchedule.MAÑANA;
             return updated;
         });
+        if (value !== InjectableType.OTHER) {
+            setCustomType('');
+        }
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         let finalDose = injectable.dose;
+        let finalTime = injectable.time;
+        const trimmedCustomType = customType.trim();
+        let finalType = injectable.type === InjectableType.OTHER ? (trimmedCustomType || InjectableType.OTHER) : injectable.type;
 
-        if (insulinTypes.includes(injectable.type)) {
+        if (injectable.type === InjectableType.OTHER && !trimmedCustomType) return;
+
+        if (insulinTypes.includes(finalType)) {
             if (!injectable.dose) return;
             finalDose = `${injectable.dose} U`;
+            if (isRapid) {
+                const match = injectable.schedule.match(/\((.*)\)/);
+                finalTime = match ? match[1] : injectable.schedule;
+            }
         } else if (injectable.type === InjectableType.SEMAGLUTIDE) {
             if (injectable.dose === 'other') {
                 if (!customDose) return;
@@ -79,13 +111,21 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpda
             finalDose = injectable.dose.toLowerCase();
         }
 
+        const finalInjectable = { ...injectable, type: finalType, dose: finalDose, time: finalTime };
         if (editingInjectable) {
-            onUpdateInjectable && onUpdateInjectable(editingInjectable.id, { ...injectable, dose: finalDose });
+            onUpdateInjectable && onUpdateInjectable(editingInjectable.id, finalInjectable);
             onCancelEdit && onCancelEdit();
         } else {
-            onAddInjectable({ ...injectable, dose: finalDose });
+            onAddInjectable(finalInjectable);
         }
-        setInjectable(initialInjectableState);
+
+        if (injectable.type === InjectableType.OTHER) {
+            setInjectable({ ...initialInjectableState, type: InjectableType.OTHER });
+            setCustomType(trimmedCustomType);
+        } else {
+            setInjectable({ ...initialInjectableState, type: injectable.type });
+            setCustomType('');
+        }
         setCustomDose('');
     };
 
@@ -103,13 +143,22 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpda
                     id="injectableType"
                     name="type"
                     value={injectable.type}
-                    onChange={handleChange}
+                    onChange={handleTypeChange}
                     className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
                 >
                     {Object.values(InjectableType).map(type => (
                         <option key={type} value={type}>{type}</option>
                     ))}
                 </select>
+                {injectable.type === InjectableType.OTHER && (
+                    <input
+                        type="text"
+                        className="mt-2 w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Especificar"
+                        value={customType}
+                        onChange={e => setCustomType(e.target.value)}
+                    />
+                )}
             </div>
 
             {insulinTypes.includes(injectable.type) && (
@@ -182,11 +231,12 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpda
                         onChange={handleChange}
                         className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
                     >
-                        {Object.values(InjectableSchedule).map(s => (
+                        {scheduleOptions.map(s => (
                             <option key={s} value={s}>{s}</option>
                         ))}
                     </select>
                 </div>
+                {!isRapid && (
                 <div>
                     <label htmlFor="time" className="block text-sm font-medium text-slate-600 mb-1">Indicar Hora</label>
                     <select
@@ -202,6 +252,7 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpda
                         ))}
                     </select>
                 </div>
+                )}
             </div>
 
             <div className="grid grid-cols-2 gap-2">
