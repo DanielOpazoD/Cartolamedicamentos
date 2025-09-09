@@ -10,6 +10,7 @@ import ArrowUpIcon from './icons/ArrowUpIcon';
 import ArrowDownIcon from './icons/ArrowDownIcon';
 import EditIcon from './icons/EditIcon';
 import RedCrossIcon from './icons/RedCrossIcon';
+import SyringeIcon from './icons/SyringeIcon';
 
 interface SchedulePreviewProps {
     patient: Patient;
@@ -442,17 +443,17 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                     )}
                                                     {item.type}
                                                 </p>
-                                                <p className="text-sm text-teal-600">Inyectable</p>
+                                                <SyringeIcon className="w-5 h-5 text-teal-600 mx-auto" />
                                             </td>
                                             <td className="p-2 text-center align-middle" contentEditable={false}>
-                                                <div className="flex flex-col items-center gap-2">
+                                                <div className="flex flex-row flex-wrap justify-center items-center gap-2">
                                                     {[...item.schedules.mañana, ...item.schedules.ad].map(ins => (
                                                         <InjectableDoseVisualizer key={ins.id} dose={ins.dose} time={ins.time} className="text-blue-600"/>
                                                     ))}
                                                 </div>
                                             </td>
                                             <td className="p-2 text-center align-middle" contentEditable={false}>
-                                                <div className="flex flex-col items-center gap-2">
+                                                <div className="flex flex-row flex-wrap justify-center items-center gap-2">
                                                     {item.schedules.aa.map(ins => (
                                                         <InjectableDoseVisualizer key={ins.id} dose={ins.dose} time={ins.time} className="text-blue-600"/>
                                                     ))}
@@ -462,7 +463,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                 </div>
                                             </td>
                                             <td className="p-2 text-center align-middle" contentEditable={false}>
-                                                <div className="flex flex-col items-center gap-2">
+                                                <div className="flex flex-row flex-wrap justify-center items-center gap-2">
                                                     {[...item.schedules.ac, ...item.schedules.noche].map(ins => (
                                                         <InjectableDoseVisualizer key={ins.id} dose={ins.dose} time={ins.time} className="text-blue-600"/>
                                                     ))}

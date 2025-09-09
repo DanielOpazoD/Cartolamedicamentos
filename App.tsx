@@ -73,7 +73,15 @@ const App: React.FC = () => {
     }, []);
 
     const addInjectable = useCallback((inj: Omit<Injectable, 'id'>) => {
-        setInjectables(prev => [...prev, { ...inj, id: Date.now() }]);
+        setInjectables(prev => {
+            const idx = prev.findIndex(i => i.type === inj.type && i.schedule === inj.schedule);
+            if (idx !== -1) {
+                const updated = [...prev];
+                updated[idx] = { ...prev[idx], ...inj };
+                return updated;
+            }
+            return [...prev, { ...inj, id: Date.now() }];
+        });
     }, []);
 
     const updateInjectable = useCallback((id: number, inj: Omit<Injectable, 'id'>) => {
