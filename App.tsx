@@ -1,6 +1,16 @@
 
 import React, { useState, useRef, useCallback } from 'react';
-import { Patient, Medication, Injectable, ControlInfo, ExamOptions, Inhaler, DosageForm } from './types';
+import {
+    Patient,
+    Medication,
+    Injectable,
+    ControlInfo,
+    ExamOptions,
+    Inhaler,
+    DosageForm,
+    Frequency,
+    InjectableSchedule,
+} from './types';
 import PatientInfoForm from './components/PatientInfoForm';
 import MedicationForm from './components/MedicationForm';
 import InjectableForm from './components/InjectableForm';
@@ -54,6 +64,100 @@ const App: React.FC = () => {
 
     const previewRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleLoadDemoData = useCallback(() => {
+        setPatient({ name: 'Juanito Perez', rut: '1234567-8', date: today });
+        const baseId = Date.now();
+        setMedications([
+            {
+                id: baseId,
+                name: 'Losartan',
+                presentacion: 'Comprimido',
+                dose: '50 mg',
+                frequency: Frequency.EVERY_12H,
+                dosageForm: DosageForm.TABLET,
+            },
+            {
+                id: baseId + 1,
+                name: 'Metformina',
+                presentacion: 'Comprimido',
+                dose: '1000 mg',
+                frequency: Frequency.EVERY_12H,
+                dosageForm: DosageForm.TABLET,
+            },
+            {
+                id: baseId + 2,
+                name: 'Amlodipino',
+                presentacion: 'Comprimido',
+                dose: '10 mg',
+                frequency: Frequency.EVERY_24H,
+                dosageForm: DosageForm.TABLET,
+            },
+            {
+                id: baseId + 3,
+                name: 'Jardiance',
+                presentacion: 'Comprimido',
+                dose: '25 mg',
+                frequency: Frequency.EVERY_24H,
+                dosageForm: DosageForm.TABLET,
+            },
+            {
+                id: baseId + 4,
+                name: 'Atorvastatina',
+                presentacion: 'Comprimido',
+                dose: '20 mg',
+                frequency: Frequency.EVERY_24H_NIGHT,
+                dosageForm: DosageForm.TABLET,
+            },
+            {
+                id: baseId + 5,
+                name: 'Bisoprolol',
+                presentacion: 'Comprimido',
+                dose: '2.5 mg',
+                frequency: Frequency.EVERY_24H,
+                dosageForm: DosageForm.TABLET,
+            },
+        ]);
+        setInjectables([
+            {
+                id: baseId + 6,
+                type: 'Insulina NPH',
+                dose: '12 UI',
+                schedule: InjectableSchedule.MAÑANA,
+                time: '08:00',
+                notes: 'Administrar vía subcutánea',
+            },
+            {
+                id: baseId + 7,
+                type: 'Insulina NPH',
+                dose: '4 UI',
+                schedule: InjectableSchedule.NOCHE,
+                time: '21:00',
+                notes: 'Administrar vía subcutánea',
+            },
+            {
+                id: baseId + 8,
+                type: 'Semaglutide inyectable',
+                dose: '0.5 mg',
+                schedule: InjectableSchedule.MAÑANA,
+                time: '09:00',
+                notes: 'Vía subcutánea, 1 vez por semana',
+            },
+        ]);
+        setInhalers([
+            {
+                id: baseId + 9,
+                name: 'Salmeterol',
+                presentacion: '25 mcg',
+                dose: 2,
+                frequencyHours: 12,
+                notes: 'Administrar 2 puff cada 12 horas',
+            },
+        ]);
+        setEditingMedication(null);
+        setEditingInjectable(null);
+        setEditingInhaler(null);
+    }, [today]);
 
     const handlePatientChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -155,6 +259,13 @@ const App: React.FC = () => {
                         <h1 className="text-2xl font-bold text-blue-700">Guía de Medicamentos</h1>
                     </div>
                     <div className="flex gap-2 items-center">
+                        <button
+                            onClick={handleLoadDemoData}
+                            className="bg-slate-600 hover:bg-slate-700 text-white font-bold text-xs py-1 px-2 rounded-lg shadow-md transition-transform transform hover:scale-105"
+                            type="button"
+                        >
+                            Cargar paciente de prueba
+                        </button>
                         <button
                             onClick={handleExportList}
                             className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-1 px-2 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center gap-1"
