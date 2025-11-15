@@ -45,7 +45,7 @@ const medicationCategoryOrder = [
 ];
 
 const medicationCategoryLabels: Record<MedicationCategory, string> = {
-    [MedicationCategory.CARDIOVASCULAR]: 'Cardiovascular / Hipertensión',
+    [MedicationCategory.CARDIOVASCULAR]: 'Cardiovascular',
     [MedicationCategory.DIABETES]: 'Diabetes',
     [MedicationCategory.INSULIN_GLP1]: 'Insulinas y agonistas GLP-1',
     [MedicationCategory.OTHER]: 'Otros',
@@ -87,6 +87,7 @@ const App: React.FC = () => {
     const [view, setView] = useState<'guide' | 'glycemia'>('guide');
     const [showAppsMenu, setShowAppsMenu] = useState(false);
     const [draggedMedicationId, setDraggedMedicationId] = useState<number | null>(null);
+    const [showCategoryLabels, setShowCategoryLabels] = useState(true);
 
     const previewRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -512,14 +513,25 @@ const App: React.FC = () => {
 
                 {/* Preview Panel */}
                 <div className="bg-slate-200 p-4 sm:p-6 rounded-xl shadow-inner flex items-start justify-center overflow-x-auto">
-                   <div ref={previewRef} className="w-full">
-                     <SchedulePreview
+                   <div className="w-full space-y-3">
+                     <label className="inline-flex items-center gap-2 text-xs text-slate-600 print:hidden">
+                       <input
+                         type="checkbox"
+                         className="rounded border-slate-300"
+                         checked={showCategoryLabels}
+                         onChange={(e) => setShowCategoryLabels(e.target.checked)}
+                       />
+                       Mostrar etiquetas por tipo en la tabla imprimible
+                     </label>
+                     <div ref={previewRef} className="w-full">
+                       <SchedulePreview
                        patient={patient}
                        medications={medications}
                        injectables={injectables}
                        inhalers={inhalers}
                        controlInfo={controlInfo}
                        showQr={showQr}
+                       showCategoryLabels={showCategoryLabels}
                        onEditMedication={(id) => {
                          const med = medications.find(m => m.id === id);
                          if (med) {
@@ -542,6 +554,7 @@ const App: React.FC = () => {
                          }
                        }}
                      />
+                     </div>
                    </div>
                 </div>
             </main>

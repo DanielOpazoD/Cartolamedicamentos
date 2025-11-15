@@ -130,13 +130,13 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpda
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4 pt-4 border-t border-slate-200">
+        <form onSubmit={handleSubmit} className="space-y-4 pt-4 border-t border-slate-200 text-sm">
             <h2 className="text-2xl font-bold text-slate-800 border-b-2 border-blue-200 pb-2">
                 {editingInjectable ? 'Editar Fármaco Inyectable' : 'Añadir Fármaco Inyectable'}
             </h2>
 
             <div>
-                <label htmlFor="injectableType" className="block text-sm font-medium text-slate-600 mb-1">
+                <label htmlFor="injectableType" className="block text-xs font-medium text-slate-600 mb-1">
                     Tipo de Tratamiento
                 </label>
                 <select
@@ -144,7 +144,7 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpda
                     name="type"
                     value={injectable.type}
                     onChange={handleTypeChange}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
                 >
                     {Object.values(InjectableType).map(type => (
                         <option key={type} value={type}>{type}</option>
@@ -153,7 +153,7 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpda
                 {injectable.type === InjectableType.OTHER && (
                     <input
                         type="text"
-                        className="mt-2 w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="mt-2 w-full px-3 py-2 text-sm border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         placeholder="Especificar"
                         value={customType}
                         onChange={e => setCustomType(e.target.value)}
@@ -163,7 +163,7 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpda
 
             {insulinTypes.includes(injectable.type) && (
                 <div>
-                    <label htmlFor="injectableDose" className="block text-sm font-medium text-slate-600 mb-1">Dosis (Unidades)</label>
+                    <label htmlFor="injectableDose" className="block text-xs font-medium text-slate-600 mb-1">Dosis (Unidades)</label>
                     <input
                         type="number"
                         id="injectableDose"
@@ -172,7 +172,7 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpda
                         onChange={handleChange}
                         min="0"
                         placeholder="Ej: 10"
-                        className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-3 py-2 text-sm border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         required
                     />
                 </div>
@@ -180,12 +180,12 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpda
 
             {injectable.type === InjectableType.SEMAGLUTIDE && (
                 <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-1">Dosis (mg/sem)</label>
+                    <label className="block text-xs font-medium text-slate-600 mb-1">Dosis (mg/sem)</label>
                     <select
                         name="dose"
                         value={injectable.dose}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+                        className="w-full px-3 py-2 text-sm border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
                     >
                         <option value="0.25 mg/sem">0.25 mg/sem</option>
                         <option value="0.5 mg/sem">0.5 mg/sem</option>
@@ -196,7 +196,7 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpda
                     {injectable.dose === 'other' && (
                         <input
                             type="text"
-                            className="mt-2 w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            className="mt-2 w-full px-3 py-2 text-sm border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                             placeholder="Ej: 1.5 mg/sem"
                             value={customDose}
                             onChange={e => setCustomDose(e.target.value)}
@@ -207,12 +207,12 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpda
 
             {injectable.type === InjectableType.LIRAGLUTIDE && (
                 <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-1">Dosis (mg/día)</label>
+                    <label className="block text-xs font-medium text-slate-600 mb-1">Dosis (mg/día)</label>
                     <select
                         name="dose"
                         value={injectable.dose}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+                        className="w-full px-3 py-2 text-sm border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
                     >
                         <option value="0.6 mg/día">0.6 mg/día</option>
                         <option value="1.2 mg/día">1.2 mg/día</option>
@@ -223,13 +223,13 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpda
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label htmlFor="schedule" className="block text-sm font-medium text-slate-600 mb-1">Horario</label>
+                    <label htmlFor="schedule" className="block text-xs font-medium text-slate-600 mb-1">Horario</label>
                     <select
                         id="schedule"
                         name="schedule"
                         value={injectable.schedule}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+                        className="w-full px-3 py-2 text-sm border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
                     >
                         {scheduleOptions.map(s => (
                             <option key={s} value={s}>{s}</option>
@@ -238,13 +238,13 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpda
                 </div>
                 {!isRapid && (
                 <div>
-                    <label htmlFor="time" className="block text-sm font-medium text-slate-600 mb-1">Indicar Hora</label>
+                    <label htmlFor="time" className="block text-xs font-medium text-slate-600 mb-1">Indicar Hora</label>
                     <select
                         id="time"
                         name="time"
                         value={injectable.time}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+                        className="w-full px-3 py-2 text-sm border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
                         required
                     >
                         {hourOptions.map(hour => (
@@ -256,7 +256,7 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpda
             </div>
 
             <div className="grid grid-cols-2 gap-2">
-                <label className="flex items-center text-sm text-slate-600">
+                <label className="flex items-center text-xs text-slate-600">
                     <input
                         type="checkbox"
                         name="isNewMedication"
@@ -266,7 +266,7 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpda
                     />
                     Nuevo medicamento
                 </label>
-                <label className="flex items-center text-sm text-slate-600">
+                <label className="flex items-center text-xs text-slate-600">
                     <input
                         type="checkbox"
                         name="doseIncreased"
@@ -276,7 +276,7 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpda
                     />
                     Aumento de dosis
                 </label>
-                <label className="flex items-center text-sm text-slate-600">
+                <label className="flex items-center text-xs text-slate-600">
                     <input
                         type="checkbox"
                         name="doseDecreased"
@@ -286,7 +286,7 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpda
                     />
                     Disminución de dosis
                 </label>
-                <label className="flex items-center text-sm text-slate-600">
+                <label className="flex items-center text-xs text-slate-600">
                     <input
                         type="checkbox"
                         name="requiresPurchase"
@@ -299,14 +299,14 @@ const InjectableForm: React.FC<InjectableFormProps> = ({ onAddInjectable, onUpda
             </div>
 
             <div>
-                <label htmlFor="injectable_notes" className="block text-sm font-medium text-slate-600 mb-1">Notas (Opcional)</label>
+                <label htmlFor="injectable_notes" className="block text-xs font-medium text-slate-600 mb-1">Notas (Opcional)</label>
                 <textarea
                     id="injectable_notes"
                     name="notes"
                     value={injectable.notes}
                     onChange={handleChange}
                     rows={2}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Ej: Medir glicemia antes de administrar"
                 />
             </div>

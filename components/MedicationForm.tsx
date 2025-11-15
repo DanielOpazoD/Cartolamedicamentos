@@ -74,13 +74,13 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-2 pt-2 border-t border-slate-200">
+        <form onSubmit={handleSubmit} className="space-y-2 pt-2 border-t border-slate-200 text-sm">
             <h2 className="text-xl font-bold text-slate-800 border-b-2 border-blue-200 pb-2">
                 {editingMedication ? 'Editar Fármaco Oral' : 'Añadir Fármaco Oral'}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
-                    <label htmlFor="medName" className="block text-sm font-medium text-slate-600 mb-1">Nombre del Medicamento</label>
+                    <label htmlFor="medName" className="block text-xs font-medium text-slate-600 mb-1">Nombre del Medicamento</label>
                     <input
                         type="text"
                         id="medName"
@@ -88,12 +88,12 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
                         value={medication.name}
                         onChange={handleChange}
                         placeholder="Ej: Losartán"
-                        className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-2 py-1 text-sm border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         required
                     />
                 </div>
                 <div>
-                    <label htmlFor="presentacion" className="block text-sm font-medium text-slate-600 mb-1">Presentación</label>
+                    <label htmlFor="presentacion" className="block text-xs font-medium text-slate-600 mb-1">Presentación</label>
                     <input
                         type="text"
                         id="presentacion"
@@ -101,36 +101,36 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
                         value={medication.presentacion}
                         onChange={handleChange}
                         placeholder="Ej: 50mg"
-                        className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-2 py-1 text-sm border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         required
                     />
                 </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
                 <div>
-                    <label htmlFor="category" className="block text-sm font-medium text-slate-600 mb-1">Categoría</label>
+                    <label htmlFor="category" className="block text-xs font-medium text-slate-600 mb-1">Categoría</label>
                     <select
                         id="category"
                         name="category"
                         value={medication.category}
                         onChange={handleChange}
-                        className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+                        className="w-full px-2 py-1 text-sm border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
                     >
-                        <option value={MedicationCategory.CARDIOVASCULAR}>Cardiovascular / Hipertensión</option>
+                        <option value={MedicationCategory.CARDIOVASCULAR}>Cardiovascular</option>
                         <option value={MedicationCategory.DIABETES}>Diabetes</option>
                         <option value={MedicationCategory.INSULIN_GLP1}>Insulinas y Agonistas GLP-1</option>
                         <option value={MedicationCategory.OTHER}>Otros</option>
                     </select>
                 </div>
                 <div>
-                    <label htmlFor="dose" className="block text-sm font-medium text-slate-600 mb-1">Dosis</label>
+                    <label htmlFor="dose" className="block text-xs font-medium text-slate-600 mb-1">Dosis</label>
                     {medication.dosageForm === DosageForm.TABLET ? (
                         <select
                             id="dose"
                             name="dose"
                             value={medication.dose}
                             onChange={handleChange}
-                            className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+                            className="w-full px-2 py-1 text-sm border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
                         >
                             {Object.values(Dose).map(d => (
                                 <option key={d} value={d}>{d}</option>
@@ -143,18 +143,18 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
                             name="dose"
                             value={medication.dose}
                             onChange={handleChange}
-                            className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-2 py-1 text-sm border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         />
                     )}
                 </div>
                 <div>
-                    <label htmlFor="frequency" className="block text-sm font-medium text-slate-600 mb-1">Frecuencia</label>
+                    <label htmlFor="frequency" className="block text-xs font-medium text-slate-600 mb-1">Frecuencia</label>
                     <select
                         id="frequency"
                         name="frequency"
                         value={medication.frequency}
                         onChange={handleChange}
-                        className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+                        className="w-full px-2 py-1 text-sm border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
                     >
                         {Object.values(Frequency).map(freq => (
                             <option key={freq} value={freq}>{freq}</option>
@@ -162,14 +162,14 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
                     </select>
                 </div>
                 <div>
-                    <label htmlFor="dosageForm" className="block text-sm font-medium text-slate-600 mb-1">Descripción</label>
+                    <label htmlFor="dosageForm" className="block text-xs font-medium text-slate-600 mb-1">Descripción</label>
                     <div className="flex gap-2">
                         <select
                             id="dosageForm"
                             name="dosageForm"
                             value={medication.dosageForm}
                             onChange={handleChange}
-                            className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+                            className="w-full px-2 py-1 text-sm border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
                         >
                             {Object.values(DosageForm).map(form => (
                                 <option key={form} value={form}>{form}</option>
@@ -181,7 +181,7 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
                                 name="otherDosageForm"
                                 value={medication.otherDosageForm}
                                 onChange={handleChange}
-                                className="flex-1 px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                className="flex-1 px-2 py-1 text-sm border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                 placeholder="Especificar"
                             />
                         )}
@@ -189,7 +189,7 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-2">
-                <label className="flex items-center text-sm text-slate-600">
+                <label className="flex items-center text-xs text-slate-600">
                     <input
                         type="checkbox"
                         name="isNewMedication"
@@ -199,7 +199,7 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
                     />
                     Nuevo medicamento
                 </label>
-                <label className="flex items-center text-sm text-slate-600">
+                <label className="flex items-center text-xs text-slate-600">
                     <input
                         type="checkbox"
                         name="doseIncreased"
@@ -209,7 +209,7 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
                     />
                     Aumento de dosis
                 </label>
-                <label className="flex items-center text-sm text-slate-600">
+                <label className="flex items-center text-xs text-slate-600">
                     <input
                         type="checkbox"
                         name="doseDecreased"
@@ -219,7 +219,7 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
                     />
                     Disminución de dosis
                 </label>
-                <label className="flex items-center text-sm text-slate-600">
+                <label className="flex items-center text-xs text-slate-600">
                     <input
                         type="checkbox"
                         name="requiresPurchase"
@@ -231,7 +231,7 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
                 </label>
             </div>
             <div>
-                <label htmlFor="notes" className="block text-sm font-medium text-slate-600 mb-1">Notas (Opcional)</label>
+                <label htmlFor="notes" className="block text-xs font-medium text-slate-600 mb-1">Notas (Opcional)</label>
                 <textarea
                     id="notes"
                     name="notes"
@@ -239,7 +239,7 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
                     onChange={handleChange}
                     placeholder="Ej: Tomar con abundante agua"
                     rows={2}
-                    className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-2 py-1 text-sm border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 />
             </div>
             <div className="flex gap-2">

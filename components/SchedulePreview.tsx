@@ -19,12 +19,13 @@ interface SchedulePreviewProps {
     inhalers: Inhaler[];
     controlInfo: ControlInfo;
     showQr: boolean;
+    showCategoryLabels: boolean;
     onEditMedication?: (id: number) => void;
     onEditInjectable?: (id: number) => void;
     onEditInhaler?: (id: number) => void;
 }
 
-const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications, injectables, inhalers, controlInfo, showQr, onEditMedication, onEditInjectable, onEditInhaler }) => {
+const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications, injectables, inhalers, controlInfo, showQr, showCategoryLabels, onEditMedication, onEditInjectable, onEditInhaler }) => {
 
     const medicationDisplayCategories: MedicationCategory[] = [
         MedicationCategory.CARDIOVASCULAR,
@@ -36,7 +37,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
     const previewCategoryOrder: Array<MedicationCategory | 'inhalers'> = [...medicationDisplayCategories, 'inhalers'];
 
     const previewCategoryLabels: Record<MedicationCategory | 'inhalers', string> = {
-        [MedicationCategory.CARDIOVASCULAR]: 'Cardiovascular / Hipertensión',
+        [MedicationCategory.CARDIOVASCULAR]: 'Cardiovascular',
         [MedicationCategory.DIABETES]: 'Diabetes',
         [MedicationCategory.INSULIN_GLP1]: 'Insulinas y agonistas GLP-1',
         [MedicationCategory.OTHER]: 'Otros',
@@ -179,7 +180,9 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                 : meds;
         }
         if (itemsForCategory.length > 0) {
-            orderedItems.push({ itemType: 'categoryHeader', category, label: previewCategoryLabels[category] });
+            if (showCategoryLabels) {
+                orderedItems.push({ itemType: 'categoryHeader', category, label: previewCategoryLabels[category] });
+            }
             orderedItems.push(...itemsForCategory);
         }
     });
@@ -211,8 +214,8 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
     let rowNumber = 0;
 
     return (
-        <div id="schedule-preview" className="relative bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl mx-auto border border-slate-200">
-            <header className="mb-4 border-b-2 pb-4 border-slate-200 relative">
+        <div id="schedule-preview" className="relative bg-white p-6 md:p-8 rounded-lg shadow-xl w-full max-w-4xl mx-auto border border-slate-200">
+            <header className="mb-3 border-b-2 pb-3 border-slate-200 relative">
                 {showQr && (
                     <img
                         src={qrImageSrc}
@@ -220,8 +223,8 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                         className="absolute -top-8 -right-8 w-36 h-36"
                     />
                 )}
-                <h1 className="mt-0 mb-1 text-2xl font-extrabold text-blue-700 leading-tight sm:pr-40">Guía de Medicamentos</h1>
-                <div className="text-sm flex flex-wrap gap-x-4 gap-y-1 sm:pr-40 sm:mt-0 mt-36">
+                <h1 className="mt-0 mb-1 text-xl md:text-2xl font-extrabold text-blue-700 leading-tight sm:pr-40">Guía de Medicamentos</h1>
+                <div className="text-[11px] sm:text-xs leading-tight flex flex-wrap gap-x-3 gap-y-0.5 sm:pr-40 sm:mt-0 mt-36">
                     <div className="flex items-center">
                         <span className="font-bold text-slate-600">Nombre y Apellido:</span>
                         <span className="ml-1 text-slate-800">{patient.name || '...'}</span>
@@ -237,7 +240,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                 </div>
             </header>
 
-            <section className="mb-4 text-xs text-slate-600">
+            <section className="mb-3 text-[11px] leading-tight text-slate-600">
                 <p className="font-semibold mb-1">Iconos:</p>
                 <ul className="flex flex-wrap gap-4">
                     <li className="flex items-center gap-1"><ArrowUpIcon className="w-4 h-4"/> Aumento de dosis</li>
@@ -249,30 +252,30 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
 
             <section>
                 <div className="overflow-x-auto">
-                    <table className="w-full border-collapse">
+                    <table className="w-full border-collapse text-[11px] leading-tight">
                         <thead>
                             <tr className="bg-blue-600 text-white">
-                                <th className="p-2 text-center font-semibold text-sm w-12">#</th>
-                                <th className="p-2 text-left font-semibold text-sm w-1/3">Medicamento / Presentación</th>
-                                <th className="p-2 text-center font-semibold text-sm w-1/6">
+                                <th className="px-2 py-1 text-center font-semibold text-xs w-10">#</th>
+                                <th className="px-2 py-1 text-left font-semibold text-xs w-1/3">Medicamento / Presentación</th>
+                                <th className="px-2 py-1 text-center font-semibold text-xs w-1/6">
                                     <div className="flex flex-col items-center justify-center gap-0.5">
-                                        <SunIcon className="w-5 h-5" />
+                                        <SunIcon className="w-4 h-4" />
                                         <span>Mañana</span>
                                     </div>
                                 </th>
-                                <th className="p-2 text-center font-semibold text-sm w-1/6">
+                                <th className="px-2 py-1 text-center font-semibold text-xs w-1/6">
                                     <div className="flex flex-col items-center justify-center gap-0.5">
-                                        <SunIcon className="w-5 h-5" />
+                                        <SunIcon className="w-4 h-4" />
                                         <span>Tarde</span>
                                     </div>
                                 </th>
-                                <th className="p-2 text-center font-semibold text-sm w-1/6">
+                                <th className="px-2 py-1 text-center font-semibold text-xs w-1/6">
                                     <div className="flex flex-col items-center justify-center gap-0.5">
-                                        <MoonIcon className="w-5 h-5" />
+                                        <MoonIcon className="w-4 h-4" />
                                         <span>Noche</span>
                                     </div>
                                 </th>
-                                <th className="p-2 text-left font-semibold text-sm w-1/6">Notas</th>
+                                <th className="px-2 py-1 text-left font-semibold text-xs w-1/6">Notas</th>
                             </tr>
                         </thead>
                         <tbody contentEditable suppressContentEditableWarning>
@@ -280,7 +283,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                 if (item.itemType === 'categoryHeader') {
                                     return (
                                         <tr key={`header-${item.category}`} className="bg-slate-100">
-                                            <td colSpan={6} className="p-2 text-left text-xs font-bold uppercase tracking-wide text-slate-600">{item.label}</td>
+                                            <td colSpan={6} className="px-2 py-1 text-left text-[11px] font-bold uppercase tracking-wide text-slate-600">{item.label}</td>
                                         </tr>
                                     );
                                 }
@@ -288,7 +291,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                     rowNumber += 1;
                                     return (
                                         <tr key={item.id} className={`border-b border-slate-200 ${rowNumber % 2 === 1 ? 'bg-white' : 'bg-blue-50/50'}`}>
-                                            <td className="p-2 text-center align-top">
+                                            <td className="px-2 py-1 text-center align-top text-[11px]">
                                                 <div className="flex items-center justify-center gap-1">
                                                     <span>{rowNumber}</span>
                                                     {onEditMedication && (
@@ -303,8 +306,8 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="p-2 align-top text-center">
-                                                <p className="font-bold text-md text-slate-800 flex items-center justify-center gap-1">
+                                            <td className="px-2 py-1 align-top text-center">
+                                                <p className="font-bold text-sm text-slate-800 flex items-center justify-center gap-1">
                                                     {item.isNewMedication && (
                                                         <span contentEditable={false}>
                                                             <StarIcon className="inline w-4 h-4 text-yellow-500" />
@@ -327,7 +330,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                     )}
                                                     {item.name}
                                                 </p>
-                                                <p className="text-sm text-slate-600">{item.presentacion}</p>
+                                                <p className="text-xs text-slate-600">{item.presentacion}</p>
                                                 {(() => {
                                                     const description = item.dosageForm === DosageForm.OTHER
                                                         ? item.otherDosageForm
@@ -335,7 +338,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                             ? ''
                                                             : item.dosageForm;
                                                     return (
-                                                        <p className="text-xs text-slate-500 italic">
+                                                        <p className="text-[10px] text-slate-500 italic">
                                                             {`${item.dose}${description ? ` ${description}` : ''} - ${item.frequency}`}
                                                         </p>
                                                     );
@@ -346,7 +349,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                 return (
                                                     <>
                                                         <td
-                                                            className={`p-2 text-center align-middle ${[DosageForm.TABLET, DosageForm.NONE].includes(item.dosageForm) ? 'cursor-pointer' : 'cursor-text'}`}
+                                                            className={`px-2 py-1 text-center align-middle text-[11px] ${[DosageForm.TABLET, DosageForm.NONE].includes(item.dosageForm) ? 'cursor-pointer' : 'cursor-text'}`}
                                                             contentEditable={false}
                                                             onClick={() => handleDoseClick(item.id, 'morning')}
                                                         >
@@ -361,7 +364,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                             )}
                                                         </td>
                                                         <td
-                                                            className={`p-2 text-center align-middle ${[DosageForm.TABLET, DosageForm.NONE].includes(item.dosageForm) ? 'cursor-pointer' : 'cursor-text'}`}
+                                                            className={`px-2 py-1 text-center align-middle text-[11px] ${[DosageForm.TABLET, DosageForm.NONE].includes(item.dosageForm) ? 'cursor-pointer' : 'cursor-text'}`}
                                                             contentEditable={false}
                                                             onClick={() => handleDoseClick(item.id, 'afternoon')}
                                                         >
@@ -376,7 +379,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                             )}
                                                         </td>
                                                         <td
-                                                            className={`p-2 text-center align-middle ${[DosageForm.TABLET, DosageForm.NONE].includes(item.dosageForm) ? 'cursor-pointer' : 'cursor-text'}`}
+                                                            className={`px-2 py-1 text-center align-middle text-[11px] ${[DosageForm.TABLET, DosageForm.NONE].includes(item.dosageForm) ? 'cursor-pointer' : 'cursor-text'}`}
                                                             contentEditable={false}
                                                             onClick={() => handleDoseClick(item.id, 'night')}
                                                         >
@@ -393,7 +396,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                     </>
                                                 );
                                             })()}
-                                            <td className="p-2 align-top text-sm text-slate-700 whitespace-pre-wrap break-words">
+                                            <td className="px-2 py-1 align-top text-[11px] text-slate-700 whitespace-pre-wrap break-words">
                                                 {item.notes || ''}
                                             </td>
                                         </tr>
@@ -405,7 +408,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                     const showNight = item.frequencyHours === 8 || item.frequencyHours === 12;
                                     return (
                                         <tr key={item.id} className={`border-b border-slate-200 ${rowNumber % 2 === 1 ? 'bg-white' : 'bg-blue-50/50'}`}>
-                                            <td className="p-2 text-center align-top">
+                                            <td className="px-2 py-1 text-center align-top text-[11px]">
                                                 <div className="flex items-center justify-center gap-1">
                                                     <span>{rowNumber}</span>
                                                     {onEditInhaler && (
@@ -420,8 +423,8 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="p-2 align-top text-center">
-                                                <p className="font-bold text-md text-slate-800 flex items-center justify-center gap-1">
+                                            <td className="px-2 py-1 align-top text-center">
+                                                <p className="font-bold text-sm text-slate-800 flex items-center justify-center gap-1">
                                                     {item.isNewMedication && (
                                                         <span contentEditable={false}>
                                                             <StarIcon className="inline w-4 h-4 text-yellow-500" />
@@ -444,19 +447,19 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                     )}
                                                     {item.name}
                                                 </p>
-                                                <p className="text-sm text-slate-600">{item.presentacion}</p>
-                                                <p className="text-xs text-slate-500 italic">{`${item.dose} puff - cada ${item.frequencyHours} h`}</p>
+                                                <p className="text-xs text-slate-600">{item.presentacion}</p>
+                                                <p className="text-[10px] text-slate-500 italic">{`${item.dose} puff - cada ${item.frequencyHours} h`}</p>
                                             </td>
-                                            <td className="p-2 text-center align-middle" contentEditable={false}>
+                                            <td className="px-2 py-1 text-center align-middle text-[11px]" contentEditable={false}>
                                                 {showMorning && <span className="font-bold">{`${item.dose} puff`}</span>}
                                             </td>
-                                            <td className="p-2 text-center align-middle" contentEditable={false}>
+                                            <td className="px-2 py-1 text-center align-middle text-[11px]" contentEditable={false}>
                                                 {showAfternoon && <span className="font-bold">{`${item.dose} puff`}</span>}
                                             </td>
-                                            <td className="p-2 text-center align-middle" contentEditable={false}>
+                                            <td className="px-2 py-1 text-center align-middle text-[11px]" contentEditable={false}>
                                                 {showNight && <span className="font-bold">{`${item.dose} puff`}</span>}
                                             </td>
-                                            <td className="p-2 align-top text-sm text-slate-700 whitespace-pre-wrap break-words">
+                                            <td className="px-2 py-1 align-top text-[11px] text-slate-700 whitespace-pre-wrap break-words">
                                                 {item.notes || ''}
                                             </td>
                                         </tr>
@@ -469,7 +472,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                         .join('\n');
                                     return (
                                         <tr key={item.id} className={`border-b border-slate-200 ${rowNumber % 2 === 1 ? 'bg-white' : 'bg-blue-50/50'}`}>
-                                            <td className="p-2 text-center align-top">
+                                            <td className="px-2 py-1 text-center align-top text-[11px]">
                                                 <div className="flex items-center justify-center gap-1">
                                                     <span>{rowNumber}</span>
                                                     {onEditInjectable && item.editId != null && (
@@ -484,8 +487,8 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="p-2 align-top text-center">
-                                                <p className="font-bold text-md text-slate-800 flex items-center justify-center gap-1">
+                                            <td className="px-2 py-1 align-top text-center">
+                                                <p className="font-bold text-sm text-slate-800 flex items-center justify-center gap-1">
                                                     {item.isNewMedication && (
                                                         <span contentEditable={false}>
                                                             <StarIcon className="inline w-4 h-4 text-yellow-500" />
@@ -508,17 +511,17 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                     )}
                                                     {item.type}
                                                 </p>
-                                                <SyringeIcon className="w-5 h-5 text-teal-600 mx-auto" />
+                                                <SyringeIcon className="w-4 h-4 text-teal-600 mx-auto" />
                                             </td>
-                                            <td className="p-2 text-center align-middle" contentEditable={false}>
-                                                <div className="flex flex-row flex-wrap justify-center items-center gap-2">
+                                            <td className="px-2 py-1 text-center align-middle text-[11px]" contentEditable={false}>
+                                                <div className="flex flex-row flex-wrap justify-center items-center gap-1.5">
                                                     {[...item.schedules.mañana, ...item.schedules.ad].map(ins => (
                                                         <InjectableDoseVisualizer key={ins.id} dose={ins.dose} time={getDisplayTime(ins)} className="text-blue-600"/>
                                                     ))}
                                                 </div>
                                             </td>
-                                            <td className="p-2 text-center align-middle" contentEditable={false}>
-                                                <div className="flex flex-row flex-wrap justify-center items-center gap-2">
+                                            <td className="px-2 py-1 text-center align-middle text-[11px]" contentEditable={false}>
+                                                <div className="flex flex-row flex-wrap justify-center items-center gap-1.5">
                                                     {item.schedules.aa.map(ins => (
                                                         <InjectableDoseVisualizer key={ins.id} dose={ins.dose} time={getDisplayTime(ins)} className="text-blue-600"/>
                                                     ))}
@@ -527,14 +530,14 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                     ))}
                                                 </div>
                                             </td>
-                                            <td className="p-2 text-center align-middle" contentEditable={false}>
-                                                <div className="flex flex-row flex-wrap justify-center items-center gap-2">
+                                            <td className="px-2 py-1 text-center align-middle text-[11px]" contentEditable={false}>
+                                                <div className="flex flex-row flex-wrap justify-center items-center gap-1.5">
                                                     {[...item.schedules.ac, ...item.schedules.noche].map(ins => (
                                                         <InjectableDoseVisualizer key={ins.id} dose={ins.dose} time={getDisplayTime(ins)} className="text-blue-600"/>
                                                     ))}
                                                 </div>
                                             </td>
-                                            <td className="p-2 align-top text-sm text-slate-700 whitespace-pre-wrap break-words">
+                                            <td className="px-2 py-1 align-top text-[11px] text-slate-700 whitespace-pre-wrap break-words">
                                                 {allNotes}
                                             </td>
                                         </tr>
@@ -542,7 +545,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                 }
                             }) : (
                                 <tr>
-                                    <td colSpan={6} className="text-center p-4 text-slate-500">
+                                    <td colSpan={6} className="text-center px-2 py-3 text-[11px] text-slate-500">
                                         <p>Añada un medicamento, inhalador o tratamiento inyectable para verlo aquí.</p>
                                     </td>
                                 </tr>
