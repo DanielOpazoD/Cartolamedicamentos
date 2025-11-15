@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Medication, Frequency, Dose, DosageForm } from '../types';
+import { Medication, Frequency, Dose, DosageForm, MedicationCategory } from '../types';
 import PlusIcon from './icons/PlusIcon';
 
 interface MedicationFormProps {
@@ -22,6 +22,7 @@ const initialMedState: Omit<Medication, 'id'> = {
     doseIncreased: false,
     doseDecreased: false,
     requiresPurchase: false,
+    category: MedicationCategory.CARDIOVASCULAR,
 };
 
 const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpdateMedication, editingMedication, onCancelEdit }) => {
@@ -102,6 +103,21 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
                         required
                     />
                 </div>
+            </div>
+            <div>
+                <label htmlFor="category" className="block text-sm font-medium text-slate-600 mb-1">Categoría</label>
+                <select
+                    id="category"
+                    name="category"
+                    value={medication.category}
+                    onChange={handleChange}
+                    className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+                >
+                    {Object.values(MedicationCategory).map(category => (
+                        <option key={category} value={category}>{category}</option>
+                    ))}
+                </select>
+                <p className="text-xs text-slate-500 mt-1">Se usa para ordenar automáticamente la lista.</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <div>
