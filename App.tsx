@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useCallback } from 'react';
-import { Patient, Medication, Injectable, ControlInfo, ExamOptions, Inhaler, DosageForm } from './types';
+import { Patient, Medication, Injectable, ControlInfo, ExamOptions, Inhaler, DosageForm, MedicationCategory } from './types';
 import PatientInfoForm from './components/PatientInfoForm';
 import MedicationForm from './components/MedicationForm';
 import InjectableForm from './components/InjectableForm';
@@ -14,6 +14,7 @@ import StarIcon from './components/icons/StarIcon';
 import ArrowUpIcon from './components/icons/ArrowUpIcon';
 import ArrowDownIcon from './components/icons/ArrowDownIcon';
 import GlycemiaTable from './components/GlycemiaTable';
+import { LOGICAL_LABELS, getInjectableLogicalKey, getInhalerLogicalKey, getMedicationLogicalKey, reorderList, sortInjectablesByLogicalOrder, sortInhalersByName, sortMedicationsByLogicalOrder } from './utils/orderUtils';
 
 const initialControlInfo: ControlInfo = {
     applies: 'no',
@@ -51,6 +52,12 @@ const App: React.FC = () => {
     const [showQr, setShowQr] = useState(false);
     const [view, setView] = useState<'guide' | 'glycemia'>('guide');
     const [showAppsMenu, setShowAppsMenu] = useState(false);
+    const [medicationsAutoSort, setMedicationsAutoSort] = useState(true);
+    const [injectablesAutoSort, setInjectablesAutoSort] = useState(true);
+    const [inhalersAutoSort, setInhalersAutoSort] = useState(true);
+    const [draggedMedicationIndex, setDraggedMedicationIndex] = useState<number | null>(null);
+    const [draggedInjectableIndex, setDraggedInjectableIndex] = useState<number | null>(null);
+    const [draggedInhalerIndex, setDraggedInhalerIndex] = useState<number | null>(null);
 
     const previewRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -61,12 +68,18 @@ const App: React.FC = () => {
     }, []);
 
     const addMedication = useCallback((med: Omit<Medication, 'id'>) => {
-        setMedications(prev => [...prev, { ...med, id: Date.now() }]);
-    }, []);
+        setMedications(prev => {
+            const updated = [...prev, { ...med, id: Date.now() }];
+            return medicationsAutoSort ? sortMedicationsByLogicalOrder(updated) : updated;
+        });
+    }, [medicationsAutoSort]);
 
     const updateMedication = useCallback((id: number, med: Omit<Medication, 'id'>) => {
-        setMedications(prev => prev.map(m => m.id === id ? { ...m, ...med } : m));
-    }, []);
+        setMedications(prev => {
+            const updated = prev.map(m => m.id === id ? { ...m, ...med } : m);
+            return medicationsAutoSort ? sortMedicationsByLogicalOrder(updated) : updated;
+        });
+    }, [medicationsAutoSort]);
 
     const removeMedication = useCallback((id: number) => {
         setMedications(prev => prev.filter(med => med.id !== id));
@@ -75,33 +88,77 @@ const App: React.FC = () => {
     const addInjectable = useCallback((inj: Omit<Injectable, 'id'>) => {
         setInjectables(prev => {
             const idx = prev.findIndex(i => i.type === inj.type && i.schedule === inj.schedule);
+            let updated: Injectable[];
             if (idx !== -1) {
-                const updated = [...prev];
+                updated = [...prev];
                 updated[idx] = { ...prev[idx], ...inj };
-                return updated;
+            } else {
+                updated = [...prev, { ...inj, id: Date.now() }];
             }
-            return [...prev, { ...inj, id: Date.now() }];
+            return injectablesAutoSort ? sortInjectablesByLogicalOrder(updated) : updated;
         });
-    }, []);
+    }, [injectablesAutoSort]);
 
     const updateInjectable = useCallback((id: number, inj: Omit<Injectable, 'id'>) => {
-        setInjectables(prev => prev.map(i => i.id === id ? { ...i, ...inj } : i));
-    }, []);
+        setInjectables(prev => {
+            const updated = prev.map(i => i.id === id ? { ...i, ...inj } : i);
+            return injectablesAutoSort ? sortInjectablesByLogicalOrder(updated) : updated;
+        });
+    }, [injectablesAutoSort]);
 
     const removeInjectable = useCallback((id: number) => {
         setInjectables(prev => prev.filter(ins => ins.id !== id));
     }, []);
 
     const addInhaler = useCallback((inh: Omit<Inhaler, 'id'>) => {
-        setInhalers(prev => [...prev, { ...inh, id: Date.now() }]);
-    }, []);
+        setInhalers(prev => {
+            const updated = [...prev, { ...inh, id: Date.now() }];
+            return inhalersAutoSort ? sortInhalersByName(updated) : updated;
+        });
+    }, [inhalersAutoSort]);
 
     const updateInhaler = useCallback((id: number, inh: Omit<Inhaler, 'id'>) => {
-        setInhalers(prev => prev.map(i => i.id === id ? { ...i, ...inh } : i));
-    }, []);
+        setInhalers(prev => {
+            const updated = prev.map(i => i.id === id ? { ...i, ...inh } : i);
+            return inhalersAutoSort ? sortInhalersByName(updated) : updated;
+        });
+    }, [inhalersAutoSort]);
 
     const removeInhaler = useCallback((id: number) => {
         setInhalers(prev => prev.filter(i => i.id !== id));
+    }, []);
+
+    const handleMedicationReorder = useCallback((fromIndex: number, toIndex: number) => {
+        if (fromIndex === toIndex) return;
+        setMedications(prev => reorderList(prev, fromIndex, toIndex));
+        setMedicationsAutoSort(false);
+    }, []);
+
+    const handleInjectableReorder = useCallback((fromIndex: number, toIndex: number) => {
+        if (fromIndex === toIndex) return;
+        setInjectables(prev => reorderList(prev, fromIndex, toIndex));
+        setInjectablesAutoSort(false);
+    }, []);
+
+    const handleInhalerReorder = useCallback((fromIndex: number, toIndex: number) => {
+        if (fromIndex === toIndex) return;
+        setInhalers(prev => reorderList(prev, fromIndex, toIndex));
+        setInhalersAutoSort(false);
+    }, []);
+
+    const resetMedicationOrder = useCallback(() => {
+        setMedications(prev => sortMedicationsByLogicalOrder(prev));
+        setMedicationsAutoSort(true);
+    }, []);
+
+    const resetInjectableOrder = useCallback(() => {
+        setInjectables(prev => sortInjectablesByLogicalOrder(prev));
+        setInjectablesAutoSort(true);
+    }, []);
+
+    const resetInhalerOrder = useCallback(() => {
+        setInhalers(prev => sortInhalersByName(prev));
+        setInhalersAutoSort(true);
     }, []);
 
     const handleControlChange = useCallback((field: keyof ControlInfo, value: string | boolean | ExamOptions) => {
@@ -131,9 +188,15 @@ const App: React.FC = () => {
             try {
                 const data = JSON.parse(ev.target?.result as string);
                 setPatient(data.patient || { name: '', rut: '', date: today });
-                setMedications(data.medications || []);
-                setInjectables(data.injectables || []);
-                setInhalers(data.inhalers || []);
+                const importedMeds: Medication[] = (data.medications || []).map((med: Medication) => ({
+                    ...med,
+                    category: med.category || MedicationCategory.OTHERS,
+                }));
+                const importedInjectables: Injectable[] = data.injectables || [];
+                const importedInhalers: Inhaler[] = data.inhalers || [];
+                setMedications(medicationsAutoSort ? sortMedicationsByLogicalOrder(importedMeds) : importedMeds);
+                setInjectables(injectablesAutoSort ? sortInjectablesByLogicalOrder(importedInjectables) : importedInjectables);
+                setInhalers(inhalersAutoSort ? sortInhalersByName(importedInhalers) : importedInhalers);
             } catch (err) {
                 console.error('Error al importar lista', err);
             }
@@ -236,51 +299,93 @@ const App: React.FC = () => {
                                 <>
                                     <MedicationForm onAddMedication={addMedication} onUpdateMedication={updateMedication} editingMedication={editingMedication} onCancelEdit={() => setEditingMedication(null)} />
                                     {medications.length > 0 && (
-                                        <div className="space-y-4">
-                                            <h3 className="text-xl font-semibold text-slate-700 border-b pb-2">Medicamentos Añadidos</h3>
+                                        <div className="space-y-2">
+                                            <div className="flex items-center justify-between gap-2 flex-wrap border-b pb-2">
+                                                <h3 className="text-xl font-semibold text-slate-700">Medicamentos Añadidos</h3>
+                                                <div className="flex items-center gap-2 text-xs text-slate-500">
+                                                    <span>{medicationsAutoSort ? 'Orden lógico automático' : 'Orden personalizado'}</span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={resetMedicationOrder}
+                                                        disabled={medicationsAutoSort}
+                                                        className={`px-2 py-1 rounded-md border text-xs font-semibold transition-colors ${medicationsAutoSort ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed' : 'bg-white text-blue-600 border-blue-300 hover:bg-blue-50'}`}
+                                                    >
+                                                        Restaurar orden
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <p className="text-xs text-slate-500">Mantén presionado y arrastra para reordenar los fármacos.</p>
                                             <ul className="space-y-3 max-h-60 overflow-y-auto pr-2">
-                                                {medications.map((med) => (
-                                                    <li key={med.id} className="flex justify-between items-center bg-slate-50 p-3 rounded-lg shadow-sm">
-                                                        <div>
-                                                            <p className="font-bold text-blue-600 flex items-center gap-1">
-                                                                {med.isNewMedication && <StarIcon className="inline w-4 h-4 text-yellow-500" />}
-                                                                {med.doseIncreased && <ArrowUpIcon className="inline w-4 h-4" />}
-                                                                {med.doseDecreased && <ArrowDownIcon className="inline w-4 h-4" />}
-                                                                {med.requiresPurchase && <MoneyIcon className="inline w-4 h-4 text-green-600" />}
-                                                                {med.name} <span className="text-slate-600 font-normal">{med.presentacion}</span>
-                                                            </p>
-                                                            {(() => {
-                                                                const description = med.dosageForm === DosageForm.OTHER
-                                                                    ? med.otherDosageForm
-                                                                    : med.dosageForm === DosageForm.NONE
-                                                                        ? ''
-                                                                        : med.dosageForm;
-                                                                return (
-                                                                    <p className="text-sm text-slate-500">
-                                                                        {`${med.dose}${description ? ` ${description}` : ''} - ${med.frequency}`}
+                                                {medications.map((med, index) => {
+                                                    const logicalKey = getMedicationLogicalKey(med);
+                                                    return (
+                                                        <li
+                                                            key={med.id}
+                                                            className={`flex justify-between items-center bg-slate-50 p-3 rounded-lg shadow-sm border border-transparent ${draggedMedicationIndex === index ? 'border-blue-300 bg-blue-50' : ''}`}
+                                                            draggable
+                                                            onDragStart={() => setDraggedMedicationIndex(index)}
+                                                            onDragOver={(e) => e.preventDefault()}
+                                                            onDrop={() => {
+                                                                if (draggedMedicationIndex !== null) {
+                                                                    handleMedicationReorder(draggedMedicationIndex, index);
+                                                                }
+                                                                setDraggedMedicationIndex(null);
+                                                            }}
+                                                            onDragEnd={() => setDraggedMedicationIndex(null)}
+                                                        >
+                                                            <div className="flex-1">
+                                                                <div className="flex items-center gap-2">
+                                                                    <button
+                                                                        type="button"
+                                                                        className="cursor-move text-slate-400 hover:text-slate-600"
+                                                                        aria-label="Reordenar medicamento"
+                                                                    >
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path d="M7 4h6v2H7V4zm0 4h6v2H7V8zm0 4h6v2H7v-2z" /></svg>
+                                                                    </button>
+                                                                    <p className="font-bold text-blue-600 flex items-center gap-1 flex-wrap">
+                                                                        <span className="text-[10px] uppercase tracking-wide bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-semibold">{LOGICAL_LABELS[logicalKey]}</span>
+                                                                        {med.isNewMedication && <StarIcon className="inline w-4 h-4 text-yellow-500" />}
+                                                                        {med.doseIncreased && <ArrowUpIcon className="inline w-4 h-4" />}
+                                                                        {med.doseDecreased && <ArrowDownIcon className="inline w-4 h-4" />}
+                                                                        {med.requiresPurchase && <MoneyIcon className="inline w-4 h-4 text-green-600" />}
+                                                                        {med.name} <span className="text-slate-600 font-normal">{med.presentacion}</span>
                                                                     </p>
-                                                                );
-                                                            })()}
-                                                            {med.notes && <p className="text-xs text-slate-500 italic mt-1">Nota: {med.notes}</p>}
-                                                        </div>
-                                                        <div className="flex gap-2">
-                                                            <button
-                                                                onClick={() => setEditingMedication(med)}
-                                                                className="p-2 text-blue-500 hover:bg-blue-100 rounded-full transition-colors"
-                                                                aria-label="Editar medicamento"
-                                                            >
-                                                                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L7.5 21.036H3v-4.5L16.732 3.732z" /></svg>
-                                                            </button>
-                                                            <button
-                                                                onClick={() => removeMedication(med.id)}
-                                                                className="p-2 text-red-500 hover:bg-red-100 rounded-full transition-colors"
-                                                                aria-label="Eliminar medicamento"
-                                                            >
-                                                                <TrashIcon className="w-5 h-5" />
-                                                            </button>
-                                                        </div>
-                                                    </li>
-                                                ))}
+                                                                </div>
+                                                                {(() => {
+                                                                    const description = med.dosageForm === DosageForm.OTHER
+                                                                        ? med.otherDosageForm
+                                                                        : med.dosageForm === DosageForm.NONE
+                                                                            ? ''
+                                                                            : med.dosageForm;
+                                                                    return (
+                                                                        <p className="text-sm text-slate-500">
+                                                                            {`${med.dose}${description ? ` ${description}` : ''} - ${med.frequency}`}
+                                                                        </p>
+                                                                    );
+                                                                })()}
+                                                                {med.notes && <p className="text-xs text-slate-500 italic mt-1">Nota: {med.notes}</p>}
+                                                            </div>
+                                                            <div className="flex gap-2">
+                                                                <button
+                                                                    onClick={() => setEditingMedication(med)}
+                                                                    className="p-2 text-blue-500 hover:bg-blue-100 rounded-full transition-colors"
+                                                                    aria-label="Editar medicamento"
+                                                                    type="button"
+                                                                >
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L7.5 21.036H3v-4.5L16.732 3.732z" /></svg>
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => removeMedication(med.id)}
+                                                                    className="p-2 text-red-500 hover:bg-red-100 rounded-full transition-colors"
+                                                                    aria-label="Eliminar medicamento"
+                                                                    type="button"
+                                                                >
+                                                                    <TrashIcon className="w-5 h-5" />
+                                                                </button>
+                                                            </div>
+                                                        </li>
+                                                    );
+                                                })}
                                             </ul>
                                         </div>
                                     )}
@@ -290,40 +395,82 @@ const App: React.FC = () => {
                                 <>
                                     <InjectableForm onAddInjectable={addInjectable} onUpdateInjectable={updateInjectable} editingInjectable={editingInjectable} onCancelEdit={() => setEditingInjectable(null)} />
                                     {injectables.length > 0 && (
-                                        <div className="space-y-4">
-                                            <h3 className="text-xl font-semibold text-slate-700 border-b pb-2">Tratamientos Inyectables Añadidos</h3>
+                                        <div className="space-y-2">
+                                            <div className="flex items-center justify-between gap-2 flex-wrap border-b pb-2">
+                                                <h3 className="text-xl font-semibold text-slate-700">Tratamientos Inyectables Añadidos</h3>
+                                                <div className="flex items-center gap-2 text-xs text-slate-500">
+                                                    <span>{injectablesAutoSort ? 'Orden lógico automático' : 'Orden personalizado'}</span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={resetInjectableOrder}
+                                                        disabled={injectablesAutoSort}
+                                                        className={`px-2 py-1 rounded-md border text-xs font-semibold transition-colors ${injectablesAutoSort ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed' : 'bg-white text-blue-600 border-blue-300 hover:bg-blue-50'}`}
+                                                    >
+                                                        Restaurar orden
+                                                    </button>
+                                                </div>
+                                            </div>
+                        <p className="text-xs text-slate-500">Arrastra para reagrupar las insulinas o tratamientos GLP-1 si lo necesitas.</p>
                                             <ul className="space-y-3 max-h-60 overflow-y-auto pr-2">
-                                                {injectables.map((ins) => (
-                                                    <li key={ins.id} className="flex justify-between items-center bg-slate-50 p-3 rounded-lg shadow-sm">
-                                                        <div>
-                                                            <p className="font-bold text-teal-600 flex items-center gap-1">
-                                                                {ins.isNewMedication && <StarIcon className="inline w-4 h-4 text-yellow-500" />}
-                                                                {ins.doseIncreased && <ArrowUpIcon className="inline w-4 h-4" />}
-                                                                {ins.doseDecreased && <ArrowDownIcon className="inline w-4 h-4" />}
-                                                                {ins.requiresPurchase && <MoneyIcon className="inline w-4 h-4 text-green-600" />}
-                                                                {ins.type}
-                                                            </p>
-                                                            <p className="text-sm text-slate-500">{`${ins.dose} - ${ins.schedule} a las ${ins.time}`}</p>
-                                                            {ins.notes && <p className="text-xs text-slate-500 italic mt-1">Nota: {ins.notes}</p>}
-                                                        </div>
-                                                        <div className="flex gap-2">
-                                                            <button
-                                                                onClick={() => setEditingInjectable(ins)}
-                                                                className="p-2 text-blue-500 hover:bg-blue-100 rounded-full transition-colors"
-                                                                aria-label="Editar inyectable"
-                                                            >
-                                                                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L7.5 21.036H3v-4.5L16.732 3.732z" /></svg>
-                                                            </button>
-                                                            <button
-                                                                onClick={() => removeInjectable(ins.id)}
-                                                                className="p-2 text-red-500 hover:bg-red-100 rounded-full transition-colors"
-                                                                aria-label="Eliminar inyectable"
-                                                            >
-                                                                <TrashIcon className="w-5 h-5" />
-                                                            </button>
-                                                        </div>
-                                                    </li>
-                                                ))}
+                                                {injectables.map((ins, index) => {
+                                                    const logicalKey = getInjectableLogicalKey(ins);
+                                                    return (
+                                                        <li
+                                                            key={ins.id}
+                                                            className={`flex justify-between items-center bg-slate-50 p-3 rounded-lg shadow-sm border border-transparent ${draggedInjectableIndex === index ? 'border-blue-300 bg-blue-50' : ''}`}
+                                                            draggable
+                                                            onDragStart={() => setDraggedInjectableIndex(index)}
+                                                            onDragOver={(e) => e.preventDefault()}
+                                                            onDrop={() => {
+                                                                if (draggedInjectableIndex !== null) {
+                                                                    handleInjectableReorder(draggedInjectableIndex, index);
+                                                                }
+                                                                setDraggedInjectableIndex(null);
+                                                            }}
+                                                            onDragEnd={() => setDraggedInjectableIndex(null)}
+                                                        >
+                                                            <div className="flex-1">
+                                                                <div className="flex items-center gap-2">
+                                                                    <button
+                                                                        type="button"
+                                                                        className="cursor-move text-slate-400 hover:text-slate-600"
+                                                                        aria-label="Reordenar tratamiento inyectable"
+                                                                    >
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path d="M7 4h6v2H7V4zm0 4h6v2H7V8zm0 4h6v2H7v-2z" /></svg>
+                                                                    </button>
+                                                                    <p className="font-bold text-teal-600 flex items-center gap-1 flex-wrap">
+                                                                        <span className="text-[10px] uppercase tracking-wide bg-teal-100 text-teal-700 px-2 py-0.5 rounded-full font-semibold">{LOGICAL_LABELS[logicalKey]}</span>
+                                                                        {ins.isNewMedication && <StarIcon className="inline w-4 h-4 text-yellow-500" />}
+                                                                        {ins.doseIncreased && <ArrowUpIcon className="inline w-4 h-4" />}
+                                                                        {ins.doseDecreased && <ArrowDownIcon className="inline w-4 h-4" />}
+                                                                        {ins.requiresPurchase && <MoneyIcon className="inline w-4 h-4 text-green-600" />}
+                                                                        {ins.type}
+                                                                    </p>
+                                                                </div>
+                                                                <p className="text-sm text-slate-500">{`${ins.dose} - ${ins.schedule} a las ${ins.time}`}</p>
+                                                                {ins.notes && <p className="text-xs text-slate-500 italic mt-1">Nota: {ins.notes}</p>}
+                                                            </div>
+                                                            <div className="flex gap-2">
+                                                                <button
+                                                                    onClick={() => setEditingInjectable(ins)}
+                                                                    className="p-2 text-blue-500 hover:bg-blue-100 rounded-full transition-colors"
+                                                                    aria-label="Editar inyectable"
+                                                                    type="button"
+                                                                >
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L7.5 21.036H3v-4.5L16.732 3.732z" /></svg>
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => removeInjectable(ins.id)}
+                                                                    className="p-2 text-red-500 hover:bg-red-100 rounded-full transition-colors"
+                                                                    aria-label="Eliminar inyectable"
+                                                                    type="button"
+                                                                >
+                                                                    <TrashIcon className="w-5 h-5" />
+                                                                </button>
+                                                            </div>
+                                                        </li>
+                                                    );
+                                                })}
                                             </ul>
                                         </div>
                                     )}
@@ -333,40 +480,82 @@ const App: React.FC = () => {
                                 <>
                                     <InhalerForm onAddInhaler={addInhaler} onUpdateInhaler={updateInhaler} editingInhaler={editingInhaler} onCancelEdit={() => setEditingInhaler(null)} />
                                     {inhalers.length > 0 && (
-                                        <div className="space-y-4">
-                                            <h3 className="text-xl font-semibold text-slate-700 border-b pb-2">Inhaladores Añadidos</h3>
+                                        <div className="space-y-2">
+                                            <div className="flex items-center justify-between gap-2 flex-wrap border-b pb-2">
+                                                <h3 className="text-xl font-semibold text-slate-700">Inhaladores Añadidos</h3>
+                                                <div className="flex items-center gap-2 text-xs text-slate-500">
+                                                    <span>{inhalersAutoSort ? 'Orden lógico automático' : 'Orden personalizado'}</span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={resetInhalerOrder}
+                                                        disabled={inhalersAutoSort}
+                                                        className={`px-2 py-1 rounded-md border text-xs font-semibold transition-colors ${inhalersAutoSort ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed' : 'bg-white text-blue-600 border-blue-300 hover:bg-blue-50'}`}
+                                                    >
+                                                        Restaurar orden
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <p className="text-xs text-slate-500">También puedes arrastrarlos para priorizar un inhalador específico.</p>
                                             <ul className="space-y-3 max-h-60 overflow-y-auto pr-2">
-                                                {inhalers.map((inh) => (
-                                                    <li key={inh.id} className="flex justify-between items-center bg-slate-50 p-3 rounded-lg shadow-sm">
-                                                        <div>
-                                                            <p className="font-bold text-purple-600 flex items-center gap-1">
-                                                                {inh.isNewMedication && <StarIcon className="inline w-4 h-4 text-yellow-500" />}
-                                                                {inh.doseIncreased && <ArrowUpIcon className="inline w-4 h-4" />}
-                                                                {inh.doseDecreased && <ArrowDownIcon className="inline w-4 h-4" />}
-                                                                {inh.requiresPurchase && <MoneyIcon className="inline w-4 h-4 text-green-600" />}
-                                                                {inh.name} <span className="text-slate-600 font-normal">{inh.presentacion}</span>
-                                                            </p>
-                                                            <p className="text-sm text-slate-500">{`${inh.dose} puff(s) - cada ${inh.frequencyHours} h`}</p>
-                                                            {inh.notes && <p className="text-xs text-slate-500 italic mt-1">Nota: {inh.notes}</p>}
-                                                        </div>
-                                                        <div className="flex gap-2">
-                                                            <button
-                                                                onClick={() => setEditingInhaler(inh)}
-                                                                className="p-2 text-blue-500 hover:bg-blue-100 rounded-full transition-colors"
-                                                                aria-label="Editar inhalador"
-                                                            >
-                                                                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L7.5 21.036H3v-4.5L16.732 3.732z" /></svg>
-                                                            </button>
-                                                            <button
-                                                                onClick={() => removeInhaler(inh.id)}
-                                                                className="p-2 text-red-500 hover:bg-red-100 rounded-full transition-colors"
-                                                                aria-label="Eliminar inhalador"
-                                                            >
-                                                                <TrashIcon className="w-5 h-5" />
-                                                            </button>
-                                                        </div>
-                                                    </li>
-                                                ))}
+                                                {inhalers.map((inh, index) => {
+                                                    const logicalKey = getInhalerLogicalKey();
+                                                    return (
+                                                        <li
+                                                            key={inh.id}
+                                                            className={`flex justify-between items-center bg-slate-50 p-3 rounded-lg shadow-sm border border-transparent ${draggedInhalerIndex === index ? 'border-blue-300 bg-blue-50' : ''}`}
+                                                            draggable
+                                                            onDragStart={() => setDraggedInhalerIndex(index)}
+                                                            onDragOver={(e) => e.preventDefault()}
+                                                            onDrop={() => {
+                                                                if (draggedInhalerIndex !== null) {
+                                                                    handleInhalerReorder(draggedInhalerIndex, index);
+                                                                }
+                                                                setDraggedInhalerIndex(null);
+                                                            }}
+                                                            onDragEnd={() => setDraggedInhalerIndex(null)}
+                                                        >
+                                                            <div className="flex-1">
+                                                                <div className="flex items-center gap-2">
+                                                                    <button
+                                                                        type="button"
+                                                                        className="cursor-move text-slate-400 hover:text-slate-600"
+                                                                        aria-label="Reordenar inhalador"
+                                                                    >
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path d="M7 4h6v2H7V4zm0 4h6v2H7V8zm0 4h6v2H7v-2z" /></svg>
+                                                                    </button>
+                                                                    <p className="font-bold text-purple-600 flex items-center gap-1 flex-wrap">
+                                                                        <span className="text-[10px] uppercase tracking-wide bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-semibold">{LOGICAL_LABELS[logicalKey]}</span>
+                                                                        {inh.isNewMedication && <StarIcon className="inline w-4 h-4 text-yellow-500" />}
+                                                                        {inh.doseIncreased && <ArrowUpIcon className="inline w-4 h-4" />}
+                                                                        {inh.doseDecreased && <ArrowDownIcon className="inline w-4 h-4" />}
+                                                                        {inh.requiresPurchase && <MoneyIcon className="inline w-4 h-4 text-green-600" />}
+                                                                        {inh.name} <span className="text-slate-600 font-normal">{inh.presentacion}</span>
+                                                                    </p>
+                                                                </div>
+                                                                <p className="text-sm text-slate-500">{`${inh.dose} puff(s) - cada ${inh.frequencyHours} h`}</p>
+                                                                {inh.notes && <p className="text-xs text-slate-500 italic mt-1">Nota: {inh.notes}</p>}
+                                                            </div>
+                                                            <div className="flex gap-2">
+                                                                <button
+                                                                    onClick={() => setEditingInhaler(inh)}
+                                                                    className="p-2 text-blue-500 hover:bg-blue-100 rounded-full transition-colors"
+                                                                    aria-label="Editar inhalador"
+                                                                    type="button"
+                                                                >
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L7.5 21.036H3v-4.5L16.732 3.732z" /></svg>
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => removeInhaler(inh.id)}
+                                                                    className="p-2 text-red-500 hover:bg-red-100 rounded-full transition-colors"
+                                                                    aria-label="Eliminar inhalador"
+                                                                    type="button"
+                                                                >
+                                                                    <TrashIcon className="w-5 h-5" />
+                                                                </button>
+                                                            </div>
+                                                        </li>
+                                                    );
+                                                })}
                                             </ul>
                                         </div>
                                     )}

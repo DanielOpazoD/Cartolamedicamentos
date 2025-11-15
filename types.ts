@@ -30,6 +30,12 @@ export enum DosageForm {
     NONE = '-',
 }
 
+export enum MedicationCategory {
+    CARDIOVASCULAR = 'Cardiovascular / Hipertensión',
+    DIABETES = 'Diabetes',
+    OTHERS = 'Otros',
+}
+
 export interface Medication {
   id: number;
   name: string;
@@ -43,6 +49,7 @@ export interface Medication {
   doseIncreased?: boolean;
   doseDecreased?: boolean;
   requiresPurchase?: boolean;
+  category: MedicationCategory;
 }
 
 export interface Patient {

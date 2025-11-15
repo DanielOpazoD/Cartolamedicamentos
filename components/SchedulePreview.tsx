@@ -11,6 +11,7 @@ import ArrowDownIcon from './icons/ArrowDownIcon';
 import EditIcon from './icons/EditIcon';
 import RedCrossIcon from './icons/RedCrossIcon';
 import SyringeIcon from './icons/SyringeIcon';
+import { LOGICAL_LABELS, getInjectableLogicalKey, getInhalerLogicalKey, getMedicationLogicalKey } from '../utils/orderUtils';
 
 interface SchedulePreviewProps {
     patient: Patient;
@@ -106,16 +107,17 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                 doseIncreased: inj.doseIncreased || false,
                 doseDecreased: inj.doseDecreased || false,
                 requiresPurchase: inj.requiresPurchase || false,
+                logicalKey: getInjectableLogicalKey(inj),
             };
             addToSchedule(data);
             acc.set(inj.type, data);
         }
         return acc;
-    }, new Map<string, { mañana: Injectable[]; noche: Injectable[]; ad: Injectable[]; aa: Injectable[]; ao: Injectable[]; ac: Injectable[]; isNewMedication: boolean; doseIncreased: boolean; doseDecreased: boolean; requiresPurchase: boolean }>());
+    }, new Map<string, { mañana: Injectable[]; noche: Injectable[]; ad: Injectable[]; aa: Injectable[]; ao: Injectable[]; ac: Injectable[]; isNewMedication: boolean; doseIncreased: boolean; doseDecreased: boolean; requiresPurchase: boolean; logicalKey: ReturnType<typeof getInjectableLogicalKey> }>());
 
-    const medicationItems = medications.map(med => ({ ...med, itemType: 'medication' as const }));
+    const medicationItems = medications.map(med => ({ ...med, itemType: 'medication' as const, logicalKey: getMedicationLogicalKey(med) }));
 
-    const inhalerItems = inhalers.map(inh => ({ ...inh, itemType: 'inhaler' as const }));
+    const inhalerItems = inhalers.map(inh => ({ ...inh, itemType: 'inhaler' as const, logicalKey: getInhalerLogicalKey() }));
 
     const injectableItems = Array.from(groupedInjectables.entries()).map(([type, data]) => ({
         id: type,
@@ -127,6 +129,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
         doseIncreased: data.doseIncreased,
         doseDecreased: data.doseDecreased,
         requiresPurchase: data.requiresPurchase,
+        logicalKey: data.logicalKey,
     }));
 
     const getDisplayTime = (ins: Injectable): string => {
@@ -246,7 +249,10 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                 </div>
                                             </td>
                                             <td className="p-2 align-top text-center">
-                                                <p className="font-bold text-md text-slate-800 flex items-center justify-center gap-1">
+                                                <p className="font-bold text-md text-slate-800 flex items-center justify-center gap-1 flex-wrap">
+                                                    <span className="text-[10px] uppercase tracking-wide bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-semibold">
+                                                        {LOGICAL_LABELS[item.logicalKey]}
+                                                    </span>
                                                     {item.isNewMedication && (
                                                         <span contentEditable={false}>
                                                             <StarIcon className="inline w-4 h-4 text-yellow-500" />
@@ -362,7 +368,10 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                 </div>
                                             </td>
                                             <td className="p-2 align-top text-center">
-                                                <p className="font-bold text-md text-slate-800 flex items-center justify-center gap-1">
+                                                <p className="font-bold text-md text-slate-800 flex items-center justify-center gap-1 flex-wrap">
+                                                    <span className="text-[10px] uppercase tracking-wide bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-semibold">
+                                                        {LOGICAL_LABELS[item.logicalKey]}
+                                                    </span>
                                                     {item.isNewMedication && (
                                                         <span contentEditable={false}>
                                                             <StarIcon className="inline w-4 h-4 text-yellow-500" />
@@ -425,7 +434,10 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                 </div>
                                             </td>
                                             <td className="p-2 align-top text-center">
-                                                <p className="font-bold text-md text-slate-800 flex items-center justify-center gap-1">
+                                                <p className="font-bold text-md text-slate-800 flex items-center justify-center gap-1 flex-wrap">
+                                                    <span className="text-[10px] uppercase tracking-wide bg-teal-100 text-teal-700 px-2 py-0.5 rounded-full font-semibold">
+                                                        {LOGICAL_LABELS[item.logicalKey]}
+                                                    </span>
                                                     {item.isNewMedication && (
                                                         <span contentEditable={false}>
                                                             <StarIcon className="inline w-4 h-4 text-yellow-500" />
