@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Patient, Medication, Frequency, Dose, DosageForm, Injectable, InjectableSchedule, ControlInfo, Inhaler } from '../types';
+import { Patient, Medication, Frequency, Dose, DosageForm, Injectable, InjectableSchedule, ControlInfo, Inhaler, MedicationCategory } from '../types';
 import DoseVisualizer from './DoseVisualizer';
 import MoonIcon from './icons/MoonIcon';
 import SunIcon from './icons/SunIcon';
@@ -25,6 +25,23 @@ interface SchedulePreviewProps {
 }
 
 const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications, injectables, inhalers, controlInfo, showQr, onEditMedication, onEditInjectable, onEditInhaler }) => {
+
+    const medicationDisplayCategories: MedicationCategory[] = [
+        MedicationCategory.CARDIOVASCULAR,
+        MedicationCategory.DIABETES,
+        MedicationCategory.INSULIN_GLP1,
+        MedicationCategory.OTHER,
+    ];
+
+    const previewCategoryOrder: Array<MedicationCategory | 'inhalers'> = [...medicationDisplayCategories, 'inhalers'];
+
+    const previewCategoryLabels: Record<MedicationCategory | 'inhalers', string> = {
+        [MedicationCategory.CARDIOVASCULAR]: 'Cardiovascular / Hipertensión',
+        [MedicationCategory.DIABETES]: 'Diabetes',
+        [MedicationCategory.INSULIN_GLP1]: 'Insulinas y agonistas GLP-1',
+        [MedicationCategory.OTHER]: 'Otros',
+        inhalers: 'Inhaladores',
+    };
 
     const shouldShowDose = (freq: Frequency, time: 'morning' | 'afternoon' | 'night'): boolean => {
         switch (time) {
@@ -113,9 +130,15 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
         return acc;
     }, new Map<string, { mañana: Injectable[]; noche: Injectable[]; ad: Injectable[]; aa: Injectable[]; ao: Injectable[]; ac: Injectable[]; isNewMedication: boolean; doseIncreased: boolean; doseDecreased: boolean; requiresPurchase: boolean }>());
 
-    const medicationItems = medications.map(med => ({ ...med, itemType: 'medication' as const }));
+    const medicationItemsByCategory = medicationDisplayCategories.map(category => ({
+        category,
+        items: medications
+            .filter(med => med.category === category)
+            .sort((a, b) => a.order - b.order)
+            .map(med => ({ ...med, itemType: 'medication' as const })),
+    }));
 
-    const inhalerItems = inhalers.map(inh => ({ ...inh, itemType: 'inhaler' as const }));
+    const inhalerItems = inhalers.map(inh => ({ ...inh, itemType: 'inhaler' as const, category: 'inhalers' as const }));
 
     const injectableItems = Array.from(groupedInjectables.entries()).map(([type, data]) => ({
         id: type,
@@ -127,6 +150,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
         doseIncreased: data.doseIncreased,
         doseDecreased: data.doseDecreased,
         requiresPurchase: data.requiresPurchase,
+        category: MedicationCategory.INSULIN_GLP1 as const,
     }));
 
     const getDisplayTime = (ins: Injectable): string => {
@@ -134,7 +158,31 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
         return match ? match[1] : ins.time;
     };
 
-    const allItems = [...medicationItems, ...inhalerItems, ...injectableItems];
+    type ContentItem =
+        | (typeof medicationItemsByCategory[number]['items'][number])
+        | (typeof inhalerItems)[number]
+        | (typeof injectableItems)[number];
+
+    const orderedItems: Array<
+        | { itemType: 'categoryHeader'; category: MedicationCategory | 'inhalers'; label: string }
+        | ContentItem
+    > = [];
+
+    previewCategoryOrder.forEach(category => {
+        let itemsForCategory: ContentItem[] = [];
+        if (category === 'inhalers') {
+            itemsForCategory = inhalerItems;
+        } else {
+            const meds = medicationItemsByCategory.find(group => group.category === category)?.items ?? [];
+            itemsForCategory = category === MedicationCategory.INSULIN_GLP1
+                ? [...meds, ...injectableItems]
+                : meds;
+        }
+        if (itemsForCategory.length > 0) {
+            orderedItems.push({ itemType: 'categoryHeader', category, label: previewCategoryLabels[category] });
+            orderedItems.push(...itemsForCategory);
+        }
+    });
 
     const formattedControlDate = controlInfo.date ? new Date(`${controlInfo.date}T${controlInfo.time || '00:00'}`).toLocaleString('es-CL', { dateStyle: 'short', timeStyle: 'short' }) : '';
 
@@ -159,6 +207,8 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
 
     const qrLink = showQr ? `https://qreceta.netlify.app/htmla.html?nombre=${encodeURIComponent(patient.name)}&rut=${encodeURIComponent(patient.rut)}&fecha=${encodeURIComponent(patient.date)}&meds=${encodeURIComponent(medsParam)}` : '';
     const qrImageSrc = showQr ? `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrLink)}` : '';
+
+    let rowNumber = 0;
 
     return (
         <div id="schedule-preview" className="relative bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl mx-auto border border-slate-200">
@@ -226,13 +276,21 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                             </tr>
                         </thead>
                         <tbody contentEditable suppressContentEditableWarning>
-                            {allItems.length > 0 ? allItems.map((item, index) => {
-                                if (item.itemType === 'medication') {
+                            {orderedItems.length > 0 ? orderedItems.map((item) => {
+                                if (item.itemType === 'categoryHeader') {
                                     return (
-                                        <tr key={item.id} className={`border-b border-slate-200 ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/50'}`}>
+                                        <tr key={`header-${item.category}`} className="bg-slate-100">
+                                            <td colSpan={6} className="p-2 text-left text-xs font-bold uppercase tracking-wide text-slate-600">{item.label}</td>
+                                        </tr>
+                                    );
+                                }
+                                if (item.itemType === 'medication') {
+                                    rowNumber += 1;
+                                    return (
+                                        <tr key={item.id} className={`border-b border-slate-200 ${rowNumber % 2 === 1 ? 'bg-white' : 'bg-blue-50/50'}`}>
                                             <td className="p-2 text-center align-top">
                                                 <div className="flex items-center justify-center gap-1">
-                                                    <span>{index + 1}</span>
+                                                    <span>{rowNumber}</span>
                                                     {onEditMedication && (
                                                         <button
                                                             onClick={() => onEditMedication(item.id)}
@@ -341,14 +399,15 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                         </tr>
                                     );
                                 } else if (item.itemType === 'inhaler') {
+                                    rowNumber += 1;
                                     const showMorning = item.frequencyHours === 8 || item.frequencyHours === 12;
                                     const showAfternoon = item.frequencyHours === 8;
                                     const showNight = item.frequencyHours === 8 || item.frequencyHours === 12;
                                     return (
-                                        <tr key={item.id} className={`border-b border-slate-200 ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/50'}`}>
+                                        <tr key={item.id} className={`border-b border-slate-200 ${rowNumber % 2 === 1 ? 'bg-white' : 'bg-blue-50/50'}`}>
                                             <td className="p-2 text-center align-top">
                                                 <div className="flex items-center justify-center gap-1">
-                                                    <span>{index + 1}</span>
+                                                    <span>{rowNumber}</span>
                                                     {onEditInhaler && (
                                                         <button
                                                             onClick={() => onEditInhaler(item.id)}
@@ -403,15 +462,16 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                         </tr>
                                     );
                                 } else { // item.itemType === 'injectable'
+                                    rowNumber += 1;
                                     const allNotes = [...item.schedules.mañana, ...item.schedules.noche, ...item.schedules.ad, ...item.schedules.aa, ...item.schedules.ao, ...item.schedules.ac]
                                         .map(ins => ins.notes)
                                         .filter(Boolean)
                                         .join('\n');
                                     return (
-                                        <tr key={item.id} className={`border-b border-slate-200 ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/50'}`}>
+                                        <tr key={item.id} className={`border-b border-slate-200 ${rowNumber % 2 === 1 ? 'bg-white' : 'bg-blue-50/50'}`}>
                                             <td className="p-2 text-center align-top">
                                                 <div className="flex items-center justify-center gap-1">
-                                                    <span>{index + 1}</span>
+                                                    <span>{rowNumber}</span>
                                                     {onEditInjectable && item.editId != null && (
                                                         <button
                                                             onClick={() => onEditInjectable(item.editId!)}

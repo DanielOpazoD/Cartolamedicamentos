@@ -1,16 +1,18 @@
 
 import React, { useState, useEffect } from 'react';
-import { Medication, Frequency, Dose, DosageForm } from '../types';
+import { Medication, Frequency, Dose, DosageForm, MedicationCategory } from '../types';
 import PlusIcon from './icons/PlusIcon';
 
+type MedicationFormData = Omit<Medication, 'id' | 'order'>;
+
 interface MedicationFormProps {
-    onAddMedication: (med: Omit<Medication, 'id'>) => void;
-    onUpdateMedication?: (id: number, med: Omit<Medication, 'id'>) => void;
+    onAddMedication: (med: MedicationFormData) => void;
+    onUpdateMedication?: (id: number, med: MedicationFormData) => void;
     editingMedication?: Medication | null;
     onCancelEdit?: () => void;
 }
 
-const initialMedState: Omit<Medication, 'id'> = {
+const initialMedState: MedicationFormData = {
     name: '',
     presentacion: '',
     dose: Dose.ONE,
@@ -22,6 +24,7 @@ const initialMedState: Omit<Medication, 'id'> = {
     doseIncreased: false,
     doseDecreased: false,
     requiresPurchase: false,
+    category: MedicationCategory.CARDIOVASCULAR,
 };
 
 const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpdateMedication, editingMedication, onCancelEdit }) => {
@@ -29,7 +32,7 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
 
     useEffect(() => {
         if (editingMedication) {
-            const { id, ...rest } = editingMedication;
+            const { id, order, ...rest } = editingMedication;
             setMedication(rest);
         } else {
             setMedication(initialMedState);
@@ -103,7 +106,22 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
                     />
                 </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                <div>
+                    <label htmlFor="category" className="block text-sm font-medium text-slate-600 mb-1">Categoría</label>
+                    <select
+                        id="category"
+                        name="category"
+                        value={medication.category}
+                        onChange={handleChange}
+                        className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white"
+                    >
+                        <option value={MedicationCategory.CARDIOVASCULAR}>Cardiovascular / Hipertensión</option>
+                        <option value={MedicationCategory.DIABETES}>Diabetes</option>
+                        <option value={MedicationCategory.INSULIN_GLP1}>Insulinas y Agonistas GLP-1</option>
+                        <option value={MedicationCategory.OTHER}>Otros</option>
+                    </select>
+                </div>
                 <div>
                     <label htmlFor="dose" className="block text-sm font-medium text-slate-600 mb-1">Dosis</label>
                     {medication.dosageForm === DosageForm.TABLET ? (
