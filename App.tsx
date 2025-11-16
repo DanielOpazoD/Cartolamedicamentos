@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useCallback } from 'react';
-import { Patient, Medication, Injectable, ControlInfo, ExamOptions, Inhaler, DosageForm, MedicationCategory } from './types';
+import { Patient, Medication, Injectable, ControlInfo, ExamOptions, Inhaler, DosageForm, MedicationCategory, Frequency, InjectableSchedule } from './types';
 import PatientInfoForm from './components/PatientInfoForm';
 import MedicationForm from './components/MedicationForm';
 import InjectableForm from './components/InjectableForm';
@@ -78,6 +78,140 @@ const normalizeMedications = (meds: Medication[]): Medication[] => {
     return [...orderedByCategory, ...leftovers];
 };
 
+const testPatientData: { patient: Patient; medications: Medication[]; injectables: Injectable[]; inhalers: Inhaler[] } = {
+    patient: {
+        name: 'Juanito Perez',
+        rut: '17.752.753-K',
+        date: '2025-11-16',
+    },
+    medications: [
+        {
+            name: 'Metformina',
+            presentacion: '1000 mg',
+            dose: '1',
+            frequency: Frequency.EVERY_12H,
+            dosageForm: DosageForm.TABLET,
+            otherDosageForm: '',
+            notes: '',
+            isNewMedication: false,
+            doseIncreased: false,
+            doseDecreased: false,
+            requiresPurchase: false,
+            category: MedicationCategory.DIABETES,
+            id: 1763260676706,
+            order: 0,
+        },
+        {
+            name: 'Losartan ',
+            presentacion: '50 mg',
+            dose: '1',
+            frequency: Frequency.EVERY_12H,
+            dosageForm: DosageForm.TABLET,
+            otherDosageForm: '',
+            notes: '',
+            isNewMedication: false,
+            doseIncreased: false,
+            doseDecreased: false,
+            requiresPurchase: false,
+            category: MedicationCategory.CARDIOVASCULAR,
+            id: 1763260685881,
+            order: 0,
+        },
+        {
+            name: 'Aspirina',
+            presentacion: '100 mg',
+            dose: '1',
+            frequency: Frequency.EVERY_24H,
+            dosageForm: DosageForm.TABLET,
+            otherDosageForm: '',
+            notes: '',
+            isNewMedication: false,
+            doseIncreased: false,
+            doseDecreased: false,
+            requiresPurchase: false,
+            category: MedicationCategory.CARDIOVASCULAR,
+            id: 1763260713400,
+            order: 2,
+        },
+        {
+            name: 'Atorvastatina',
+            presentacion: '20 mg',
+            dose: '1',
+            frequency: Frequency.EVERY_24H_NIGHT,
+            dosageForm: DosageForm.TABLET,
+            otherDosageForm: '',
+            notes: '',
+            isNewMedication: false,
+            doseIncreased: false,
+            doseDecreased: false,
+            requiresPurchase: false,
+            category: MedicationCategory.CARDIOVASCULAR,
+            id: 1763260719664,
+            order: 3,
+        },
+        {
+            name: 'Pregabalina',
+            presentacion: '75 mg',
+            dose: '1',
+            frequency: Frequency.EVERY_24H_NIGHT,
+            dosageForm: DosageForm.TABLET,
+            otherDosageForm: '',
+            notes: '',
+            isNewMedication: false,
+            doseIncreased: false,
+            doseDecreased: false,
+            requiresPurchase: false,
+            category: MedicationCategory.OTHER,
+            id: 1763260734184,
+            order: 0,
+        },
+        {
+            name: 'Bisoprolol ',
+            presentacion: '2.5 mg',
+            dose: '1',
+            frequency: Frequency.EVERY_24H,
+            dosageForm: DosageForm.TABLET,
+            otherDosageForm: '',
+            notes: '',
+            isNewMedication: false,
+            doseIncreased: false,
+            doseDecreased: false,
+            requiresPurchase: false,
+            category: MedicationCategory.CARDIOVASCULAR,
+            id: 1763260805200,
+            order: 1,
+        },
+    ],
+    injectables: [
+        {
+            type: 'Insulina NPH',
+            dose: '6 U',
+            schedule: InjectableSchedule.MAÑANA,
+            time: '08:00',
+            notes: '',
+            isNewMedication: false,
+            doseIncreased: false,
+            doseDecreased: false,
+            requiresPurchase: false,
+            id: 1763260662497,
+        },
+    ],
+    inhalers: [
+        {
+            name: 'Salmeterol',
+            presentacion: '25 mcg ',
+            dose: 2,
+            frequencyHours: 12,
+            notes: '',
+            isNewMedication: false,
+            doseIncreased: false,
+            doseDecreased: false,
+            requiresPurchase: false,
+            id: 1763260746537,
+        },
+    ],
+};
+
 const App: React.FC = () => {
     const today = new Date().toISOString().split('T')[0];
     const [patient, setPatient] = useState<Patient>({ name: '', rut: '', date: today });
@@ -98,6 +232,17 @@ const App: React.FC = () => {
 
     const previewRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const getExportBaseName = useCallback(() => {
+        const sanitizeComponent = (value: string, fallback: string) => {
+            const raw = value?.trim() || fallback;
+            const cleaned = raw.replace(/[<>:"/\\|?*]/g, '').replace(/\s+/g, ' ').trim();
+            return cleaned || fallback;
+        };
+        const namePart = sanitizeComponent(patient.name, 'Paciente');
+        const datePart = sanitizeComponent(patient.date, today);
+        return `Lista de fármacos - ${namePart} - ${datePart}`;
+    }, [patient.name, patient.date, today]);
 
     const handlePatientChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -195,7 +340,13 @@ const App: React.FC = () => {
     }, []);
 
     const handlePrint = () => {
+        const previousTitle = document.title;
+        const exportBaseName = getExportBaseName();
+        document.title = exportBaseName;
         window.print();
+        setTimeout(() => {
+            document.title = previousTitle;
+        }, 500);
     };
 
     const handleExportList = () => {
@@ -204,10 +355,18 @@ const App: React.FC = () => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'lista_farmacos.json';
+        const fileBaseName = getExportBaseName();
+        a.download = `${fileBaseName}.json`;
         a.click();
         URL.revokeObjectURL(url);
     };
+
+    const handleLoadTestPatient = useCallback(() => {
+        setPatient({ ...testPatientData.patient });
+        setMedications(normalizeMedications(testPatientData.medications.map(med => ({ ...med }))));
+        setInjectables(testPatientData.injectables.map(inj => ({ ...inj })));
+        setInhalers(testPatientData.inhalers.map(inh => ({ ...inh })));
+    }, []);
 
     const handleImportList = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -252,8 +411,19 @@ const App: React.FC = () => {
                     </div>
                     <div className="flex gap-2 items-center">
                         <button
+                            onClick={handleLoadTestPatient}
+                            className="bg-slate-600 hover:bg-slate-700 text-white font-bold text-xs py-1 px-2 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center gap-1"
+                            type="button"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+                            </svg>
+                            Cargar paciente de prueba
+                        </button>
+                        <button
                             onClick={handleExportList}
                             className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-1 px-2 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center gap-1"
+                            type="button"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20"><path d="M3 3a2 2 0 012-2h6a2 2 0 012 2v3h-2V3H5v14h6v-3h2v3a2 2 0 01-2 2H5a2 2 0 01-2-2V3z"/><path d="M9 7h2v5h3l-4 4-4-4h3V7z"/></svg>
                             Exportar Lista
@@ -261,6 +431,7 @@ const App: React.FC = () => {
                         <button
                             onClick={handleImportClick}
                             className="bg-yellow-600 hover:bg-yellow-700 text-white font-bold text-xs py-1 px-2 rounded-lg shadow-md transition-transform transform hover:scale-105 flex items-center gap-1"
+                            type="button"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20"><path d="M3 3a2 2 0 012-2h6a2 2 0 012 2v3h-2V3H5v14h6v-3h2v3a2 2 0 01-2 2H5a2 2 0 01-2-2V3z"/><path d="M11 13H9V8H6l4-4 4 4h-3v5z"/></svg>
                             Importar Lista

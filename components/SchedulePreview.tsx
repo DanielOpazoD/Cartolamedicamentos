@@ -373,7 +373,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                                 <DoseVisualizer
                                                                     dose={doses.afternoon || ''}
                                                                     dosageForm={item.dosageForm}
-                                                                    className="text-amber-500"
+                                                                    className="text-blue-600"
                                                                     editable={! [DosageForm.TABLET, DosageForm.NONE].includes(item.dosageForm)}
                                                                     onDoseChange={(val) => handleDoseInputChange(item.id, 'afternoon', val)}
                                                                 />
