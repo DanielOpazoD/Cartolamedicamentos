@@ -118,7 +118,6 @@ const MedicationForm: React.FC<MedicationFormProps> = ({ onAddMedication, onUpda
                     >
                         <option value={MedicationCategory.CARDIOVASCULAR}>Cardiovascular</option>
                         <option value={MedicationCategory.DIABETES}>Diabetes</option>
-                        <option value={MedicationCategory.INSULIN_GLP1}>Insulinas y Agonistas GLP-1</option>
                         <option value={MedicationCategory.OTHER}>Otros</option>
                     </select>
                 </div>

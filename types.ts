@@ -33,7 +33,6 @@ export enum DosageForm {
 export enum MedicationCategory {
     CARDIOVASCULAR = 'cardiovascular',
     DIABETES = 'diabetes',
-    INSULIN_GLP1 = 'insulinas_glp1',
     OTHER = 'otros',
 }
 

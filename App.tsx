@@ -40,14 +40,12 @@ const initialControlInfo: ControlInfo = {
 const medicationCategoryOrder = [
     MedicationCategory.CARDIOVASCULAR,
     MedicationCategory.DIABETES,
-    MedicationCategory.INSULIN_GLP1,
     MedicationCategory.OTHER,
 ];
 
 const medicationCategoryLabels: Record<MedicationCategory, string> = {
     [MedicationCategory.CARDIOVASCULAR]: 'Cardiovascular',
     [MedicationCategory.DIABETES]: 'Diabetes',
-    [MedicationCategory.INSULIN_GLP1]: 'Insulinas y agonistas GLP-1',
     [MedicationCategory.OTHER]: 'Otros',
 };
 
@@ -56,7 +54,15 @@ type MedicationInput = Omit<Medication, 'id' | 'order'>;
 const normalizeMedications = (meds: Medication[]): Medication[] => {
     const normalized = meds.map((med, index) => ({
         ...med,
-        category: med.category ?? MedicationCategory.OTHER,
+        category: (() => {
+            const incomingCategory = (med as Medication & { category?: string }).category;
+            if (incomingCategory === 'insulinas_glp1') {
+                return MedicationCategory.DIABETES;
+            }
+            return incomingCategory && Object.values(MedicationCategory).includes(incomingCategory as MedicationCategory)
+                ? incomingCategory as MedicationCategory
+                : MedicationCategory.OTHER;
+        })(),
         order: typeof med.order === 'number' ? med.order : index,
     }));
 
@@ -88,6 +94,7 @@ const App: React.FC = () => {
     const [showAppsMenu, setShowAppsMenu] = useState(false);
     const [draggedMedicationId, setDraggedMedicationId] = useState<number | null>(null);
     const [showCategoryLabels, setShowCategoryLabels] = useState(true);
+    const [showIcons, setShowIcons] = useState(true);
 
     const previewRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -523,6 +530,15 @@ const App: React.FC = () => {
                        />
                        Mostrar etiquetas por tipo en la tabla imprimible
                      </label>
+                     <label className="inline-flex items-center gap-2 text-xs text-slate-600 print:hidden">
+                       <input
+                         type="checkbox"
+                         className="rounded border-slate-300"
+                         checked={showIcons}
+                         onChange={(e) => setShowIcons(e.target.checked)}
+                       />
+                       Mostrar "Iconos" (texto e íconos asociados)
+                     </label>
                      <div ref={previewRef} className="w-full">
                        <SchedulePreview
                        patient={patient}
@@ -532,6 +548,7 @@ const App: React.FC = () => {
                        controlInfo={controlInfo}
                        showQr={showQr}
                        showCategoryLabels={showCategoryLabels}
+                       showIcons={showIcons}
                        onEditMedication={(id) => {
                          const med = medications.find(m => m.id === id);
                          if (med) {
