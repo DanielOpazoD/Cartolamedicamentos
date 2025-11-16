@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Patient, Medication, Frequency, Dose, DosageForm, Injectable, InjectableSchedule, ControlInfo, Inhaler } from '../types';
+import { Patient, Medication, Frequency, Dose, DosageForm, Injectable, InjectableSchedule, ControlInfo, Inhaler, MedicationCategory } from '../types';
 import DoseVisualizer from './DoseVisualizer';
 import MoonIcon from './icons/MoonIcon';
 import SunIcon from './icons/SunIcon';
@@ -19,12 +19,29 @@ interface SchedulePreviewProps {
     inhalers: Inhaler[];
     controlInfo: ControlInfo;
     showQr: boolean;
+    showCategoryLabels: boolean;
+    showIcons: boolean;
     onEditMedication?: (id: number) => void;
     onEditInjectable?: (id: number) => void;
     onEditInhaler?: (id: number) => void;
 }
 
-const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications, injectables, inhalers, controlInfo, showQr, onEditMedication, onEditInjectable, onEditInhaler }) => {
+const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications, injectables, inhalers, controlInfo, showQr, showCategoryLabels, showIcons, onEditMedication, onEditInjectable, onEditInhaler }) => {
+
+    const medicationDisplayCategories: MedicationCategory[] = [
+        MedicationCategory.CARDIOVASCULAR,
+        MedicationCategory.DIABETES,
+        MedicationCategory.OTHER,
+    ];
+
+    const previewCategoryOrder: Array<MedicationCategory | 'inhalers'> = [...medicationDisplayCategories, 'inhalers'];
+
+    const previewCategoryLabels: Record<MedicationCategory | 'inhalers', string> = {
+        [MedicationCategory.CARDIOVASCULAR]: 'Cardiovascular',
+        [MedicationCategory.DIABETES]: 'Diabetes',
+        [MedicationCategory.OTHER]: 'Otros',
+        inhalers: 'Inhaladores',
+    };
 
     const shouldShowDose = (freq: Frequency, time: 'morning' | 'afternoon' | 'night'): boolean => {
         switch (time) {
@@ -113,9 +130,15 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
         return acc;
     }, new Map<string, { mañana: Injectable[]; noche: Injectable[]; ad: Injectable[]; aa: Injectable[]; ao: Injectable[]; ac: Injectable[]; isNewMedication: boolean; doseIncreased: boolean; doseDecreased: boolean; requiresPurchase: boolean }>());
 
-    const medicationItems = medications.map(med => ({ ...med, itemType: 'medication' as const }));
+    const medicationItemsByCategory = medicationDisplayCategories.map(category => ({
+        category,
+        items: medications
+            .filter(med => med.category === category)
+            .sort((a, b) => a.order - b.order)
+            .map(med => ({ ...med, itemType: 'medication' as const })),
+    }));
 
-    const inhalerItems = inhalers.map(inh => ({ ...inh, itemType: 'inhaler' as const }));
+    const inhalerItems = inhalers.map(inh => ({ ...inh, itemType: 'inhaler' as const, category: 'inhalers' as const }));
 
     const injectableItems = Array.from(groupedInjectables.entries()).map(([type, data]) => ({
         id: type,
@@ -127,6 +150,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
         doseIncreased: data.doseIncreased,
         doseDecreased: data.doseDecreased,
         requiresPurchase: data.requiresPurchase,
+        category: MedicationCategory.DIABETES as const,
     }));
 
     const getDisplayTime = (ins: Injectable): string => {
@@ -134,7 +158,33 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
         return match ? match[1] : ins.time;
     };
 
-    const allItems = [...medicationItems, ...inhalerItems, ...injectableItems];
+    type ContentItem =
+        | (typeof medicationItemsByCategory[number]['items'][number])
+        | (typeof inhalerItems)[number]
+        | (typeof injectableItems)[number];
+
+    const orderedItems: Array<
+        | { itemType: 'categoryHeader'; category: MedicationCategory | 'inhalers'; label: string }
+        | ContentItem
+    > = [];
+
+    previewCategoryOrder.forEach(category => {
+        let itemsForCategory: ContentItem[] = [];
+        if (category === 'inhalers') {
+            itemsForCategory = inhalerItems;
+        } else {
+            const meds = medicationItemsByCategory.find(group => group.category === category)?.items ?? [];
+            itemsForCategory = category === MedicationCategory.DIABETES
+                ? [...meds, ...injectableItems]
+                : meds;
+        }
+        if (itemsForCategory.length > 0) {
+            if (showCategoryLabels) {
+                orderedItems.push({ itemType: 'categoryHeader', category, label: previewCategoryLabels[category] });
+            }
+            orderedItems.push(...itemsForCategory);
+        }
+    });
 
     const formattedControlDate = controlInfo.date ? new Date(`${controlInfo.date}T${controlInfo.time || '00:00'}`).toLocaleString('es-CL', { dateStyle: 'short', timeStyle: 'short' }) : '';
 
@@ -160,9 +210,11 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
     const qrLink = showQr ? `https://qreceta.netlify.app/htmla.html?nombre=${encodeURIComponent(patient.name)}&rut=${encodeURIComponent(patient.rut)}&fecha=${encodeURIComponent(patient.date)}&meds=${encodeURIComponent(medsParam)}` : '';
     const qrImageSrc = showQr ? `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrLink)}` : '';
 
+    let rowNumber = 0;
+
     return (
-        <div id="schedule-preview" className="relative bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl mx-auto border border-slate-200">
-            <header className="mb-4 border-b-2 pb-4 border-slate-200 relative">
+        <div id="schedule-preview" className="relative bg-white p-6 md:p-8 rounded-lg shadow-xl w-full max-w-4xl mx-auto border border-slate-200">
+            <header className="mb-3 border-b-2 pb-3 border-slate-200 relative">
                 {showQr && (
                     <img
                         src={qrImageSrc}
@@ -170,8 +222,8 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                         className="absolute -top-8 -right-8 w-36 h-36"
                     />
                 )}
-                <h1 className="mt-0 mb-1 text-2xl font-extrabold text-blue-700 leading-tight sm:pr-40">Guía de Medicamentos</h1>
-                <div className="text-sm flex flex-wrap gap-x-4 gap-y-1 sm:pr-40 sm:mt-0 mt-36">
+                <h1 className="mt-0 mb-1 text-xl md:text-2xl font-extrabold text-blue-700 leading-tight sm:pr-40">Guía de Medicamentos</h1>
+                <div className="text-[11px] sm:text-xs leading-tight flex flex-wrap gap-x-3 gap-y-0.5 sm:pr-40 sm:mt-0 mt-36">
                     <div className="flex items-center">
                         <span className="font-bold text-slate-600">Nombre y Apellido:</span>
                         <span className="ml-1 text-slate-800">{patient.name || '...'}</span>
@@ -187,52 +239,62 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                 </div>
             </header>
 
-            <section className="mb-4 text-xs text-slate-600">
-                <p className="font-semibold mb-1">Iconos:</p>
-                <ul className="flex flex-wrap gap-4">
-                    <li className="flex items-center gap-1"><ArrowUpIcon className="w-4 h-4"/> Aumento de dosis</li>
-                    <li className="flex items-center gap-1"><ArrowDownIcon className="w-4 h-4"/> Disminución de dosis</li>
-                    <li className="flex items-center gap-1"><StarIcon className="w-4 h-4 text-yellow-500"/> Nuevo medicamento</li>
-                    <li className="flex items-center gap-1"><MoneyIcon className="w-4 h-4 text-green-600"/> Comprar afuera</li>
-                </ul>
-            </section>
+            {showIcons && (
+                <section className="mb-3 text-[11px] leading-tight text-slate-600">
+                    <p className="font-semibold mb-1">Iconos:</p>
+                    <ul className="flex flex-wrap gap-4">
+                        <li className="flex items-center gap-1"><ArrowUpIcon className="w-4 h-4"/> Aumento de dosis</li>
+                        <li className="flex items-center gap-1"><ArrowDownIcon className="w-4 h-4"/> Disminución de dosis</li>
+                        <li className="flex items-center gap-1"><StarIcon className="w-4 h-4 text-yellow-500"/> Nuevo medicamento</li>
+                        <li className="flex items-center gap-1"><MoneyIcon className="w-4 h-4 text-green-600"/> Comprar afuera</li>
+                    </ul>
+                </section>
+            )}
 
             <section>
                 <div className="overflow-x-auto">
-                    <table className="w-full border-collapse">
+                    <table className="w-full border-collapse text-[11px] leading-tight">
                         <thead>
                             <tr className="bg-blue-600 text-white">
-                                <th className="p-2 text-center font-semibold text-sm w-12">#</th>
-                                <th className="p-2 text-left font-semibold text-sm w-1/3">Medicamento / Presentación</th>
-                                <th className="p-2 text-center font-semibold text-sm w-1/6">
+                                <th className="px-2 py-1 text-center font-semibold text-xs w-10">#</th>
+                                <th className="px-2 py-1 text-left font-semibold text-xs w-1/3">Medicamento / Presentación</th>
+                                <th className="px-2 py-1 text-center font-semibold text-xs w-1/6">
                                     <div className="flex flex-col items-center justify-center gap-0.5">
-                                        <SunIcon className="w-5 h-5" />
+                                        <SunIcon className="w-4 h-4" />
                                         <span>Mañana</span>
                                     </div>
                                 </th>
-                                <th className="p-2 text-center font-semibold text-sm w-1/6">
+                                <th className="px-2 py-1 text-center font-semibold text-xs w-1/6">
                                     <div className="flex flex-col items-center justify-center gap-0.5">
-                                        <SunIcon className="w-5 h-5" />
+                                        <SunIcon className="w-4 h-4" />
                                         <span>Tarde</span>
                                     </div>
                                 </th>
-                                <th className="p-2 text-center font-semibold text-sm w-1/6">
+                                <th className="px-2 py-1 text-center font-semibold text-xs w-1/6">
                                     <div className="flex flex-col items-center justify-center gap-0.5">
-                                        <MoonIcon className="w-5 h-5" />
+                                        <MoonIcon className="w-4 h-4" />
                                         <span>Noche</span>
                                     </div>
                                 </th>
-                                <th className="p-2 text-left font-semibold text-sm w-1/6">Notas</th>
+                                <th className="px-2 py-1 text-left font-semibold text-xs w-1/6">Notas</th>
                             </tr>
                         </thead>
                         <tbody contentEditable suppressContentEditableWarning>
-                            {allItems.length > 0 ? allItems.map((item, index) => {
-                                if (item.itemType === 'medication') {
+                            {orderedItems.length > 0 ? orderedItems.map((item) => {
+                                if (item.itemType === 'categoryHeader') {
                                     return (
-                                        <tr key={item.id} className={`border-b border-slate-200 ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/50'}`}>
-                                            <td className="p-2 text-center align-top">
+                                        <tr key={`header-${item.category}`} className="bg-slate-100">
+                                            <td colSpan={6} className="px-2 py-1 text-left text-[11px] font-bold uppercase tracking-wide text-slate-600">{item.label}</td>
+                                        </tr>
+                                    );
+                                }
+                                if (item.itemType === 'medication') {
+                                    rowNumber += 1;
+                                    return (
+                                        <tr key={item.id} className={`border-b border-slate-200 ${rowNumber % 2 === 1 ? 'bg-white' : 'bg-blue-50/50'}`}>
+                                            <td className="px-2 py-1 text-center align-top text-[11px]">
                                                 <div className="flex items-center justify-center gap-1">
-                                                    <span>{index + 1}</span>
+                                                    <span>{rowNumber}</span>
                                                     {onEditMedication && (
                                                         <button
                                                             onClick={() => onEditMedication(item.id)}
@@ -245,31 +307,31 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="p-2 align-top text-center">
-                                                <p className="font-bold text-md text-slate-800 flex items-center justify-center gap-1">
-                                                    {item.isNewMedication && (
+                                            <td className="px-2 py-1 align-top text-center">
+                                                <p className="font-bold text-sm text-slate-800 flex items-center justify-center gap-1">
+                                                    {showIcons && item.isNewMedication && (
                                                         <span contentEditable={false}>
                                                             <StarIcon className="inline w-4 h-4 text-yellow-500" />
                                                         </span>
                                                     )}
-                                                    {item.doseIncreased && (
+                                                    {showIcons && item.doseIncreased && (
                                                         <span contentEditable={false}>
                                                             <ArrowUpIcon className="inline w-4 h-4" />
                                                         </span>
                                                     )}
-                                                    {item.doseDecreased && (
+                                                    {showIcons && item.doseDecreased && (
                                                         <span contentEditable={false}>
                                                             <ArrowDownIcon className="inline w-4 h-4" />
                                                         </span>
                                                     )}
-                                                    {item.requiresPurchase && (
+                                                    {showIcons && item.requiresPurchase && (
                                                         <span contentEditable={false}>
                                                             <MoneyIcon className="inline w-4 h-4 text-green-600" />
                                                         </span>
                                                     )}
                                                     {item.name}
                                                 </p>
-                                                <p className="text-sm text-slate-600">{item.presentacion}</p>
+                                                <p className="text-xs text-slate-600">{item.presentacion}</p>
                                                 {(() => {
                                                     const description = item.dosageForm === DosageForm.OTHER
                                                         ? item.otherDosageForm
@@ -277,7 +339,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                             ? ''
                                                             : item.dosageForm;
                                                     return (
-                                                        <p className="text-xs text-slate-500 italic">
+                                                        <p className="text-[10px] text-slate-500 italic">
                                                             {`${item.dose}${description ? ` ${description}` : ''} - ${item.frequency}`}
                                                         </p>
                                                     );
@@ -288,7 +350,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                 return (
                                                     <>
                                                         <td
-                                                            className={`p-2 text-center align-middle ${[DosageForm.TABLET, DosageForm.NONE].includes(item.dosageForm) ? 'cursor-pointer' : 'cursor-text'}`}
+                                                            className={`px-2 py-1 text-center align-middle text-[11px] ${[DosageForm.TABLET, DosageForm.NONE].includes(item.dosageForm) ? 'cursor-pointer' : 'cursor-text'}`}
                                                             contentEditable={false}
                                                             onClick={() => handleDoseClick(item.id, 'morning')}
                                                         >
@@ -303,7 +365,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                             )}
                                                         </td>
                                                         <td
-                                                            className={`p-2 text-center align-middle ${[DosageForm.TABLET, DosageForm.NONE].includes(item.dosageForm) ? 'cursor-pointer' : 'cursor-text'}`}
+                                                            className={`px-2 py-1 text-center align-middle text-[11px] ${[DosageForm.TABLET, DosageForm.NONE].includes(item.dosageForm) ? 'cursor-pointer' : 'cursor-text'}`}
                                                             contentEditable={false}
                                                             onClick={() => handleDoseClick(item.id, 'afternoon')}
                                                         >
@@ -311,14 +373,14 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                                 <DoseVisualizer
                                                                     dose={doses.afternoon || ''}
                                                                     dosageForm={item.dosageForm}
-                                                                    className="text-amber-500"
+                                                                    className="text-blue-600"
                                                                     editable={! [DosageForm.TABLET, DosageForm.NONE].includes(item.dosageForm)}
                                                                     onDoseChange={(val) => handleDoseInputChange(item.id, 'afternoon', val)}
                                                                 />
                                                             )}
                                                         </td>
                                                         <td
-                                                            className={`p-2 text-center align-middle ${[DosageForm.TABLET, DosageForm.NONE].includes(item.dosageForm) ? 'cursor-pointer' : 'cursor-text'}`}
+                                                            className={`px-2 py-1 text-center align-middle text-[11px] ${[DosageForm.TABLET, DosageForm.NONE].includes(item.dosageForm) ? 'cursor-pointer' : 'cursor-text'}`}
                                                             contentEditable={false}
                                                             onClick={() => handleDoseClick(item.id, 'night')}
                                                         >
@@ -335,20 +397,21 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                     </>
                                                 );
                                             })()}
-                                            <td className="p-2 align-top text-sm text-slate-700 whitespace-pre-wrap break-words">
+                                            <td className="px-2 py-1 align-top text-[11px] text-slate-700 whitespace-pre-wrap break-words">
                                                 {item.notes || ''}
                                             </td>
                                         </tr>
                                     );
                                 } else if (item.itemType === 'inhaler') {
+                                    rowNumber += 1;
                                     const showMorning = item.frequencyHours === 8 || item.frequencyHours === 12;
                                     const showAfternoon = item.frequencyHours === 8;
                                     const showNight = item.frequencyHours === 8 || item.frequencyHours === 12;
                                     return (
-                                        <tr key={item.id} className={`border-b border-slate-200 ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/50'}`}>
-                                            <td className="p-2 text-center align-top">
+                                        <tr key={item.id} className={`border-b border-slate-200 ${rowNumber % 2 === 1 ? 'bg-white' : 'bg-blue-50/50'}`}>
+                                            <td className="px-2 py-1 text-center align-top text-[11px]">
                                                 <div className="flex items-center justify-center gap-1">
-                                                    <span>{index + 1}</span>
+                                                    <span>{rowNumber}</span>
                                                     {onEditInhaler && (
                                                         <button
                                                             onClick={() => onEditInhaler(item.id)}
@@ -361,57 +424,58 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="p-2 align-top text-center">
-                                                <p className="font-bold text-md text-slate-800 flex items-center justify-center gap-1">
-                                                    {item.isNewMedication && (
+                                            <td className="px-2 py-1 align-top text-center">
+                                                <p className="font-bold text-sm text-slate-800 flex items-center justify-center gap-1">
+                                                    {showIcons && item.isNewMedication && (
                                                         <span contentEditable={false}>
                                                             <StarIcon className="inline w-4 h-4 text-yellow-500" />
                                                         </span>
                                                     )}
-                                                    {item.doseIncreased && (
+                                                    {showIcons && item.doseIncreased && (
                                                         <span contentEditable={false}>
                                                             <ArrowUpIcon className="inline w-4 h-4" />
                                                         </span>
                                                     )}
-                                                    {item.doseDecreased && (
+                                                    {showIcons && item.doseDecreased && (
                                                         <span contentEditable={false}>
                                                             <ArrowDownIcon className="inline w-4 h-4" />
                                                         </span>
                                                     )}
-                                                    {item.requiresPurchase && (
+                                                    {showIcons && item.requiresPurchase && (
                                                         <span contentEditable={false}>
                                                             <MoneyIcon className="inline w-4 h-4 text-green-600" />
                                                         </span>
                                                     )}
                                                     {item.name}
                                                 </p>
-                                                <p className="text-sm text-slate-600">{item.presentacion}</p>
-                                                <p className="text-xs text-slate-500 italic">{`${item.dose} puff - cada ${item.frequencyHours} h`}</p>
+                                                <p className="text-xs text-slate-600">{item.presentacion}</p>
+                                                <p className="text-[10px] text-slate-500 italic">{`${item.dose} puff - cada ${item.frequencyHours} h`}</p>
                                             </td>
-                                            <td className="p-2 text-center align-middle" contentEditable={false}>
+                                            <td className="px-2 py-1 text-center align-middle text-[11px]" contentEditable={false}>
                                                 {showMorning && <span className="font-bold">{`${item.dose} puff`}</span>}
                                             </td>
-                                            <td className="p-2 text-center align-middle" contentEditable={false}>
+                                            <td className="px-2 py-1 text-center align-middle text-[11px]" contentEditable={false}>
                                                 {showAfternoon && <span className="font-bold">{`${item.dose} puff`}</span>}
                                             </td>
-                                            <td className="p-2 text-center align-middle" contentEditable={false}>
+                                            <td className="px-2 py-1 text-center align-middle text-[11px]" contentEditable={false}>
                                                 {showNight && <span className="font-bold">{`${item.dose} puff`}</span>}
                                             </td>
-                                            <td className="p-2 align-top text-sm text-slate-700 whitespace-pre-wrap break-words">
+                                            <td className="px-2 py-1 align-top text-[11px] text-slate-700 whitespace-pre-wrap break-words">
                                                 {item.notes || ''}
                                             </td>
                                         </tr>
                                     );
                                 } else { // item.itemType === 'injectable'
+                                    rowNumber += 1;
                                     const allNotes = [...item.schedules.mañana, ...item.schedules.noche, ...item.schedules.ad, ...item.schedules.aa, ...item.schedules.ao, ...item.schedules.ac]
                                         .map(ins => ins.notes)
                                         .filter(Boolean)
                                         .join('\n');
                                     return (
-                                        <tr key={item.id} className={`border-b border-slate-200 ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/50'}`}>
-                                            <td className="p-2 text-center align-top">
+                                        <tr key={item.id} className={`border-b border-slate-200 ${rowNumber % 2 === 1 ? 'bg-white' : 'bg-blue-50/50'}`}>
+                                            <td className="px-2 py-1 text-center align-top text-[11px]">
                                                 <div className="flex items-center justify-center gap-1">
-                                                    <span>{index + 1}</span>
+                                                    <span>{rowNumber}</span>
                                                     {onEditInjectable && item.editId != null && (
                                                         <button
                                                             onClick={() => onEditInjectable(item.editId!)}
@@ -424,41 +488,41 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="p-2 align-top text-center">
-                                                <p className="font-bold text-md text-slate-800 flex items-center justify-center gap-1">
-                                                    {item.isNewMedication && (
+                                            <td className="px-2 py-1 align-top text-center">
+                                                <p className="font-bold text-sm text-slate-800 flex items-center justify-center gap-1">
+                                                    {showIcons && item.isNewMedication && (
                                                         <span contentEditable={false}>
                                                             <StarIcon className="inline w-4 h-4 text-yellow-500" />
                                                         </span>
                                                     )}
-                                                    {item.doseIncreased && (
+                                                    {showIcons && item.doseIncreased && (
                                                         <span contentEditable={false}>
                                                             <ArrowUpIcon className="inline w-4 h-4" />
                                                         </span>
                                                     )}
-                                                    {item.doseDecreased && (
+                                                    {showIcons && item.doseDecreased && (
                                                         <span contentEditable={false}>
                                                             <ArrowDownIcon className="inline w-4 h-4" />
                                                         </span>
                                                     )}
-                                                    {item.requiresPurchase && (
+                                                    {showIcons && item.requiresPurchase && (
                                                         <span contentEditable={false}>
                                                             <MoneyIcon className="inline w-4 h-4 text-green-600" />
                                                         </span>
                                                     )}
                                                     {item.type}
                                                 </p>
-                                                <SyringeIcon className="w-5 h-5 text-teal-600 mx-auto" />
+                                                {showIcons && <SyringeIcon className="w-4 h-4 text-teal-600 mx-auto" />}
                                             </td>
-                                            <td className="p-2 text-center align-middle" contentEditable={false}>
-                                                <div className="flex flex-row flex-wrap justify-center items-center gap-2">
+                                            <td className="px-2 py-1 text-center align-middle text-[11px]" contentEditable={false}>
+                                                <div className="flex flex-row flex-wrap justify-center items-center gap-1.5">
                                                     {[...item.schedules.mañana, ...item.schedules.ad].map(ins => (
                                                         <InjectableDoseVisualizer key={ins.id} dose={ins.dose} time={getDisplayTime(ins)} className="text-blue-600"/>
                                                     ))}
                                                 </div>
                                             </td>
-                                            <td className="p-2 text-center align-middle" contentEditable={false}>
-                                                <div className="flex flex-row flex-wrap justify-center items-center gap-2">
+                                            <td className="px-2 py-1 text-center align-middle text-[11px]" contentEditable={false}>
+                                                <div className="flex flex-row flex-wrap justify-center items-center gap-1.5">
                                                     {item.schedules.aa.map(ins => (
                                                         <InjectableDoseVisualizer key={ins.id} dose={ins.dose} time={getDisplayTime(ins)} className="text-blue-600"/>
                                                     ))}
@@ -467,14 +531,14 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                                     ))}
                                                 </div>
                                             </td>
-                                            <td className="p-2 text-center align-middle" contentEditable={false}>
-                                                <div className="flex flex-row flex-wrap justify-center items-center gap-2">
+                                            <td className="px-2 py-1 text-center align-middle text-[11px]" contentEditable={false}>
+                                                <div className="flex flex-row flex-wrap justify-center items-center gap-1.5">
                                                     {[...item.schedules.ac, ...item.schedules.noche].map(ins => (
                                                         <InjectableDoseVisualizer key={ins.id} dose={ins.dose} time={getDisplayTime(ins)} className="text-blue-600"/>
                                                     ))}
                                                 </div>
                                             </td>
-                                            <td className="p-2 align-top text-sm text-slate-700 whitespace-pre-wrap break-words">
+                                            <td className="px-2 py-1 align-top text-[11px] text-slate-700 whitespace-pre-wrap break-words">
                                                 {allNotes}
                                             </td>
                                         </tr>
@@ -482,7 +546,7 @@ const SchedulePreview: React.FC<SchedulePreviewProps> = ({ patient, medications,
                                 }
                             }) : (
                                 <tr>
-                                    <td colSpan={6} className="text-center p-4 text-slate-500">
+                                    <td colSpan={6} className="text-center px-2 py-3 text-[11px] text-slate-500">
                                         <p>Añada un medicamento, inhalador o tratamiento inyectable para verlo aquí.</p>
                                     </td>
                                 </tr>

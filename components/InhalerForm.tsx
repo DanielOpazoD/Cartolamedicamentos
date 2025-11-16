@@ -58,39 +58,39 @@ const InhalerForm: React.FC<InhalerFormProps> = ({ onAddInhaler, onUpdateInhaler
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-2 pt-2 border-t border-slate-200">
+        <form onSubmit={handleSubmit} className="space-y-2 pt-2 border-t border-slate-200 text-sm">
             <h2 className="text-2xl font-bold text-slate-800 border-b-2 border-blue-200 pb-2">
                 {editingInhaler ? 'Editar Inhalador' : 'Añadir Inhalador'}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
-                    <label htmlFor="inhName" className="block text-sm font-medium text-slate-600 mb-1">Nombre del Medicamento</label>
+                    <label htmlFor="inhName" className="block text-xs font-medium text-slate-600 mb-1">Nombre del Medicamento</label>
                     <input
                         type="text"
                         id="inhName"
                         name="name"
                         value={inhaler.name}
                         onChange={handleChange}
-                        className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-2 py-1 text-sm border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         required
                     />
                 </div>
                 <div>
-                    <label htmlFor="inhPres" className="block text-sm font-medium text-slate-600 mb-1">Presentación</label>
+                    <label htmlFor="inhPres" className="block text-xs font-medium text-slate-600 mb-1">Presentación</label>
                     <input
                         type="text"
                         id="inhPres"
                         name="presentacion"
                         value={inhaler.presentacion}
                         onChange={handleChange}
-                        className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-2 py-1 text-sm border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         required
                     />
                 </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
-                    <label htmlFor="inhDose" className="block text-sm font-medium text-slate-600 mb-1">Dosis (puff)</label>
+                    <label htmlFor="inhDose" className="block text-xs font-medium text-slate-600 mb-1">Dosis (puff)</label>
                     <input
                         type="number"
                         id="inhDose"
@@ -98,12 +98,12 @@ const InhalerForm: React.FC<InhalerFormProps> = ({ onAddInhaler, onUpdateInhaler
                         value={inhaler.dose}
                         onChange={handleChange}
                         min={0}
-                        className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-2 py-1 text-sm border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         required
                     />
                 </div>
                 <div>
-                    <label htmlFor="inhFreq" className="block text-sm font-medium text-slate-600 mb-1">Frecuencia (cada X horas)</label>
+                    <label htmlFor="inhFreq" className="block text-xs font-medium text-slate-600 mb-1">Frecuencia (cada X horas)</label>
                     <input
                         type="number"
                         id="inhFreq"
@@ -111,13 +111,13 @@ const InhalerForm: React.FC<InhalerFormProps> = ({ onAddInhaler, onUpdateInhaler
                         value={inhaler.frequencyHours}
                         onChange={handleChange}
                         min={0}
-                        className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-2 py-1 text-sm border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         required
                     />
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-2">
-                <label className="flex items-center text-sm text-slate-600">
+                <label className="flex items-center text-xs text-slate-600">
                     <input
                         type="checkbox"
                         name="isNewMedication"
@@ -127,7 +127,7 @@ const InhalerForm: React.FC<InhalerFormProps> = ({ onAddInhaler, onUpdateInhaler
                     />
                     Nuevo medicamento
                 </label>
-                <label className="flex items-center text-sm text-slate-600">
+                <label className="flex items-center text-xs text-slate-600">
                     <input
                         type="checkbox"
                         name="doseIncreased"
@@ -137,7 +137,7 @@ const InhalerForm: React.FC<InhalerFormProps> = ({ onAddInhaler, onUpdateInhaler
                     />
                     Aumento de dosis
                 </label>
-                <label className="flex items-center text-sm text-slate-600">
+                <label className="flex items-center text-xs text-slate-600">
                     <input
                         type="checkbox"
                         name="doseDecreased"
@@ -147,7 +147,7 @@ const InhalerForm: React.FC<InhalerFormProps> = ({ onAddInhaler, onUpdateInhaler
                     />
                     Disminución de dosis
                 </label>
-                <label className="flex items-center text-sm text-slate-600">
+                <label className="flex items-center text-xs text-slate-600">
                     <input
                         type="checkbox"
                         name="requiresPurchase"
@@ -159,14 +159,14 @@ const InhalerForm: React.FC<InhalerFormProps> = ({ onAddInhaler, onUpdateInhaler
                 </label>
             </div>
             <div>
-                <label htmlFor="inhNotes" className="block text-sm font-medium text-slate-600 mb-1">Notas (Opcional)</label>
+                <label htmlFor="inhNotes" className="block text-xs font-medium text-slate-600 mb-1">Notas (Opcional)</label>
                 <textarea
                     id="inhNotes"
                     name="notes"
                     value={inhaler.notes}
                     onChange={handleChange}
                     rows={2}
-                    className="w-full px-2 py-1 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-2 py-1 text-sm border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 />
             </div>
             <div className="flex gap-2">
